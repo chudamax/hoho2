@@ -1241,7 +1241,7 @@ High-interaction packs define stack services and sensor attachments. Compose ren
    - `hoho run packs/high/example_wp_stack.yaml`
 2. `hoho run` prints JSON with `pack_id`, `run_id`, `artifacts_host_path`, `compose_file`, `project_name`.
 3. Artifacts land on host under:
-   - `run/artifacts/runs/<run_id>/example-wp-stack/...`
+   - `run/artifacts/<honeypot_id>/...`
 
 ## Smoke Commands (high interaction)
 From `honeypot-platform/`:
@@ -1261,13 +1261,13 @@ After starting isolated runs with `hoho run`:
 
 ```bash
 # find the newest run
-ls -1dt run/artifacts/runs/* | head -n1
+ls -1d run/artifacts/<honeypot_id>
 
 # tail events
-tail -n 20 run/artifacts/runs/<run_id>/example-wp-stack/index/events.jsonl
+tail -n 20 run/artifacts/<honeypot_id>/index/events.jsonl
 
 # list blobs
-find run/artifacts/runs/<run_id>/example-wp-stack/blobs -type f | head
+find run/artifacts/<honeypot_id>/blobs -type f | head
 ```
 
 ## Generated Output Policy
