@@ -64,6 +64,7 @@ Disk usage can grow quickly from uploads and pcap segments. Use external rotatio
 - Runs mitmproxy in explicit forward-proxy mode.
 - Emits `sensor.egress_proxy.http` per flow with request/response metadata and redacted headers.
 - Supports response-body capture with `capture.bodies: "*"` (default) or metadata-only with `"none"`.
-- Persists mitmproxy confdir under artifacts and exports CA cert to `<artifacts>/<stack_id>/ca/egress-ca.crt`.
+- Persists mitmproxy confdir under artifacts (`run/artifacts/<id>/mitmproxy-conf/`).
+- In `tls_mitm.ca_install.mode: auto`, hoho now generates a CA immediately at startup and exports it for trust install at `run/artifacts/<id>/ca/egress-ca.crt`.
 - Runtime can execute `/hoho/ca/install-ca.sh` in attached services after startup and emits `system.ca_install.succeeded` / `system.ca_install.failed` events.
 - If trust install fails, HTTP capture still works; HTTPS may degrade to CONNECT-only visibility.

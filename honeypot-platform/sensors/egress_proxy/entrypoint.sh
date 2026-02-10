@@ -14,16 +14,50 @@ CONF_DIR="/artifacts/${PROXY_STACK_ID}/mitmproxy-conf"
 CA_DIR="/artifacts/${PROXY_STACK_ID}/ca"
 mkdir -p "${CONF_DIR}" "${CA_DIR}"
 
-mode=$(printf '%s' "${PROXY_TLS_MITM_ENABLED}" | tr '[:upper:]' '[:lower:]')
-if [ "${mode}" = "true" ] || [ "${mode}" = "1" ] || [ "${mode}" = "yes" ] || [ "${mode}" = "on" ]; then
+is_truthy() {
+  value=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+  [ "${value}" = "true" ] || [ "${value}" = "1" ] || [ "${value}" = "yes" ] || [ "${value}" = "on" ]
+}
+
+if is_truthy "${PROXY_TLS_MITM_ENABLED}"; then
   TLS_ARGS=""
 else
   TLS_ARGS="--set connection_strategy=lazy"
 fi
 
-if [ "${PROXY_CA_INSTALL_MODE}" = "custom" ] && [ -n "${PROXY_CUSTOM_CERT_PATH}" ] && [ -n "${PROXY_CUSTOM_KEY_PATH}" ]; then
-  cp "${PROXY_CUSTOM_CERT_PATH}" "${CONF_DIR}/mitmproxy-ca-cert.pem"
-  cp "${PROXY_CUSTOM_KEY_PATH}" "${CONF_DIR}/mitmproxy-ca.pem"
+CA_MODE=$(printf '%s' "${PROXY_CA_INSTALL_MODE}" | tr '[:upper:]' '[:lower:]')
+CA_READY=0
+if is_truthy "${PROXY_TLS_MITM_ENABLED}" && is_truthy "${PROXY_CA_INSTALL_ENABLED}" && [ "${CA_MODE}" != "off" ]; then
+  case "${CA_MODE}" in
+    custom)
+      if [ -n "${PROXY_CUSTOM_CERT_PATH}" ] && [ -n "${PROXY_CUSTOM_KEY_PATH}" ]; then
+        cp "${PROXY_CUSTOM_CERT_PATH}" "${CONF_DIR}/mitmproxy-ca-cert.pem"
+        cp "${PROXY_CUSTOM_KEY_PATH}" "${CONF_DIR}/mitmproxy-ca.pem"
+        cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
+        echo "Using custom CA from ${PROXY_CUSTOM_CERT_PATH}"
+        CA_READY=1
+      else
+        echo "WARN: PROXY_CA_INSTALL_MODE=custom but custom cert/key paths are missing"
+      fi
+      ;;
+    auto)
+      if [ ! -s "${CONF_DIR}/mitmproxy-ca-cert.pem" ]; then
+        if python /app/gen_ca.py "${CONF_DIR}"; then
+          echo "Generated CA in ${CONF_DIR}"
+        else
+          echo "WARN: failed to generate CA via gen_ca.py; falling back to mitmproxy CA generation"
+        fi
+      fi
+      if [ -s "${CONF_DIR}/mitmproxy-ca-cert.pem" ]; then
+        cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
+        echo "Exported CA to ${CA_DIR}/egress-ca.crt"
+        CA_READY=1
+      fi
+      ;;
+    *)
+      echo "WARN: unknown PROXY_CA_INSTALL_MODE=${PROXY_CA_INSTALL_MODE}; skipping early CA export"
+      ;;
+  esac
 fi
 
 set -- \
@@ -41,12 +75,15 @@ fi
 mitmdump "$@" &
 child=$!
 
-for _ in $(seq 1 30); do
-  if [ -f "${CONF_DIR}/mitmproxy-ca-cert.pem" ]; then
-    cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
-    break
-  fi
-  sleep 1
-done
+if is_truthy "${PROXY_TLS_MITM_ENABLED}" && is_truthy "${PROXY_CA_INSTALL_ENABLED}" && [ "${CA_MODE}" != "off" ] && [ "${CA_READY}" -eq 0 ]; then
+  for _ in $(seq 1 30); do
+    if [ -s "${CONF_DIR}/mitmproxy-ca-cert.pem" ]; then
+      cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
+      echo "Exported fallback CA to ${CA_DIR}/egress-ca.crt"
+      break
+    fi
+    sleep 1
+  done
+fi
 
 wait "$child"

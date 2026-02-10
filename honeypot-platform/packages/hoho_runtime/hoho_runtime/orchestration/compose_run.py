@@ -84,13 +84,40 @@ def _emit_ca_install_event(
         print(f"[hoho] WARN: cannot append to events.jsonl: {exc}")
 
 
-def _wait_for_ca_cert(ca_path: Path, timeout_seconds: int = 30, poll_seconds: float = 1.0) -> bool:
+def _wait_for_ca_cert(ca_path: Path, timeout_seconds: int = 120, poll_seconds: float = 1.0) -> bool:
     deadline = time.time() + timeout_seconds
     while time.time() < deadline:
         if ca_path.exists() and ca_path.stat().st_size > 0:
             return True
         time.sleep(poll_seconds)
     return False
+
+
+
+
+def _bool_enabled(value: object, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _ca_wait_seconds(default: int = 120) -> int:
+    raw_value = os.getenv("HOHO_CA_WAIT_SECONDS")
+    if raw_value is None:
+        return default
+    try:
+        parsed = int(raw_value)
+    except ValueError:
+        print(f"[hoho] WARN: invalid HOHO_CA_WAIT_SECONDS={raw_value!r}; using default {default}")
+        return default
+    if parsed <= 0:
+        print(f"[hoho] WARN: non-positive HOHO_CA_WAIT_SECONDS={parsed}; using default {default}")
+        return default
+    return parsed
 
 
 def _run_ca_install(
@@ -156,14 +183,20 @@ def run_compose(
         if sensor.get("type") != "egress_proxy":
             continue
         tls_mitm = sensor.get("config", {}).get("tls_mitm", {})
-        if not bool(tls_mitm.get("enabled", False)):
+        if not _bool_enabled(tls_mitm.get("enabled", False)):
             continue
         install_trust = tls_mitm.get("install_trust", {})
-        if not bool(install_trust.get("enabled", True)):
+        if not _bool_enabled(install_trust.get("enabled", True), default=True):
+            continue
+        ca_install = tls_mitm.get("ca_install", {})
+        if not _bool_enabled(ca_install.get("enabled", True), default=True):
+            continue
+        if str(ca_install.get("mode", "auto")).strip().lower() == "off":
             continue
 
         ca_path = storage_pack_root / "ca" / "egress-ca.crt"
-        if not _wait_for_ca_cert(ca_path):
+        wait_seconds = _ca_wait_seconds()
+        if not _wait_for_ca_cert(ca_path, timeout_seconds=wait_seconds):
             for service in sensor.get("attach", {}).get("services", []):
                 _emit_ca_install_event(
                     storage_pack_root=storage_pack_root,
