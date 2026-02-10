@@ -21,10 +21,34 @@ def _warn_if_run_id_used(run_id: str | None) -> None:
         print("WARNING: --run-id is deprecated and ignored; Simple Layout v1 always overwrites by honeypot_id.")
 
 
-def _compose_output_dir(honeypot_id: str, output: str | None) -> str:
+def _guess_project_root(pack_path: Path) -> Path:
+    current = pack_path.parent
+    candidates: list[Path] = [current, *current.parents]
+
+    for candidate in candidates:
+        compose_dir = candidate / "deploy" / "compose"
+        if compose_dir.is_dir() or (compose_dir / "README.md").exists():
+            return candidate
+
+    for candidate in candidates:
+        if (candidate / "packs").is_dir():
+            return candidate
+
+    return pack_path.parent
+
+
+def _compose_output_dir(honeypot_id: str, output: str | None, project_root: Path) -> str:
     if output:
         return output
-    return str(Path("./deploy/compose") / honeypot_id)
+    return str(project_root / "deploy" / "compose" / honeypot_id)
+
+
+def _resolve_storage_root(pack: dict, artifacts_root_arg: str | None, project_root: Path) -> Path:
+    storage_value = artifacts_root_arg or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT)
+    storage_root = Path(storage_value).expanduser()
+    if not storage_root.is_absolute():
+        storage_root = project_root / storage_root
+    return storage_root.resolve()
 
 
 def _prepare_artifacts_root(storage_root: Path, honeypot_id: str) -> Path:
@@ -45,7 +69,10 @@ def cmd_validate(args):
 
 
 def cmd_render_compose(args):
-    pack = load_pack(args.pack)
+    pack_path = Path(args.pack).expanduser().resolve()
+    project_root = _guess_project_root(pack_path)
+
+    pack = load_pack(str(pack_path))
     errors = validate_pack(pack)
     if errors:
         for e in errors:
@@ -54,23 +81,28 @@ def cmd_render_compose(args):
 
     honeypot_id = pack["metadata"]["id"]
     _warn_if_run_id_used(args.run_id)
-    out_dir = _compose_output_dir(honeypot_id, args.output)
-    out = render_compose(pack, out_dir=out_dir, artifacts_root=args.artifacts_root)
+    out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
+    storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
+    out = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root))
     print(out)
 
 
 def cmd_run(args):
-    pack = load_pack(args.pack)
+    pack_path = Path(args.pack).expanduser().resolve()
+    project_root = _guess_project_root(pack_path)
+    pack = load_pack(str(pack_path))
+    storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
+
     if pack["metadata"]["interaction"] == "low":
+        pack.setdefault("storage", {})["root"] = str(storage_root)
         run_low_http(pack)
     else:
         honeypot_id = pack["metadata"]["id"]
         _warn_if_run_id_used(args.run_id)
-        out_dir = _compose_output_dir(honeypot_id, args.output)
+        out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
 
-        storage_root = Path(args.artifacts_root or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT))
-        artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id).resolve()
-        compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=args.artifacts_root)
+        artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id)
+        compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root))
         project_name = _sanitize_name(f"hoho-{honeypot_id}")
 
         print(
