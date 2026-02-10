@@ -17,6 +17,14 @@ All sensors append canonical events to `<root>/<pack_id>/index/events.jsonl` and
 
 Runtime env used by renderer:
 - `UPSTREAM` (required)
+- `PROXY_LISTEN_PORT` (defaults to `8080`)
+- `PROXY_LISTEN_HOST` (defaults to `0.0.0.0`)
+- `PROXY_KEEP_HOST_HEADER` (`true`/`false`, defaults to `true`)
+
+Troubleshooting redirects:
+- Symptom: browser gets redirected to an internal compose DNS name (for example `http://web:8088/...`).
+- Cause: reverse proxy rewrites `Host` by default unless `keep_host_header` is enabled.
+- Fix: keep `PROXY_KEEP_HOST_HEADER=true` (default). Set it to `false` only when upstream behavior requires rewritten host headers.
 
 ## Filesystem Monitor Sensor
 - Watches configured directories for create/modify events.

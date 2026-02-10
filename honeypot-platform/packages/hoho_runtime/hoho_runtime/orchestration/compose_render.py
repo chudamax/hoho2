@@ -75,6 +75,16 @@ def _collect_named_volumes(services: dict) -> set[str]:
     return named
 
 
+def _as_bool(value, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    return bool(value)
+
+
 def _storage_env(pack_id: str) -> dict:
     return {
         "HOHO_PACK_ID": pack_id,
@@ -157,7 +167,16 @@ def render_compose(pack: dict, out_dir: str | None = None) -> Path:
                 raise ValueError(f"proxy sensor '{sname}' requires config.upstream")
 
             listen_port = int(config.get("listen_port", 8080))
-            sensor_service["environment"]["UPSTREAM"] = upstream
+            listen_host = str(config.get("listen_host", "0.0.0.0"))
+            keep_host_header = _as_bool(config.get("keep_host_header"), default=True)
+            sensor_service["environment"].update(
+                {
+                    "UPSTREAM": upstream,
+                    "PROXY_LISTEN_PORT": str(listen_port),
+                    "PROXY_LISTEN_HOST": listen_host,
+                    "PROXY_KEEP_HOST_HEADER": "true" if keep_host_header else "false",
+                }
+            )
 
             target_networks = _collect_service_networks(target_service)
             if target_networks:
