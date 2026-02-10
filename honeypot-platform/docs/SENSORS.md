@@ -6,7 +6,11 @@ All sensors read common environment variables:
 - `HOHO_STORAGE_BACKEND=filesystem`
 - `HOHO_STORAGE_ROOT=/artifacts`
 
-All sensors append canonical events to `<root>/<pack_id>/index/events.jsonl` and write artifacts as content-addressed blobs.
+`/artifacts` is a sensor/container mountpoint. The runtime maps it to a host path:
+- Simple mode: `<storage.root>`
+- Isolated run mode: `<storage.root>/runs/<run_id>`
+
+Sensors append canonical events to `<root>/<pack_id>/index/events.jsonl` and write artifacts as content-addressed blobs.
 
 ## HTTP Proxy Sensor
 - Built on mitmproxy reverse mode (`--mode reverse:<upstream>`).
