@@ -139,16 +139,36 @@ if [ ! -f \"$cert_path\" ]; then
     exit 1
 fi
 
+if ! command -v update-ca-certificates >/dev/null 2>&1 && ! command -v update-ca-trust >/dev/null 2>&1; then
+    if command -v apt-get >/dev/null 2>&1; then
+        apt-get update >/dev/null 2>&1 || true
+        apt-get install -y ca-certificates >/dev/null 2>&1 || true
+    elif command -v apk >/dev/null 2>&1; then
+        apk add --no-cache ca-certificates >/dev/null 2>&1 || true
+    elif command -v dnf >/dev/null 2>&1; then
+        dnf install -y ca-certificates >/dev/null 2>&1 || true
+    elif command -v yum >/dev/null 2>&1; then
+        yum install -y ca-certificates >/dev/null 2>&1 || true
+    fi
+fi
+
 if command -v update-ca-certificates >/dev/null 2>&1; then
     mkdir -p /usr/local/share/ca-certificates
-    cp \"$cert_path\" /usr/local/share/ca-certificates/hoho-egress-ca.crt
+    cp "$cert_path" /usr/local/share/ca-certificates/hoho-egress-ca.crt
     update-ca-certificates || true
 fi
 
 if command -v update-ca-trust >/dev/null 2>&1; then
     mkdir -p /etc/pki/ca-trust/source/anchors
-    cp \"$cert_path\" /etc/pki/ca-trust/source/anchors/hoho-egress-ca.crt
+    cp "$cert_path" /etc/pki/ca-trust/source/anchors/hoho-egress-ca.crt
     update-ca-trust extract || true
+fi
+
+if [ -n "${HOHO_TRUST_EXTRA_COMMANDS:-}" ]; then
+    printf '%s\n' "${HOHO_TRUST_EXTRA_COMMANDS}" | while IFS= read -r cmd; do
+        [ -n "$cmd" ] || continue
+        sh -c "$cmd" || true
+    done
 fi
 
 exit 0
@@ -292,13 +312,7 @@ exit 0
 
             tls_mitm = config.get("tls_mitm", {})
             tls_mitm_enabled = _as_bool(tls_mitm.get("enabled"), default=False)
-            ca_install = tls_mitm.get("ca_install", {})
-            ca_install_enabled = _as_bool(ca_install.get("enabled"), default=True)
-            ca_install_mode = str(ca_install.get("mode", "auto"))
-            custom_cert_path = ca_install.get("custom_cert_path")
-            custom_key_path = ca_install.get("custom_key_path")
             install_trust = tls_mitm.get("install_trust", {})
-            install_trust_enabled = _as_bool(install_trust.get("enabled"), default=True)
             set_env_bundles = _as_bool(install_trust.get("also_set_env_bundles"), default=True)
             extra_commands = _as_list(install_trust.get("extra_commands", []))
 
@@ -316,10 +330,10 @@ exit 0
                     "PROXY_LISTEN_PORT": str(listen_port),
                     "PROXY_STACK_ID": pack_id,
                     "PROXY_TLS_MITM_ENABLED": "true" if tls_mitm_enabled else "false",
-                    "PROXY_CA_INSTALL_ENABLED": "true" if ca_install_enabled else "false",
-                    "PROXY_CA_INSTALL_MODE": ca_install_mode,
-                    "PROXY_CUSTOM_CERT_PATH": str(custom_cert_path or ""),
-                    "PROXY_CUSTOM_KEY_PATH": str(custom_key_path or ""),
+                    "PROXY_CA_CERT_PATH": "/runtime/ca/egress-ca.crt",
+                    "PROXY_CA_KEY_PATH": "/runtime/ca/egress-ca.key",
+                    "PROXY_MITM_BUNDLE_PATH": "/runtime/ca/mitmproxy-ca.pem",
+                    "PROXY_MITM_CERT_PATH": "/runtime/ca/mitmproxy-ca-cert.pem",
                     "PROXY_CAPTURE_ENABLED": "true" if capture_enabled else "false",
                     "PROXY_CAPTURE_BODIES": capture_bodies,
                     "PROXY_CAPTURE_MAX_BYTES": str(capture_max_bytes),
@@ -328,23 +342,25 @@ exit 0
                     "PROXY_REDACT_HEADERS": ",".join(redact_headers),
                 }
             )
-            if extra_commands:
-                sensor_service["environment"]["PROXY_TRUST_EXTRA_COMMANDS"] = "\n".join(
-                    str(cmd) for cmd in extra_commands
-                )
-
             sensor_service["volumes"].append(f"{(root / 'runtime').resolve()}:/runtime:ro")
             sensor_service["volumes"].append(f"{(root / 'runtime' / 'ca').resolve()}:/runtime/ca:ro")
             sensor_service["volumes"].append(f"{(storage_root / pack_id).resolve()}:/artifacts/{pack_id}")
 
-            if tls_mitm_enabled and ca_install_enabled and ca_install_mode.strip().lower() != "off":
-                sensor_service["environment"].update(
-                    {
-                        "PROXY_CA_INSTALL_MODE": "custom",
-                        "PROXY_CUSTOM_CERT_PATH": "/runtime/ca/egress-ca.crt",
-                        "PROXY_CUSTOM_KEY_PATH": "/runtime/ca/egress-ca.key",
-                    }
-                )
+            all_service_names = sorted([name for name in services.keys() if name != sname])
+            for attach_service_name in attach_services:
+                attach_service = services[attach_service_name]
+                _inject_egress_proxy_env(attach_service, all_service_names, listen_port, set_env_bundles)
+                if tls_mitm_enabled:
+                    if extra_commands:
+                        attach_service.setdefault("environment", {})["HOHO_TRUST_EXTRA_COMMANDS"] = "\n".join(
+                            str(cmd) for cmd in extra_commands
+                        )
+                    attach_service.setdefault("volumes", []).extend(
+                        [
+                            f"{(root / 'runtime' / 'ca' / 'install-ca.sh').resolve()}:/hoho/ca/install-ca.sh:ro",
+                            f"{(root / 'runtime' / 'ca' / 'egress-ca.crt').resolve()}:/hoho/ca/egress-ca.crt:ro",
+                        ]
+                    )
 
             if force_egress:
                 network_defs["hp_internal"] = {"internal": True}
@@ -352,20 +368,8 @@ exit 0
                 sensor_service["networks"] = ["hp_internal", "hp_external"]
                 networks_used.update({"hp_internal", "hp_external"})
 
-                all_service_names = sorted([name for name in services.keys() if name != sname])
                 for attach_service_name in attach_services:
-                    attach_service = services[attach_service_name]
-                    attach_service["networks"] = ["hp_internal"]
-                    _inject_egress_proxy_env(attach_service, all_service_names, listen_port, set_env_bundles)
-                    attach_service.setdefault("volumes", []).extend(
-                        [
-                            f"{(root / 'runtime' / 'ca' / 'install-ca.sh').resolve()}:/hoho/ca/install-ca.sh:ro",
-                            f"{(root / 'runtime' / 'ca' / 'egress-ca.crt').resolve()}:/hoho/ca/egress-ca.crt:ro",
-                        ]
-                    )
-            else:
-                for attach_service_name in attach_services:
-                    _inject_egress_proxy_env(services[attach_service_name], sorted(services.keys()), listen_port, set_env_bundles)
+                    services[attach_service_name]["networks"] = ["hp_internal"]
 
         services[sname] = sensor_service
 

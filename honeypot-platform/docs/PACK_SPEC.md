@@ -93,13 +93,7 @@ Schema validation is run first (shape/types). Semantic checks run after schema v
     force_egress_via_proxy: true
     tls_mitm:
       enabled: true
-      ca_install:
-        enabled: true
-        mode: auto
-        custom_cert_path: null
-        custom_key_path: null
       install_trust:
-        enabled: true
         also_set_env_bundles: true
         extra_commands: []
     capture:
@@ -114,4 +108,4 @@ Schema validation is run first (shape/types). Semantic checks run after schema v
 - `attach.services[]` must point to services in `stack.services`.
 - `force_egress_via_proxy: true` renders `hp_internal` (internal) and `hp_external` networks, attaching app services only to internal and proxy to both.
 - Capture defaults to `bodies: "*"` (all response bodies, subject to caps); use `bodies: "none"` or `capture.enabled: false` for metadata-only mode.
-- TLS MITM can generate and persist a per-stack CA and optionally trigger post-up CA trust installation for attached services.
+- TLS MITM auto-generates and persists a per-stack CA when enabled and triggers post-start CA trust installation for attached services.

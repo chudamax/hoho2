@@ -244,40 +244,9 @@
                       "enabled": {
                         "type": "boolean"
                       },
-                      "ca_install": {
-                        "type": "object",
-                        "properties": {
-                          "enabled": {
-                            "type": "boolean"
-                          },
-                          "mode": {
-                            "enum": [
-                              "auto",
-                              "off",
-                              "custom"
-                            ]
-                          },
-                          "custom_cert_path": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
-                          },
-                          "custom_key_path": {
-                            "type": [
-                              "string",
-                              "null"
-                            ]
-                          }
-                        },
-                        "additionalProperties": false
-                      },
                       "install_trust": {
                         "type": "object",
                         "properties": {
-                          "enabled": {
-                            "type": "boolean"
-                          },
                           "also_set_env_bundles": {
                             "type": "boolean"
                           },
