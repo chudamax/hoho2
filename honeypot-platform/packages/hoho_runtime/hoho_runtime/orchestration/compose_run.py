@@ -145,8 +145,8 @@ def run_compose(
     cmd = ["docker", "compose"]
     if project_name:
         cmd.extend(["-p", project_name])
-    cmd.extend(["-f", str(compose_file), "up", "-d"])
-    #cmd.extend(["-f", str(compose_file), "up"])
+    #cmd.extend(["-f", str(compose_file), "up", "-d"])
+    cmd.extend(["-f", str(compose_file), "up"])
     rc = subprocess.call(cmd)
     if rc != 0 or not pack or not artifacts_root:
         return rc
