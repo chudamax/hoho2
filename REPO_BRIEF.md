@@ -1,5 +1,344 @@
 # Repository Brief: hoho2
 
+_Generated 2026-02-10 13:28 UTC_
+
+## Quick Facts
+- **Branch:** main
+- **Commit:** eaf8062 (2026-02-10 14:24:54 +0100)
+- **Total commits:** 12
+- **Files scanned:** 66
+- **Text files embedded (after filters):** 66
+
+## Language & LOC Overview (approx.)
+- **python** — files: 32 (48.5%), LOC: 958
+- **md** — files: 16 (24.2%), LOC: 3333
+- **other** — files: 6 (9.1%), LOC: 236
+- **bash** — files: 5 (7.6%), LOC: 90
+- **yaml** — files: 3 (4.5%), LOC: 180
+- **json** — files: 2 (3.0%), LOC: 173
+- **toml** — files: 2 (3.0%), LOC: 30
+
+## Directory Tree (depth ≤ 10)
+
+```text
+- .gitignore
+- REPO_BRIEF.md
+- honeypot-platform
+  - docs
+    - ARCHITECTURE.md
+    - DEPLOYMENT.md
+    - DSL_REFERENCE.md
+    - EVENT_SCHEMA.md
+    - PACK_SPEC.md
+    - README.md
+    - SECURITY.md
+    - SENSORS.md
+    - STORAGE_LAYOUT.md
+  - scripts
+    - build_sensors.sh
+    - check_docs.sh
+  - deploy
+    - compose
+      - README.md
+  - packages
+    - hoho_core
+      - pyproject.toml
+    - hoho_runtime
+  - packs
+    - high
+      - example_wp_stack.yaml
+    - low
+      - example_upload_sink.yaml
+      - example_web.yaml
+  - sensors
+    - fsmon
+      - Dockerfile
+      - entrypoint.sh
+    - http_proxy
+    - pcap
+      - hoho_core
+        - __init__.py
+        - version.py
+      - hoho_runtime
+        - cli.py
+        - config.py
+      - fsmon
+        - fsmon.py
+        - rules.schema.json
+      - proxy
+        - capture_addon.py
+        - dsl
+          - __init__.py
+          - actions.py
+          - engine.py
+          - matchers.py
+          - templates.py
+        - model
+          - artifact.py
+          - event.py
+        - schema
+          - pack_v1.json
+          - validate.py
+        - storage
+          - base.py
+          - fs.py
+        - utils
+          - filenames.py
+          - hashing.py
+          - jsonl.py
+          - redact.py
+          - time.py
+        - orchestration
+          - compose_render.py
+          - compose_run.py
+        - server
+          - http.py
+          - tcp.py
+  - run
+    - artifacts
+      - example-upload-sink
+        - index
+          - events.jsonl
+      - example-web
+```
+
+## Recent Commits
+- eaf8062 | 2026-02-10 | Merge pull request #4 from chudamax/codex/implement-bind-mount-artifacts-for-multi-instance
+- 8eb48c5 | 2026-02-10 | Add run-isolated compose storage bind mounts
+- 8c9e2d8 | 2026-02-10 | Merge pull request #3 from chudamax/codex/fix-proxy-host-header-and-client-ip-handling
+- 2310a19 | 2026-02-10 | Fix http proxy host preservation and client addr capture
+- ededa93 | 2026-02-10 | up
+- fe48da6 | 2026-02-10 | Merge pull request #2 from chudamax/codex/implement-yaml-parsing-and-validation
+- 8f582f5 | 2026-02-10 | Implement YAML pack parsing and sidecar-aware compose rendering
+- 9c5165c | 2026-02-10 | updates
+- faecb69 | 2026-02-10 | updates
+- 002af03 | 2026-02-10 | Merge pull request #1 from chudamax/codex/create-yaml-first-honeypot-platform
+
+## Files (embedded, trimmed)
+> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+
+### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
+```
+artifacts/
+run/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# Generated compose/runtime outputs
+honeypot-platform/deploy/compose/*
+!honeypot-platform/deploy/compose/README.md
+honeypot-platform/run/artifacts/**
+```
+
+### `REPO_BRIEF.md`  _(~93.3 KB; showing ≤800 lines)_
+```md
+# Repository Brief: hoho2
+
 _Generated 2026-02-10 11:49 UTC_
 
 ## Quick Facts
@@ -111,7 +450,7 @@ _Generated 2026-02-10 11:49 UTC_
 - c6f004d | 2026-02-10 | Initial commit
 
 ## Files (embedded, trimmed)
-> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+[REDACTED]
 
 ### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
 ```
@@ -797,350 +1136,20 @@ Every event includes:
 - classification (`verdict`, `tags`, `indicators`)
 - decision flags (`truncated`, `oversized`, `rate_limited`, `dropped`)
 - artifact list with `kind`, hash, size, mime, and `storage_ref`
-
-## Example: Low HTTP Upload
-```json
-{"schema_version":1,"pack_id":"example-upload-sink","component":"runtime.http","classification":{"verdict":"upload","tags":["multipart"],"indicators":["file-upload"]}}
-```
-
-## Example: Proxy Flow
-```json
-{"schema_version":1,"pack_id":"example-wp-stack","component":"sensor.http_proxy","proto":"http","response":{"status_code":200}}
-```
-
-## Example: Filesystem Change
-```json
-{"schema_version":1,"component":"sensor.fsmon","classification":{"verdict":"postex","tags":["fs_change"],"indicators":["/var/www/html/index.php"]}}
-```
-
-## Example: PCAP Rotation
-```json
-{"schema_version":1,"component":"sensor.pcap","artifacts":[{"kind":"pcap_segment","storage_ref":"blobs/ab/abcdef..."}]}
-```
-```
-
-### `honeypot-platform/docs/PACK_SPEC.md`  _(~1.1 KB; showing ≤800 lines)_
-```md
-# Pack Specification (v1)
-
-## Common Top-Level Fields
-- `apiVersion`: must be `hoho.dev/v1`.
-- `kind`: must be `HoneypotPack`.
-- `metadata`: includes `id`, `name`, `interaction`, `tags`, and `description`.
-- `storage`: currently `backend: filesystem` and `root` path.
-- `limits`: `max_body_bytes`, `max_upload_bytes`, and `max_artifacts_per_request`.
-- `telemetry`: `emit_events`, `redact_headers`, and optional query redaction list.
-
-## Low-Interaction Fields
-- `listen`: list of `{host, port}` entries.
-- `responses`: optional reusable response templates.
-- `behaviors`: ordered rules with `name`, `match`, `actions`, and optional `respond`.
-
-## High-Interaction Fields
-- `stack.runtime`: `compose` for v1.
-- `stack.services`: compose-like service map (`image/build`, environment, volumes, networks, ports).
-- `sensors`: shared sensor descriptors with `name`, `type`, `config`, and `attach` mapping.
-- `expose`: optional shortcut metadata for published ports.
-
-## Validation Rules
-Schema validation enforces required fields and interaction mode options. Semantic checks ensure low packs include behaviors and high packs include a stack section.
-```
-
-### `honeypot-platform/docs/README.md`  _(~0.2 KB; showing ≤800 lines)_
-```md
-# Honeypot Platform Documentation
-
-This directory contains architecture, specification, sensor, storage, deployment, and security guidance for the YAML-first honeypot platform.
-```
-
-### `honeypot-platform/docs/SECURITY.md`  _(~0.7 KB; showing ≤800 lines)_
-```md
-# Security
-
-## Core Safety Statement
-Captured payloads are treated as opaque bytes. The platform never executes, imports, or opens uploaded content as code.
-
-## Safe Malware Handling
-- Keep artifacts in isolated storage.
-- Do not double-click or run captured binaries/scripts.
-- Use offline analysis environments with strict controls.
-- Preserve hashes and metadata for chain-of-custody.
-
-## Network and Host Isolation
-- Place honeypots in dedicated VLAN/VPC segments.
-- Enforce firewall egress controls.
-- Limit sensor and runtime privileges.
-- Keep host patching and logging up to date.
-
-## Operational Hardening
-- Enable strict size limits to reduce resource abuse.
-- Redact sensitive headers by default.
-- Avoid shelling out with untrusted input.
-```
-
-### `honeypot-platform/docs/SENSORS.md`  _(~1.2 KB; showing ≤800 lines)_
-```md
-# Sensors
-
-## Shared Contract
-All sensors read common environment variables:
-- `HOHO_PACK_ID`
-- `HOHO_STORAGE_BACKEND=filesystem`
-- `HOHO_STORAGE_ROOT=/artifacts`
-- `HOHO_EMIT_EVENTS=1`
-- `HOHO_REDACT_HEADERS=[REDACTED]
-
-All sensors append canonical events to `<root>/<pack_id>/index/events.jsonl` and write artifacts as content-addressed blobs.
-
-## HTTP Proxy Sensor
-- Built on mitmproxy reverse mode (`--mode reverse:<upstream>`).
-- Captures request/response metadata and request body artifacts.
-- Supports deployment as sidecar in front of a target web service.
-
-Compose snippet:
-```yaml
-proxy-sensor:
-  image: hoho/sensor-http-proxy:latest
-  environment:
-    HOHO_PACK_ID: example
-  volumes: ["artifacts:/artifacts"]
-```
-
-## Filesystem Monitor Sensor
-- Watches configured directories for create/modify events.
-- Applies allow/deny glob filters.
-- Stores changed file content up to a cap and records preview text.
-
-## PCAP Sensor
-- Uses tcpdump with rotation controls (`-G`, `-W`, optional `-C`).
-- Stores rotated pcap files as blob artifacts and emits `pcap_segment` events.
-
-## Operational Notes
-Disk usage can grow quickly from uploads and pcap segments. Use external rotation, retention cleanup, and dedicated storage volumes.
-```
-
-### `honeypot-platform/docs/STORAGE_LAYOUT.md`  _(~0.6 KB; showing ≤800 lines)_
-```md
-# Storage Layout
-
-## Root Structure
-Default root is `./run/artifacts`.
-
-```text
-<root>/<pack_id>/
-  index/events.jsonl
-  blobs/<sha256_prefix>/<sha256>
-  objects/<event_id>/<kind>/<filename>
-```
-
-## Blob Dedupe
-Blobs are keyed by SHA256 and written once. Repeated payloads map to existing blob paths. `storage_ref` values in events point to the stable blob or object location.
-
-## Event File
-`events.jsonl` is append-only and stores one JSON object per line for easy stream processing.
-
-## Object Materialization
-`objects/` is reserved for per-event extracted files or metadata sidecars when operators need easier browsing than raw blob references.
-```
-
-### `honeypot-platform/packages/hoho_core/README.md`  _(~0.1 KB; showing ≤800 lines)_
-```md
-# hoho_core
-
-Shared core primitives for pack validation, event modeling, DSL evaluation, and filesystem artifact storage.
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/__init__.py`  _(~0.1 KB; showing ≤800 lines)_
-```python
-from .version import __version__
-
-__all__ = ["__version__"]
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/dsl/__init__.py`  _(~0.1 KB; showing ≤800 lines)_
-```python
-from .engine import evaluate_rules
-
-__all__ = ["evaluate_rules"]
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/dsl/actions.py`  _(~1.3 KB; showing ≤800 lines)_
-```python
-import gzip
-import random
-import time
-from hoho_core.dsl.templates import render_template
-
-
-def run_action(action: dict, state: dict, req: dict, store) -> None:
-    if "emit_event" in action:
-        data = action["emit_event"]
-        state["classification"]["verdict"] = data.get("verdict", state["classification"]["verdict"])
-        state["classification"]["tags"].extend(data.get("tags", []))
-        state["classification"]["indicators"].extend(data.get("indicators", []))
-    elif "store_body" in action:
-        data = req.get("body", b"")
-        conf = action["store_body"]
-        if conf.get("gzip"):
-            data = gzip.compress(data)
-            mime = "application/gzip"
-        else:
-            mime = req.get("content_type") or "application/octet-stream"
-        art = store.put_blob(data, mime=mime)
-        state["artifacts"].append({"kind": conf.get("kind", "request_body"), **art, "meta": {}})
-    elif "delay" in action:
-        conf = action["delay"]
-        base = int(conf.get("ms", 0))
-        jitter = int(conf.get("jitterMs", 0))
-        time.sleep(max(0, (base + random.randint(-jitter, jitter)) / 1000))
-    elif "respond" in action:
-        state["respond"] = action["respond"]
-    elif "drop" in action:
-        state["decision"]["dropped"] = True
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/dsl/engine.py`  _(~0.6 KB; showing ≤800 lines)_
-```python
-from hoho_core.dsl.matchers import match_rule
-from hoho_core.dsl.actions import run_action
-
-
-def evaluate_rules(behaviors: list[dict], req: dict, store, event: dict) -> dict:
-    state = {
-        "classification": event["classification"],
-        "decision": event["decision"],
-        "artifacts": event["artifacts"],
-        "respond": None,
-    }
-    for rule in behaviors:
-        if match_rule(rule, req):
-            for action in rule.get("actions", []):
-                run_action(action, state, req, store)
-            if rule.get("respond"):
-                state["respond"] = rule["respond"]
-            break
-    return state
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/dsl/matchers.py`  _(~1.6 KB; showing ≤800 lines)_
-```python
-import fnmatch
-import re
-
-
-def _match_value(value: str, cond: dict) -> bool:
-    if "equals" in cond:
-        return value == cond["equals"]
-    if "contains" in cond:
-        return cond["contains"] in value
-    if "regex" in cond:
-        return re.search(cond["regex"], value or "") is not None
-    if cond.get("exists") is True:
-        return bool(value)
-    return False
-
-
-def match_rule(rule: dict, req: dict) -> bool:
-    m = rule.get("match", {})
-    method = m.get("method")
-    if method:
-        allowed = method if isinstance(method, list) else [method]
-        if req.get("method") not in allowed:
-            return False
-    if "path" in m and req.get("path") != m["path"]:
-        return False
-    if "pathGlob" in m and not fnmatch.fnmatch(req.get("path", ""), m["pathGlob"]):
-        return False
-    if "pathRegex" in m and re.search(m["pathRegex"], req.get("path", "")) is None:
-        return False
-    for hk, cond in m.get("headers", {}).items():
-        if not _match_value(req.get("headers", {}).get(hk, ""), cond):
-            return False
-    for qk, cond in m.get("query", {}).items():
-        if not _match_value(req.get("query", {}).get(qk, ""), cond):
-            return False
-    body = req.get("body", b"")
-    body_text = body.decode("utf-8", errors="ignore")
-    body_match = m.get("body", {})
-    if "contains" in body_match and body_match["contains"] not in body_text:
-        return False
-    if "regex" in body_match and re.search(body_match["regex"], body_text) is None:
-        return False
-    if "contentTypeContains" in m and m["contentTypeContains"] not in req.get("content_type", ""):
-        return False
-    return True
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/dsl/templates.py`  _(~0.4 KB; showing ≤800 lines)_
-```python
-from hoho_core.utils.time import utc_iso
-
-
-def render_template(template: str, ctx: dict) -> str:
-    out = template
-    replacements = {
-        "${req.method}": ctx.get("req", {}).get("method", ""),
-        "${req.path}": ctx.get("req", {}).get("path", ""),
-        "${now.iso}": utc_iso(),
-    }
-    for key, value in replacements.items():
-        out = out.replace(key, str(value))
-    return out
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/model/__init__.py`  _(~0.1 KB; showing ≤800 lines)_
-```python
-from .event import build_base_event
-from .artifact import ArtifactRef
-
-__all__ = ["build_base_event", "ArtifactRef"]
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/model/artifact.py`  _(~0.4 KB; showing ≤800 lines)_
-```python
-from dataclasses import dataclass, field
-
-
-@dataclass
-class ArtifactRef:
-    kind: str
-    sha256: str
-    size: int
-    mime: str
-    storage_ref: str
-    meta: dict = field(default_factory=dict)
-
-    def as_dict(self) -> dict:
-        return {
-            "kind": self.kind,
-            "sha256": self.sha256,
-            "size": self.size,
-            "mime": self.mime,
-            "storage_ref": self.storage_ref,
-            "meta": self.meta,
-        }
-```
-
-### `honeypot-platform/packages/hoho_core/hoho_core/model/event.py`  _(~0.8 KB; showing ≤800 lines)_
-```python
-import uuid
-from hoho_core.utils.time import utc_iso
-
-
-def build_base_event(pack_id: str, interaction: str, component: str, proto: str) -> dict:
-    return {
-        "schema_version": 1,
-        "event_id": str(uuid.uuid4()),
-        "ts": utc_iso(),
-        "pack_id": pack_id,
 ```
 <!-- trimmed: file exceeded per-file limits -->
 
-### `honeypot-platform/deploy/compose/README.md`  _(~0.1 KB; showing ≤800 lines)_
+### `honeypot-platform/deploy/compose/README.md`  _(~0.4 KB; showing ≤800 lines)_
 ```md
 # Rendered Compose Output
 
-`hoho render-compose` writes generated Compose bundles into this tree by pack identifier.
+`hoho render-compose` writes generated Compose bundles into this tree.
+
+- Default (`hoho render-compose <pack>`): `deploy/compose/<pack_id>/docker-compose.yml`
+- Run-specific (`hoho render-compose <pack> --run-id <run_id>` or `hoho run <pack>`):
+  `deploy/compose/<pack_id>/<run_id>/docker-compose.yml`
+
+Run-specific folders are intended for concurrent isolated stacks.
 ```
 
 ### `honeypot-platform/docs/ARCHITECTURE.md`  _(~1.2 KB; showing ≤800 lines)_
@@ -1170,7 +1179,7 @@ High-interaction packs define stack services and sensor attachments. Compose ren
 5. Optional object materialization can be added under `objects/<event_id>/...` in future versions.
 ```
 
-### `honeypot-platform/docs/DEPLOYMENT.md`  _(~1.7 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/DEPLOYMENT.md`  _(~2.4 KB; showing ≤800 lines)_
 ```md
 # Deployment
 
@@ -1182,13 +1191,22 @@ High-interaction packs define stack services and sensor attachments. Compose ren
 3. Send traffic to configured listen port.
 4. Inspect `run/artifacts/<pack_id>/index/events.jsonl` and `blobs/`.
 
-## Quickstart: High-Interaction Pack
+## Quickstart: High-Interaction Pack (simple render mode)
 1. Validate pack:
    - `hoho validate packs/high/example_wp_stack.yaml`
 2. Render compose bundle:
    - `hoho render-compose packs/high/example_wp_stack.yaml`
 3. Start stack:
-   - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml up`
+   - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml up -d`
+4. Artifacts land on host under:
+   - `run/artifacts/example-wp-stack/...`
+
+## Quickstart: High-Interaction Pack (`hoho run`, isolated)
+1. Start run:
+   - `hoho run packs/high/example_wp_stack.yaml`
+2. `hoho run` prints JSON with `pack_id`, `run_id`, `artifacts_host_path`, `compose_file`, `project_name`.
+3. Artifacts land on host under:
+   - `run/artifacts/runs/<run_id>/example-wp-stack/...`
 
 ## Smoke Commands (high interaction)
 From `honeypot-platform/`:
@@ -1202,6 +1220,20 @@ From `honeypot-platform/`:
    - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml exec web sh -lc 'echo test > /var/www/html/wp-content/uploads/probe.txt'`
 5. Verify artifacts/events:
    - `tail -n 50 run/artifacts/example-wp-stack/index/events.jsonl`
+
+## Multi-instance verification helpers
+After starting isolated runs with `hoho run`:
+
+```bash
+# find the newest run
+ls -1dt run/artifacts/runs/* | head -n1
+
+# tail events
+tail -n 20 run/artifacts/runs/<run_id>/example-wp-stack/index/events.jsonl
+
+# list blobs
+find run/artifacts/runs/<run_id>/example-wp-stack/blobs -type f | head
+```
 
 ## Generated Output Policy
 - `deploy/compose/**` is generated output from `hoho render-compose` and should not be committed.
@@ -1278,7 +1310,7 @@ Every event includes:
 ```
 ```
 
-### `honeypot-platform/docs/PACK_SPEC.md`  _(~2.4 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/PACK_SPEC.md`  _(~2.9 KB; showing ≤800 lines)_
 ```md
 # Pack Specification (v1)
 
@@ -1329,12 +1361,19 @@ Every event includes:
   config:
     upstream: http://web:80
     listen_port: 8080
+    listen_host: 0.0.0.0
+    keep_host_header: true
   attach:
     service: web
 ```
 - `config.upstream` is required.
-- `listen_port` defaults to `8080`.
+- `listen_port` defaults to `8080` and is used for both proxy bind port and moved port mappings.
+- `listen_host` is optional and defaults to `0.0.0.0`.
+- `keep_host_header` is optional and defaults to `true` so upstream services receive the original client `Host` header.
 - Port fronting rule: if attached service publishes host ports, renderer moves published ports from the app service to the proxy service, mapping to the proxy listen port.
+
+Redirect troubleshooting:
+- If redirects point to internal service names like `web:...`, ensure `keep_host_header: true` (default) in proxy config.
 
 ### `pcap`
 ```yaml
@@ -1388,7 +1427,7 @@ Captured payloads are treated as opaque bytes. The platform never executes, impo
 - Avoid shelling out with untrusted input.
 ```
 
-### `honeypot-platform/docs/SENSORS.md`  _(~1.8 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/SENSORS.md`  _(~2.5 KB; showing ≤800 lines)_
 ```md
 # Sensors
 
@@ -1398,7 +1437,11 @@ All sensors read common environment variables:
 - `HOHO_STORAGE_BACKEND=filesystem`
 - `HOHO_STORAGE_ROOT=/artifacts`
 
-All sensors append canonical events to `<root>/<pack_id>/index/events.jsonl` and write artifacts as content-addressed blobs.
+`/artifacts` is a sensor/container mountpoint. The runtime maps it to a host path:
+- Simple mode: `<storage.root>`
+- Isolated run mode: `<storage.root>/runs/<run_id>`
+
+Sensors append canonical events to `<root>/<pack_id>/index/events.jsonl` and write artifacts as content-addressed blobs.
 
 ## HTTP Proxy Sensor
 - Built on mitmproxy reverse mode (`--mode reverse:<upstream>`).
@@ -1409,6 +1452,14 @@ All sensors append canonical events to `<root>/<pack_id>/index/events.jsonl` and
 
 Runtime env used by renderer:
 - `UPSTREAM` (required)
+- `PROXY_LISTEN_PORT` (defaults to `8080`)
+- `PROXY_LISTEN_HOST` (defaults to `0.0.0.0`)
+- `PROXY_KEEP_HOST_HEADER` (`true`/`false`, defaults to `true`)
+
+Troubleshooting redirects:
+- Symptom: browser gets redirected to an internal compose DNS name (for example `http://web:8088/...`).
+- Cause: reverse proxy rewrites `Host` by default unless `keep_host_header` is enabled.
+- Fix: keep `PROXY_KEEP_HOST_HEADER=true` (default). Set it to `false` only when upstream behavior requires rewritten host headers.
 
 ## Filesystem Monitor Sensor
 - Watches configured directories for create/modify events.
@@ -1440,12 +1491,15 @@ Runtime env used by renderer:
 Disk usage can grow quickly from uploads and pcap segments. Use external rotation, retention cleanup, and dedicated storage volumes.
 ```
 
-### `honeypot-platform/docs/STORAGE_LAYOUT.md`  _(~0.6 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/STORAGE_LAYOUT.md`  _(~1.2 KB; showing ≤800 lines)_
 ```md
 # Storage Layout
 
 ## Root Structure
 Default root is `./run/artifacts`.
+
+### Simple mode (no run id)
+Used by low-interaction runtime and `hoho render-compose` without `--run-id`.
 
 ```text
 <root>/<pack_id>/
@@ -1453,6 +1507,18 @@ Default root is `./run/artifacts`.
   blobs/<sha256_prefix>/<sha256>
   objects/<event_id>/<kind>/<filename>
 ```
+
+### Run mode (isolated instances)
+Used by `hoho run` for high-interaction packs by default, and by `hoho render-compose --run-id <id>`.
+
+```text
+<root>/runs/<run_id>/<pack_id>/
+  index/events.jsonl
+  blobs/<sha256_prefix>/<sha256>
+  objects/<event_id>/<kind>/<filename>
+```
+
+Each run gets a unique `<run_id>` directory, so concurrent stacks do not interleave artifacts. Cleanup is straightforward: remove one `runs/<run_id>` directory.
 
 ## Blob Dedupe
 Blobs are keyed by SHA256 and written once. Repeated payloads map to existing blob paths. `storage_ref` values in events point to the stable blob or object location.
@@ -2049,14 +2115,38 @@ CLI and runtime components for low-interaction serving and high-interaction comp
 
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~2.2 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~4.1 KB; showing ≤800 lines)_
 ```python
 import argparse
 import json
+import re
+import secrets
+from datetime import datetime, timezone
+from pathlib import Path
+
 from hoho_core.schema.validate import load_pack, validate_pack
-from hoho_runtime.server.http import run_low_http
+from hoho_runtime.config import DEFAULT_STORAGE_ROOT
 from hoho_runtime.orchestration.compose_render import render_compose
 from hoho_runtime.orchestration.compose_run import run_compose
+from hoho_runtime.server.http import run_low_http
+
+
+def _sanitize_name(value: str) -> str:
+    sanitized = re.sub(r"[^a-z0-9_-]", "-", value.lower()).strip("-_")
+    return sanitized or "hoho"
+
+
+def _generate_run_id() -> str:
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    return f"{timestamp}-{secrets.token_hex(3)}"
+
+
+def _compose_output_dir(pack_id: str, run_id: str | None, output: str | None) -> str | None:
+    if output:
+        return output
+    if run_id:
+        return str(Path("./deploy/compose") / pack_id / run_id)
+    return None
 
 
 def cmd_validate(args):
@@ -2076,7 +2166,10 @@ def cmd_render_compose(args):
         for e in errors:
             print(f"ERROR: {e}")
         raise SystemExit(1)
-    out = render_compose(pack, args.output)
+
+    pack_id = pack["metadata"]["id"]
+    out_dir = _compose_output_dir(pack_id, args.run_id, args.output)
+    out = render_compose(pack, out_dir=out_dir, run_id=args.run_id, artifacts_root=args.artifacts_root)
     print(out)
 
 
@@ -2085,11 +2178,31 @@ def cmd_run(args):
     if pack["metadata"]["interaction"] == "low":
         run_low_http(pack)
     else:
-        compose_file = render_compose(pack)
+        pack_id = pack["metadata"]["id"]
+        run_id = args.run_id or _generate_run_id()
+        out_dir = _compose_output_dir(pack_id, run_id, args.output)
+        compose_file = render_compose(pack, out_dir=out_dir, run_id=run_id, artifacts_root=args.artifacts_root)
+
+        storage_root = Path(args.artifacts_root or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT))
+        artifacts_host_path = (storage_root / "runs" / run_id).resolve() / pack_id
+        project_name = _sanitize_name(f"hoho-{pack_id}-{run_id}")
+
+        print(
+            json.dumps(
+                {
+                    "pack_id": pack_id,
+                    "run_id": run_id,
+                    "artifacts_host_path": str(artifacts_host_path),
+                    "compose_file": str(compose_file.resolve()),
+                    "project_name": project_name,
+                }
+            )
+        )
+
         if args.no_up:
             print(compose_file)
         else:
-            raise SystemExit(run_compose(compose_file))
+            raise SystemExit(run_compose(compose_file, project_name=project_name))
 
 
 def cmd_explain(args):
@@ -2116,11 +2229,16 @@ def main():
     p_run = sub.add_parser("run")
     p_run.add_argument("pack")
     p_run.add_argument("--no-up", action="store_true")
+    p_run.add_argument("--run-id", default=None)
+    p_run.add_argument("--artifacts-root", default=None)
+    p_run.add_argument("-o", "--output", default=None)
     p_run.set_defaults(func=cmd_run)
 
     p_rc = sub.add_parser("render-compose")
     p_rc.add_argument("pack")
     p_rc.add_argument("-o", "--output", default=None)
+    p_rc.add_argument("--run-id", default=None)
+    p_rc.add_argument("--artifacts-root", default=None)
     p_rc.set_defaults(func=cmd_render_compose)
 
     p_ex = sub.add_parser("explain")
@@ -2150,12 +2268,14 @@ DEFAULT_LIMITS = {
 
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~7.7 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~8.8 KB; showing ≤800 lines)_
 ```python
 from copy import deepcopy
 from pathlib import Path, PurePosixPath
 
 import yaml
+
+from hoho_runtime.config import DEFAULT_STORAGE_ROOT
 
 
 SENSOR_IMAGES = {
@@ -2229,6 +2349,16 @@ def _collect_named_volumes(services: dict) -> set[str]:
     return named
 
 
+def _as_bool(value, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    return bool(value)
+
+
 def _storage_env(pack_id: str) -> dict:
     return {
         "HOHO_PACK_ID": pack_id,
@@ -2237,10 +2367,20 @@ def _storage_env(pack_id: str) -> dict:
     }
 
 
-def render_compose(pack: dict, out_dir: str | None = None) -> Path:
+def render_compose(
+    pack: dict,
+    out_dir: str | None = None,
+    run_id: str | None = None,
+    artifacts_root: str | None = None,
+) -> Path:
     pack_id = pack["metadata"]["id"]
     root = Path(out_dir or f"./deploy/compose/{pack_id}")
     root.mkdir(parents=True, exist_ok=True)
+
+    storage_root = Path(artifacts_root or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT))
+    run_root_host = storage_root / "runs" / run_id if run_id else storage_root
+    run_root_host.mkdir(parents=True, exist_ok=True)
+    artifacts_bind_mount = f"{run_root_host.resolve()}:/artifacts"
 
     services = deepcopy(pack.get("stack", {}).get("services", {}))
     networks_used: set[str] = set()
@@ -2257,7 +2397,7 @@ def render_compose(pack: dict, out_dir: str | None = None) -> Path:
         sensor_service = {
             "image": SENSOR_IMAGES.get(stype, "busybox:latest"),
             "environment": _storage_env(pack_id),
-            "volumes": ["artifacts:/artifacts"],
+            "volumes": [artifacts_bind_mount],
         }
 
         if stype == "fsmon":
@@ -2311,7 +2451,16 @@ def render_compose(pack: dict, out_dir: str | None = None) -> Path:
                 raise ValueError(f"proxy sensor '{sname}' requires config.upstream")
 
             listen_port = int(config.get("listen_port", 8080))
-            sensor_service["environment"]["UPSTREAM"] = upstream
+            listen_host = str(config.get("listen_host", "0.0.0.0"))
+            keep_host_header = _as_bool(config.get("keep_host_header"), default=True)
+            sensor_service["environment"].update(
+                {
+                    "UPSTREAM": upstream,
+                    "PROXY_LISTEN_PORT": str(listen_port),
+                    "PROXY_LISTEN_HOST": listen_host,
+                    "PROXY_KEEP_HOST_HEADER": "true" if keep_host_header else "false",
+                }
+            )
 
             target_networks = _collect_service_networks(target_service)
             if target_networks:
@@ -2349,13 +2498,11 @@ def render_compose(pack: dict, out_dir: str | None = None) -> Path:
 
         services[sname] = sensor_service
 
-    compose = {
-        "services": services,
-        "volumes": {"artifacts": {}},
-    }
+    compose = {"services": services}
 
-    for volume_name in sorted(_collect_named_volumes(services)):
-        compose["volumes"].setdefault(volume_name, {})
+    named_volumes = sorted(_collect_named_volumes(services))
+    if named_volumes:
+        compose["volumes"] = {volume_name: {} for volume_name in named_volumes}
 
     if networks_used:
         compose["networks"] = {name: {} for name in sorted(networks_used)}
@@ -2365,14 +2512,18 @@ def render_compose(pack: dict, out_dir: str | None = None) -> Path:
     return out
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~0.2 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~0.3 KB; showing ≤800 lines)_
 ```python
 import subprocess
 from pathlib import Path
 
 
-def run_compose(compose_file: Path) -> int:
-    return subprocess.call(["docker", "compose", "-f", str(compose_file), "up"])
+def run_compose(compose_file: Path, project_name: str | None = None) -> int:
+    cmd = ["docker", "compose"]
+    if project_name:
+        cmd.extend(["-p", project_name])
+    cmd.extend(["-f", str(compose_file), "up", "-d"])
+    return subprocess.call(cmd)
 ```
 
 ### `honeypot-platform/packages/hoho_runtime/hoho_runtime/server/__init__.py`  _(~0.0 KB; showing ≤800 lines)_
@@ -2689,6 +2840,17 @@ behaviors:
 {"schema_version":1,"event_id":"84899a61-e277-4e42-aa42-3880b5e0af30","ts":"2026-02-10T11:18:39.064558+00:00","pack_id":"example-web","interaction":"low","component":"runtime.http","src":{"ip":"192.168.0.59","port":52784,"forwarded_for":[],"user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"},"proto":"http","request":{"method":"GET","path":"/","query":{},"headers_redacted":{"Host":"192.168.0.21:8088","Connection":"keep-alive","DNT":"1","Upgrade-Insecure-Requests":"1","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36","Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","Accept-Encoding":"gzip, deflate","Accept-Language":"en,ru;q=0.9,en-US;q=0.8,zh-CN;q=0.7,zh;q=0.6","Cookie":"<redacted>"},"content_type":"","content_length":0},"response":{"status_code":200,"bytes_sent":43,"profile":null},"classification":{"verdict":"probe","tags":["landing"],"indicators":[]},"decision":{"truncated":false,"oversized":false,"rate_limited":false,"dropped":false},"artifacts":[]}
 ```
 
+### `honeypot-platform/scripts/build_sensors.sh`  _(~0.2 KB; showing ≤800 lines)_
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+docker build -t hoho/sensor-fsmon:latest sensors/fsmon
+docker build -t hoho/sensor-http-proxy:latest sensors/http_proxy
+docker build -t hoho/sensor-pcap:latest sensors/pcap
+```
+
 ### `honeypot-platform/scripts/check_docs.sh`  _(~0.6 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env bash
@@ -2850,28 +3012,74 @@ RUN pip install --no-cache-dir mitmproxy PyYAML jsonschema && chmod +x /entrypoi
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
-### `honeypot-platform/sensors/http_proxy/README.md`  _(~0.1 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/http_proxy/README.md`  _(~0.9 KB; showing ≤800 lines)_
 ```md
 # sensor-http-proxy
 
 Mitmproxy reverse-proxy sensor emitting canonical events and request-body artifacts.
+
+## Runtime Environment Variables
+- `UPSTREAM` (default: `http://upstream:80`): reverse proxy target.
+- `PROXY_LISTEN_HOST` (default: `0.0.0.0`): bind host for mitmproxy.
+- `PROXY_LISTEN_PORT` (default: `8080`): bind port for mitmproxy.
+- `PROXY_KEEP_HOST_HEADER` (default: `true`): when truthy (`1`, `true`, `yes`, `on`, case-insensitive), pass the incoming `Host` header upstream.
+- `PROXY_EXTRA_ARGS` (default: empty): raw extra CLI args appended to `mitmdump`.
+
+## Redirect Troubleshooting
+If clients are redirected to an internal name like `http://web:8088/...`, the upstream app is generating redirects based on the rewritten `Host` header.
+
+This sensor enables mitmproxy `keep_host_header` by default so the upstream sees the original host/port from the client request. To intentionally disable this behavior, set `PROXY_KEEP_HOST_HEADER=false`.
 ```
 
-### `honeypot-platform/sensors/http_proxy/entrypoint.sh`  _(~0.1 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/http_proxy/entrypoint.sh`  _(~0.8 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env sh
 set -eu
+
 : "${UPSTREAM:=http://upstream:80}"
-exec mitmdump --mode "reverse:${UPSTREAM}" -s /app/capture_addon.py
+: "${PROXY_LISTEN_HOST:=0.0.0.0}"
+: "${PROXY_LISTEN_PORT:=8080}"
+: "${PROXY_KEEP_HOST_HEADER:=true}"
+: "${PROXY_EXTRA_ARGS:=}"
+
+is_truthy() {
+    value=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+    case "$value" in
+        1|true|yes|on)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+set -- \
+    --mode "reverse:${UPSTREAM}" \
+    --listen-host "${PROXY_LISTEN_HOST}" \
+    --listen-port "${PROXY_LISTEN_PORT}" \
+    -s /app/capture_addon.py
+
+if is_truthy "${PROXY_KEEP_HOST_HEADER}"; then
+    set -- "$@" --set keep_host_header=true
+fi
+
+if [ -n "${PROXY_EXTRA_ARGS}" ]; then
+    # shellcheck disable=SC2086
+    set -- "$@" ${PROXY_EXTRA_ARGS}
+fi
+
+exec mitmdump "$@"
 ```
 
-### `honeypot-platform/sensors/http_proxy/proxy/capture_addon.py`  _(~2.1 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/http_proxy/proxy/capture_addon.py`  _(~3.6 KB; showing ≤800 lines)_
 ```python
+import hashlib
 import json
 import os
-from pathlib import Path
+import sys
 from datetime import datetime, timezone
-import hashlib
+from pathlib import Path
 
 PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
 ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
@@ -2888,32 +3096,100 @@ def _append_event(ev: dict):
         f.write(json.dumps(ev) + "\n")
 
 
+def _log_error(message: str):
+    print(f"capture_addon error: {message}", file=sys.stderr)
+
+
+def _peername(flow):
+    client_conn = getattr(flow, "client_conn", None)
+    if not client_conn:
+        return None
+    peername = getattr(client_conn, "peername", None)
+    if isinstance(peername, tuple) and len(peername) >= 2:
+        return peername
+    return None
+
+
+def _forwarded_for_values(req) -> list[str]:
+    header_val = req.headers.get("X-Forwarded-For", "")
+    if not header_val:
+        return []
+    return [v.strip() for v in header_val.split(",") if v.strip()]
+
+
 def response(flow):
-    req = flow.request
-    resp = flow.response
-    body = req.raw_content or b""
-    digest = hashlib.sha256(body).hexdigest() if body else None
-    if body:
-        bp = ROOT / PACK_ID / "blobs" / digest[:2] / digest
-        bp.parent.mkdir(parents=True, exist_ok=True)
-        if not bp.exists():
-            bp.write_bytes(body)
-    ev = {
-        "schema_version": 1,
-        "event_id": flow.id,
-        "ts": _now(),
-        "pack_id": PACK_ID,
-        "interaction": "high",
-        "component": "sensor.http_proxy",
-        "src": {"ip": req.remote_conn.address[0] if req.remote_conn.address else None, "port": req.remote_conn.address[1] if req.remote_conn.address else None, "forwarded_for": [], "user_agent": req.headers.get("User-Agent")},
-        "proto": "http",
-        "request": [REDACTED]
-        "response": {"status_code": resp.status_code if resp else None, "bytes_sent": len(resp.raw_content or b"") if resp else 0, "profile": None},
-        "classification": {"verdict": "unknown", "tags": [], "indicators": []},
-        "decision": {"truncated": False, "oversized": False, "rate_limited": False, "dropped": False},
-        "artifacts": ([{"kind": "request_body", "sha256": digest, "size": len(body), "mime": req.headers.get("Content-Type", "application/octet-stream"), "storage_ref": f"blobs/{digest[:2]}/{digest}", "meta": {}}] if body else []),
-    }
-    _append_event(ev)
+    try:
+        req = flow.request
+        resp = flow.response
+        body = req.raw_content or b""
+        digest = hashlib.sha256(body).hexdigest() if body else None
+
+        if body:
+            bp = ROOT / PACK_ID / "blobs" / digest[:2] / digest
+            bp.parent.mkdir(parents=True, exist_ok=True)
+            if not bp.exists():
+                bp.write_bytes(body)
+
+        peername = _peername(flow)
+        src_ip = peername[0] if peername else None
+        src_port = peername[1] if peername else None
+
+        ev = {
+            "schema_version": 1,
+            "event_id": flow.id,
+            "ts": _now(),
+            "pack_id": PACK_ID,
+            "interaction": "high",
+            "component": "sensor.http_proxy",
+            "src": {
+                "ip": src_ip,
+                "port": src_port,
+                "forwarded_for": _forwarded_for_values(req),
+                "user_agent": req.headers.get("User-Agent"),
+            },
+            "proto": "http",
+            "http": {"host": req.headers.get("Host")},
+            "request": {
+                "method": req.method,
+                "path": req.path,
+                "query": dict(req.query),
+                "headers_redacted": {
+                    k: [REDACTED]
+                    for k, v in req.headers.items()
+                },
+                "content_type": req.headers.get("Content-Type"),
+                "content_length": len(body),
+            },
+            "response": {
+                "status_code": resp.status_code if resp else None,
+                "bytes_sent": len(resp.raw_content or b"") if resp else 0,
+                "profile": None,
+            },
+            "classification": {"verdict": "unknown", "tags": [], "indicators": []},
+            "decision": {
+                "truncated": False,
+                "oversized": False,
+                "rate_limited": False,
+                "dropped": False,
+            },
+            "artifacts": (
+                [
+                    {
+                        "kind": "request_body",
+                        "sha256": digest,
+                        "size": len(body),
+                        "mime": req.headers.get("Content-Type", "application/octet-stream"),
+                        "storage_ref": f"blobs/{digest[:2]}/{digest}",
+                        "meta": {},
+                    }
+                ]
+                if body
+                else []
+            ),
+        }
+        _append_event(ev)
+    except Exception as exc:  # noqa: BLE001
+        _log_error(str(exc))
 ```
 
 ### `honeypot-platform/sensors/pcap/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_
