@@ -51,4 +51,22 @@ def validate_pack(pack: dict) -> list[str]:
         out.append("semantic error: low interaction pack requires behaviors")
     if interaction == "high" and "stack" not in pack:
         out.append("semantic error: high interaction pack requires stack")
+
+    services = pack.get("stack", {}).get("services", {})
+    service_names = set(services.keys()) if isinstance(services, dict) else set()
+    for sensor in pack.get("sensors", []):
+        if sensor.get("type") != "egress_proxy":
+            continue
+
+        if interaction != "high":
+            out.append("semantic error: sensor type 'egress_proxy' requires metadata.interaction=high")
+
+        attach = sensor.get("attach", {})
+        attached_services = attach.get("services", [])
+        for service_name in attached_services:
+            if service_name not in service_names:
+                out.append(
+                    f"semantic error: egress_proxy sensor '{sensor.get('name', '<unnamed>')}' attaches to unknown service '{service_name}'"
+                )
+
     return out

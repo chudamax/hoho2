@@ -79,3 +79,39 @@ Redirect troubleshooting:
 Schema validation is run first (shape/types). Semantic checks run after schema validation and enforce interaction-specific requirements:
 - low interaction packs require `behaviors`
 - high interaction packs require `stack`
+
+
+### `egress_proxy`
+```yaml
+- name: egress
+  type: egress_proxy
+  attach:
+    services: ["web"]
+  config:
+    listen_host: "0.0.0.0"
+    listen_port: 3128
+    force_egress_via_proxy: true
+    tls_mitm:
+      enabled: true
+      ca_install:
+        enabled: true
+        mode: auto
+        custom_cert_path: null
+        custom_key_path: null
+      install_trust:
+        enabled: true
+        also_set_env_bundles: true
+        extra_commands: []
+    capture:
+      enabled: true
+      bodies: "*"
+      max_bytes: 52428800
+      store_ok_only: true
+      min_bytes: 1
+      redact_headers: ["Authorization", "Cookie"]
+```
+- High-interaction only.
+- `attach.services[]` must point to services in `stack.services`.
+- `force_egress_via_proxy: true` renders `hp_internal` (internal) and `hp_external` networks, attaching app services only to internal and proxy to both.
+- Capture defaults to `bodies: "*"` (all response bodies, subject to caps); use `bodies: "none"` or `capture.enabled: false` for metadata-only mode.
+- TLS MITM can generate and persist a per-stack CA and optionally trigger post-up CA trust installation for attached services.

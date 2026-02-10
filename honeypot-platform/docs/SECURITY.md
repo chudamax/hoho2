@@ -19,3 +19,9 @@ Captured payloads are treated as opaque bytes. The platform never executes, impo
 - Enable strict size limits to reduce resource abuse.
 - Redact sensitive headers by default.
 - Avoid shelling out with untrusted input.
+
+
+## Egress Proxy + TLS MITM Safety
+- Captured response bodies (including binaries) are untrusted and must be handled as malware-grade content.
+- The generated MITM CA is honeypot-only; never reuse it in production or on analyst workstations.
+- CA private key material remains inside the egress proxy container/artifacts confdir and is never mounted into target services.
