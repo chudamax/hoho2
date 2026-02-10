@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata"],
+  "properties": {
+    "apiVersion": {"const": "hoho.dev/v1"},
+    "kind": {"const": "HoneypotPack"},
+    "metadata": {
+      "type": "object",
+      "required": ["id", "name", "interaction", "description"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "name": {"type": "string"},
+        "interaction": {"enum": ["low", "high"]},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "description": {"type": "string"}
+      }
+    },
+    "storage": {"type": "object"},
+    "limits": {"type": "object"},
+    "telemetry": {"type": "object"},
+    "listen": {"type": "array"},
+    "responses": {"type": "object"},
+    "behaviors": {"type": "array"},
+    "stack": {"type": "object"},
+    "sensors": {"type": "array"}
+  }
+}
