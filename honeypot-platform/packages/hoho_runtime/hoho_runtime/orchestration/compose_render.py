@@ -3,6 +3,8 @@ from pathlib import Path, PurePosixPath
 
 import yaml
 
+from hoho_runtime.config import DEFAULT_STORAGE_ROOT
+
 
 SENSOR_IMAGES = {
     "proxy": "hoho/sensor-http-proxy:latest",
@@ -93,10 +95,20 @@ def _storage_env(pack_id: str) -> dict:
     }
 
 
-def render_compose(pack: dict, out_dir: str | None = None) -> Path:
+def render_compose(
+    pack: dict,
+    out_dir: str | None = None,
+    run_id: str | None = None,
+    artifacts_root: str | None = None,
+) -> Path:
     pack_id = pack["metadata"]["id"]
     root = Path(out_dir or f"./deploy/compose/{pack_id}")
     root.mkdir(parents=True, exist_ok=True)
+
+    storage_root = Path(artifacts_root or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT))
+    run_root_host = storage_root / "runs" / run_id if run_id else storage_root
+    run_root_host.mkdir(parents=True, exist_ok=True)
+    artifacts_bind_mount = f"{run_root_host.resolve()}:/artifacts"
 
     services = deepcopy(pack.get("stack", {}).get("services", {}))
     networks_used: set[str] = set()
@@ -113,7 +125,7 @@ def render_compose(pack: dict, out_dir: str | None = None) -> Path:
         sensor_service = {
             "image": SENSOR_IMAGES.get(stype, "busybox:latest"),
             "environment": _storage_env(pack_id),
-            "volumes": ["artifacts:/artifacts"],
+            "volumes": [artifacts_bind_mount],
         }
 
         if stype == "fsmon":
@@ -214,13 +226,11 @@ def render_compose(pack: dict, out_dir: str | None = None) -> Path:
 
         services[sname] = sensor_service
 
-    compose = {
-        "services": services,
-        "volumes": {"artifacts": {}},
-    }
+    compose = {"services": services}
 
-    for volume_name in sorted(_collect_named_volumes(services)):
-        compose["volumes"].setdefault(volume_name, {})
+    named_volumes = sorted(_collect_named_volumes(services))
+    if named_volumes:
+        compose["volumes"] = {volume_name: {} for volume_name in named_volumes}
 
     if networks_used:
         compose["networks"] = {name: {} for name in sorted(networks_used)}

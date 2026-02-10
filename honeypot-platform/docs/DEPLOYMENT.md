@@ -8,13 +8,22 @@
 3. Send traffic to configured listen port.
 4. Inspect `run/artifacts/<pack_id>/index/events.jsonl` and `blobs/`.
 
-## Quickstart: High-Interaction Pack
+## Quickstart: High-Interaction Pack (simple render mode)
 1. Validate pack:
    - `hoho validate packs/high/example_wp_stack.yaml`
 2. Render compose bundle:
    - `hoho render-compose packs/high/example_wp_stack.yaml`
 3. Start stack:
-   - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml up`
+   - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml up -d`
+4. Artifacts land on host under:
+   - `run/artifacts/example-wp-stack/...`
+
+## Quickstart: High-Interaction Pack (`hoho run`, isolated)
+1. Start run:
+   - `hoho run packs/high/example_wp_stack.yaml`
+2. `hoho run` prints JSON with `pack_id`, `run_id`, `artifacts_host_path`, `compose_file`, `project_name`.
+3. Artifacts land on host under:
+   - `run/artifacts/runs/<run_id>/example-wp-stack/...`
 
 ## Smoke Commands (high interaction)
 From `honeypot-platform/`:
@@ -28,6 +37,20 @@ From `honeypot-platform/`:
    - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml exec web sh -lc 'echo test > /var/www/html/wp-content/uploads/probe.txt'`
 5. Verify artifacts/events:
    - `tail -n 50 run/artifacts/example-wp-stack/index/events.jsonl`
+
+## Multi-instance verification helpers
+After starting isolated runs with `hoho run`:
+
+```bash
+# find the newest run
+ls -1dt run/artifacts/runs/* | head -n1
+
+# tail events
+tail -n 20 run/artifacts/runs/<run_id>/example-wp-stack/index/events.jsonl
+
+# list blobs
+find run/artifacts/runs/<run_id>/example-wp-stack/blobs -type f | head
+```
 
 ## Generated Output Policy
 - `deploy/compose/**` is generated output from `hoho render-compose` and should not be committed.
