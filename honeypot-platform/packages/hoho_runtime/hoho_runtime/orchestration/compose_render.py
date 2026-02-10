@@ -334,7 +334,17 @@ exit 0
                 )
 
             sensor_service["volumes"].append(f"{(root / 'runtime').resolve()}:/runtime:ro")
+            sensor_service["volumes"].append(f"{(root / 'runtime' / 'ca').resolve()}:/runtime/ca:ro")
             sensor_service["volumes"].append(f"{(storage_root / pack_id).resolve()}:/artifacts/{pack_id}")
+
+            if tls_mitm_enabled and ca_install_enabled and ca_install_mode.strip().lower() != "off":
+                sensor_service["environment"].update(
+                    {
+                        "PROXY_CA_INSTALL_MODE": "custom",
+                        "PROXY_CUSTOM_CERT_PATH": "/runtime/ca/egress-ca.crt",
+                        "PROXY_CUSTOM_KEY_PATH": "/runtime/ca/egress-ca.key",
+                    }
+                )
 
             if force_egress:
                 network_defs["hp_internal"] = {"internal": True}
@@ -350,7 +360,7 @@ exit 0
                     attach_service.setdefault("volumes", []).extend(
                         [
                             f"{(root / 'runtime' / 'ca' / 'install-ca.sh').resolve()}:/hoho/ca/install-ca.sh:ro",
-                            f"{(storage_root / pack_id / 'ca' / 'egress-ca.crt').resolve()}:/hoho/ca/egress-ca.crt:ro",
+                            f"{(root / 'runtime' / 'ca' / 'egress-ca.crt').resolve()}:/hoho/ca/egress-ca.crt:ro",
                         ]
                     )
             else:
