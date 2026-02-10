@@ -6,6 +6,7 @@ from pathlib import Path
 
 from hoho_core.schema.validate import load_pack, validate_pack
 from hoho_runtime.config import DEFAULT_STORAGE_ROOT
+from hoho_runtime.orchestration.compose_down_all import down_all
 from hoho_runtime.orchestration.compose_render import render_compose
 from hoho_runtime.orchestration.compose_run import run_compose
 from hoho_runtime.server.http import run_low_http
@@ -22,19 +23,27 @@ def _warn_if_run_id_used(run_id: str | None) -> None:
 
 
 def _guess_project_root(pack_path: Path) -> Path:
-    current = pack_path.parent
-    candidates: list[Path] = [current, *current.parents]
+    return _resolve_repo_root(pack_path.parent)
+
+
+def _resolve_repo_root(start: Path) -> Path:
+    candidates: list[Path] = [start, *start.parents]
 
     for candidate in candidates:
         compose_dir = candidate / "deploy" / "compose"
         if compose_dir.is_dir() or (compose_dir / "README.md").exists():
             return candidate
 
+        nested_root = candidate / "honeypot-platform"
+        nested_compose_dir = nested_root / "deploy" / "compose"
+        if nested_compose_dir.is_dir() or (nested_compose_dir / "README.md").exists():
+            return nested_root
+
     for candidate in candidates:
         if (candidate / "packs").is_dir():
             return candidate
 
-    return pack_path.parent
+    return start
 
 
 def _compose_output_dir(honeypot_id: str, output: str | None, project_root: Path) -> str:
@@ -135,6 +144,27 @@ def cmd_explain(args):
     print(json.dumps(plan, indent=2))
 
 
+def cmd_down_all(args):
+    repo_root = _resolve_repo_root(Path.cwd())
+    result = down_all(
+        repo_root,
+        remove_volumes=args.volumes,
+        dry_run=args.dry_run,
+        include_stale=args.include_stale,
+    )
+
+    print(
+        "found "
+        f"{len(result.projects_found)} projects, "
+        f"stopped {len(result.projects_stopped)}, "
+        f"failed {len(result.projects_failed)}, "
+        f"cleaned stale {len(result.stray_projects_cleaned)}"
+    )
+
+    if result.projects_failed:
+        raise SystemExit(2)
+
+
 def main():
     parser = argparse.ArgumentParser(prog="hoho")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -161,6 +191,12 @@ def main():
     p_ex = sub.add_parser("explain")
     p_ex.add_argument("pack")
     p_ex.set_defaults(func=cmd_explain)
+
+    p_down_all = sub.add_parser("down-all")
+    p_down_all.add_argument("--volumes", action="store_true")
+    p_down_all.add_argument("--dry-run", action="store_true")
+    p_down_all.add_argument("--include-stale", action=argparse.BooleanOptionalAction, default=True)
+    p_down_all.set_defaults(func=cmd_down_all)
 
     args = parser.parse_args()
     args.func(args)
