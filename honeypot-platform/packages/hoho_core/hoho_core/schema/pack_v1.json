@@ -10,11 +10,12 @@
       "required": ["id", "name", "interaction", "description"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
-        "name": {"type": "string"},
+        "name": {"type": "string", "minLength": 1},
         "interaction": {"enum": ["low", "high"]},
         "tags": {"type": "array", "items": {"type": "string"}},
-        "description": {"type": "string"}
-      }
+        "description": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
     },
     "storage": {"type": "object"},
     "limits": {"type": "object"},
@@ -22,7 +23,142 @@
     "listen": {"type": "array"},
     "responses": {"type": "object"},
     "behaviors": {"type": "array"},
-    "stack": {"type": "object"},
-    "sensors": {"type": "array"}
-  }
+    "stack": {
+      "type": "object",
+      "properties": {
+        "runtime": {"type": "string"},
+        "services": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "volumes": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {"type": "string"},
+                    {"type": "object"}
+                  ]
+                }
+              },
+              "networks": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "ports": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "sensors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "attach"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "type": {"enum": ["fsmon", "proxy", "pcap"]},
+          "attach": {
+            "type": "object",
+            "properties": {
+              "service": {"type": "string", "minLength": 1},
+              "network": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          },
+          "config": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["watch"],
+                "properties": {
+                  "watch": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {"type": "string", "minLength": 1}
+                  },
+                  "allow_globs": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  },
+                  "deny_globs": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  },
+                  "max_bytes": {"type": "integer", "minimum": 1}
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": ["upstream"],
+                "properties": {
+                  "upstream": {"type": "string", "minLength": 1},
+                  "listen_port": {"type": "integer", "minimum": 1}
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "interface": {"type": "string", "minLength": 1},
+                  "rotate_seconds": {"type": "integer", "minimum": 1},
+                  "rotate_count": {"type": "integer", "minimum": 1}
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {"type": {"const": "fsmon"}},
+              "required": ["type"]
+            },
+            "then": {
+              "required": ["config"],
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": ["watch"]
+                },
+                "attach": {
+                  "type": "object",
+                  "required": ["service"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {"type": {"const": "proxy"}},
+              "required": ["type"]
+            },
+            "then": {
+              "required": ["config"],
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": ["upstream"]
+                },
+                "attach": {
+                  "type": "object",
+                  "required": ["service"]
+                }
+              }
+            }
+          }
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
 }

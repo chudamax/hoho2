@@ -18,6 +18,11 @@ def cmd_validate(args):
 
 def cmd_render_compose(args):
     pack = load_pack(args.pack)
+    errors = validate_pack(pack)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}")
+        raise SystemExit(1)
     out = render_compose(pack, args.output)
     print(out)
 
