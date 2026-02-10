@@ -1,5 +1,765 @@
 # Repository Brief: hoho2
 
+_Generated 2026-02-10 16:55 UTC_
+
+## Quick Facts
+- **Branch:** main
+- **Commit:** f497d6e (2026-02-10 17:06:32 +0100)
+- **Total commits:** 29
+- **Files scanned:** 80
+- **Text files embedded (after filters):** 80
+
+## Language & LOC Overview (approx.)
+- **python** — files: 33 (41.2%), LOC: 1393
+- **md** — files: 22 (27.5%), LOC: 4511
+- **bash** — files: 9 (11.2%), LOC: 205
+- **yaml** — files: 6 (7.5%), LOC: 490
+- **other** — files: 5 (6.2%), LOC: 238
+- **json** — files: 2 (2.5%), LOC: 437
+- **toml** — files: 2 (2.5%), LOC: 30
+- **html** — files: 1 (1.2%), LOC: 12
+
+## Directory Tree (depth ≤ 10)
+
+```text
+- .gitignore
+- AGENTS.md
+- REPO_BRIEF.md
+- honeypot-platform
+  - docs
+    - ARCHITECTURE.md
+    - DEPLOYMENT.md
+    - DIRECTORY_LAYOUT.md
+    - DSL_REFERENCE.md
+    - EVENT_SCHEMA.md
+    - PACK_SPEC.md
+    - README.md
+    - SECURITY.md
+    - SENSORS.md
+    - STORAGE_LAYOUT.md
+  - scripts
+    - build_sensors.sh
+    - check_docs.sh
+    - check_layout.sh
+  - deploy
+    - compose
+      - README.md
+    - runbooks
+      - high-interaction-honeypot-from-cve.md
+      - low-interaction-honeypot-from-cve.md
+  - packages
+    - hoho_core
+      - pyproject.toml
+    - hoho_runtime
+  - packs
+    - high
+      - cve-2020-25213_wp_file_upload.yaml
+      - cve-2021-41773_42013.yaml
+      - example_wp_stack.yaml
+    - low
+      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
+      - example_upload_sink.yaml
+      - example_web.yaml
+  - sensors
+    - egress_proxy
+      - Dockerfile
+      - entrypoint.sh
+    - fsmon
+    - http_proxy
+    - pcap
+  - honeypots
+      - cve-2021-41773_42013
+        - README.md
+        - reset.sh
+      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
+      - hoho_core
+        - __init__.py
+        - version.py
+      - hoho_runtime
+        - cli.py
+        - config.py
+      - proxy
+        - egress_capture_addon.py
+      - fsmon
+        - fsmon.py
+        - rules.schema.json
+        - capture_addon.py
+        - dsl
+          - __init__.py
+          - actions.py
+          - engine.py
+          - matchers.py
+          - templates.py
+        - model
+          - artifact.py
+          - event.py
+        - schema
+          - pack_v1.json
+          - validate.py
+        - storage
+          - base.py
+          - fs.py
+        - utils
+          - filenames.py
+          - hashing.py
+          - jsonl.py
+          - redact.py
+          - time.py
+        - orchestration
+          - compose_render.py
+          - compose_run.py
+        - server
+          - http.py
+          - tcp.py
+        - cgi-bin
+          - health.sh
+        - htdocs
+          - index.html
+```
+
+## Recent Commits
+- f497d6e | 2026-02-10 | Merge pull request #9 from chudamax/codex/add-egress_proxy-sensor-type
+- 87640a3 | 2026-02-10 | Add high-interaction egress proxy sensor with MITM capture pipeline
+- a724fc1 | 2026-02-10 | Merge pull request #8 from chudamax/codex/fix-hoho-cli-output-paths
+- 90753a1 | 2026-02-10 | Fix hoho default output paths to use pack project root
+- ce2988a | 2026-02-10 | up
+- a6f656d | 2026-02-10 | up
+- 1d6a931 | 2026-02-10 | up
+- bcb465c | 2026-02-10 | Merge pull request #7 from chudamax/codex/simplify-honeypot-layout-and-migrate-files
+- 39c1111 | 2026-02-10 | Simplify honeypot layout to honeypot_id-only paths
+- 69b2412 | 2026-02-10 | up
+
+## Files (embedded, trimmed)
+> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+
+### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
+```
+artifacts/
+run/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# Generated compose/runtime outputs
+honeypot-platform/deploy/compose/*
+!honeypot-platform/deploy/compose/README.md
+honeypot-platform/run/artifacts/**
+```
+
+### `AGENTS.md`  _(~1.4 KB; showing ≤800 lines)_
+```md
+# AGENTS.md (repo root)
+
+## Honeypot layout (Simple Layout v1)
+- Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
+- Always use `honeypot_id == metadata.id`.
+- Create packs only at `honeypot-platform/packs/{low,high}/<honeypot_id>.yaml`.
+- Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
+- Never create `.md` next to pack YAML files.
+- Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
+- Compose always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
+- Never create `honeypot-platform/run/artifacts/<runs-subtree>/**`.
+- Never create non-canonical honeypot folders such as `honeypot-platform/honeypots/high/<cve-only>/`.
+
+# Honeypots: low-interaction
+- When asked to create a new low-interaction honeypot from a CVE, ALWAYS read:
+  `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`
+- Follow the runbook exactly: research -> derive request transcripts -> implement YAML pack -> validate/run -> document.
+
+## Honeypots: high-interaction
+- When asked to create a new high-interaction honeypot from a CVE, ALWAYS read:
+  `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`
+- Prioritize isolation + capture: pcap, proxy download capture, filesystem monitoring, process/audit logs.
+- Provide a one-command reset script at `honeypot-platform/honeypots/high/<honeypot_id>/reset.sh`.
+```
+
+### `REPO_BRIEF.md`  _(~112.3 KB; showing ≤800 lines)_
+```md
+# Repository Brief: hoho2
+
+_Generated 2026-02-10 15:43 UTC_
+
+## Quick Facts
+- **Branch:** main
+- **Commit:** ce2988a (2026-02-10 15:37:08 +0000)
+- **Total commits:** 25
+- **Files scanned:** 77
+- **Text files embedded (after filters):** 77
+
+## Language & LOC Overview (approx.)
+- **python** — files: 32 (41.6%), LOC: 962
+- **md** — files: 22 (28.6%), LOC: 5141
+- **bash** — files: 8 (10.4%), LOC: 152
+- **yaml** — files: 6 (7.8%), LOC: 460
+- **other** — files: 4 (5.2%), LOC: 232
+- **json** — files: 2 (2.6%), LOC: 173
+- **toml** — files: 2 (2.6%), LOC: 30
+- **html** — files: 1 (1.3%), LOC: 12
+
+## Directory Tree (depth ≤ 10)
+
+```text
+- .gitignore
+- AGENTS.md
+- REPO_BRIEF.md
+- honeypot-platform
+  - docs
+    - ARCHITECTURE.md
+    - DEPLOYMENT.md
+    - DIRECTORY_LAYOUT.md
+    - DSL_REFERENCE.md
+    - EVENT_SCHEMA.md
+    - PACK_SPEC.md
+    - README.md
+    - SECURITY.md
+    - SENSORS.md
+    - STORAGE_LAYOUT.md
+  - scripts
+    - build_sensors.sh
+    - check_docs.sh
+    - check_layout.sh
+  - deploy
+    - compose
+      - README.md
+    - runbooks
+      - high-interaction-honeypot-from-cve.md
+      - low-interaction-honeypot-from-cve.md
+  - packages
+    - hoho_core
+      - pyproject.toml
+    - hoho_runtime
+  - packs
+    - high
+      - cve-2020-25213_wp_file_upload.yaml
+      - cve-2021-41773_42013.yaml
+      - example_wp_stack.yaml
+    - low
+      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
+      - example_upload_sink.yaml
+      - example_web.yaml
+  - sensors
+    - fsmon
+      - Dockerfile
+      - entrypoint.sh
+    - http_proxy
+    - pcap
+  - honeypots
+      - cve-2021-41773_42013
+        - README.md
+        - reset.sh
+      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
+      - hoho_core
+        - __init__.py
+        - version.py
+      - hoho_runtime
+        - cli.py
+        - config.py
+      - fsmon
+        - fsmon.py
+        - rules.schema.json
+      - proxy
+        - capture_addon.py
+        - dsl
+          - __init__.py
+          - actions.py
+          - engine.py
+          - matchers.py
+          - templates.py
+        - model
+          - artifact.py
+          - event.py
+        - schema
+          - pack_v1.json
+          - validate.py
+        - storage
+          - base.py
+          - fs.py
+        - utils
+          - filenames.py
+          - hashing.py
+          - jsonl.py
+          - redact.py
+          - time.py
+        - orchestration
+          - compose_render.py
+          - compose_run.py
+        - server
+          - http.py
+          - tcp.py
+        - cgi-bin
+          - health.sh
+        - htdocs
+          - index.html
+```
+
+## Recent Commits
+- ce2988a | 2026-02-10 | up
+- a6f656d | 2026-02-10 | up
+- 1d6a931 | 2026-02-10 | up
+- bcb465c | 2026-02-10 | Merge pull request #7 from chudamax/codex/simplify-honeypot-layout-and-migrate-files
+- 39c1111 | 2026-02-10 | Simplify honeypot layout to honeypot_id-only paths
+- 69b2412 | 2026-02-10 | up
+- 1a315d8 | 2026-02-10 | Merge pull request #6 from chudamax/codex/add-high-interaction-honeypot-for-rce
+- 47eec09 | 2026-02-10 | Add Apache 2.4.49/2.4.50 high-interaction traversal RCE honeypot
+- 9aa29a2 | 2026-02-10 | updates
+- 25748eb | 2026-02-10 | Merge pull request #5 from chudamax/codex/add-low-interaction-honeypot-for-apache-rce
+
+## Files (embedded, trimmed)
+[REDACTED]
+
+### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
+```
+artifacts/
+run/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# Generated compose/runtime outputs
+honeypot-platform/deploy/compose/*
+!honeypot-platform/deploy/compose/README.md
+honeypot-platform/run/artifacts/**
+```
+
+### `AGENTS.md`  _(~1.4 KB; showing ≤800 lines)_
+```md
+# AGENTS.md (repo root)
+
+## Honeypot layout (Simple Layout v1)
+- Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
+- Always use `honeypot_id == metadata.id`.
+- Create packs only at `honeypot-platform/packs/{low,high}/<honeypot_id>.yaml`.
+- Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
+- Never create `.md` next to pack YAML files.
+- Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
+- Compose always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
+- Never create `honeypot-platform/run/artifacts/<runs-subtree>/**`.
+- Never create non-canonical honeypot folders such as `honeypot-platform/honeypots/high/<cve-only>/`.
+
+# Honeypots: low-interaction
+- When asked to create a new low-interaction honeypot from a CVE, ALWAYS read:
+  `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`
+- Follow the runbook exactly: research -> derive request transcripts -> implement YAML pack -> validate/run -> document.
+
+## Honeypots: high-interaction
+- When asked to create a new high-interaction honeypot from a CVE, ALWAYS read:
+  `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`
+- Prioritize isolation + capture: pcap, proxy download capture, filesystem monitoring, process/audit logs.
+- Provide a one-command reset script at `honeypot-platform/honeypots/high/<honeypot_id>/reset.sh`.
+```
+
+### `REPO_BRIEF.md`  _(~135.4 KB; showing ≤800 lines)_
+```md
+# Repository Brief: hoho2
+
 _Generated 2026-02-10 14:37 UTC_
 
 ## Quick Facts
@@ -132,7 +892,7 @@ _Generated 2026-02-10 14:37 UTC_
 - 8c9e2d8 | 2026-02-10 | Merge pull request #3 from chudamax/codex/fix-proxy-host-header-and-client-ip-handling
 
 ## Files (embedded, trimmed)
-> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+[REDACTED]
 
 ### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
 ```
@@ -419,772 +1179,21 @@ _Generated 2026-02-10 13:28 UTC_
     - hoho_runtime
   - packs
     - high
-      - example_wp_stack.yaml
-    - low
-      - example_upload_sink.yaml
-      - example_web.yaml
-  - sensors
-    - fsmon
-      - Dockerfile
-      - entrypoint.sh
-    - http_proxy
-    - pcap
-      - hoho_core
-        - __init__.py
-        - version.py
-      - hoho_runtime
-        - cli.py
-        - config.py
-      - fsmon
-        - fsmon.py
-        - rules.schema.json
-      - proxy
-        - capture_addon.py
-        - dsl
-          - __init__.py
-          - actions.py
-          - engine.py
-          - matchers.py
-          - templates.py
-        - model
-          - artifact.py
-          - event.py
-        - schema
-          - pack_v1.json
-          - validate.py
-        - storage
-          - base.py
-          - fs.py
-        - utils
-          - filenames.py
-          - hashing.py
-          - jsonl.py
-          - redact.py
-          - time.py
-        - orchestration
-          - compose_render.py
-          - compose_run.py
-        - server
-          - http.py
-          - tcp.py
-  - run
-    - artifacts
-      - example-upload-sink
-        - index
-          - events.jsonl
-      - example-web
-```
-
-## Recent Commits
-- eaf8062 | 2026-02-10 | Merge pull request #4 from chudamax/codex/implement-bind-mount-artifacts-for-multi-instance
-- 8eb48c5 | 2026-02-10 | Add run-isolated compose storage bind mounts
-- 8c9e2d8 | 2026-02-10 | Merge pull request #3 from chudamax/codex/fix-proxy-host-header-and-client-ip-handling
-- 2310a19 | 2026-02-10 | Fix http proxy host preservation and client addr capture
-- ededa93 | 2026-02-10 | up
-- fe48da6 | 2026-02-10 | Merge pull request #2 from chudamax/codex/implement-yaml-parsing-and-validation
-- 8f582f5 | 2026-02-10 | Implement YAML pack parsing and sidecar-aware compose rendering
-- 9c5165c | 2026-02-10 | updates
-- faecb69 | 2026-02-10 | updates
-- 002af03 | 2026-02-10 | Merge pull request #1 from chudamax/codex/create-yaml-first-honeypot-platform
-
-## Files (embedded, trimmed)
-[REDACTED]
-
-### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
-```
-artifacts/
-run/
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-#poetry.toml
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
-#pdm.lock
-#pdm.toml
-.pdm-python
-.pdm-build/
-
-# pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
-#pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
-
-# Generated compose/runtime outputs
-honeypot-platform/deploy/compose/*
-!honeypot-platform/deploy/compose/README.md
-honeypot-platform/run/artifacts/**
-```
-
-### `REPO_BRIEF.md`  _(~93.3 KB; showing ≤800 lines)_
-```md
-# Repository Brief: hoho2
-
-_Generated 2026-02-10 11:49 UTC_
-
-## Quick Facts
-- **Branch:** main
-- **Commit:** fe48da6 (2026-02-10 12:48:26 +0100)
-- **Total commits:** 7
-- **Files scanned:** 65
-- **Text files embedded (after filters):** 65
-
-## Language & LOC Overview (approx.)
-- **python** — files: 32 (49.2%), LOC: 804
-- **md** — files: 16 (24.6%), LOC: 1983
-- **other** — files: 6 (9.2%), LOC: 236
-- **bash** — files: 4 (6.2%), LOC: 50
-- **yaml** — files: 3 (4.6%), LOC: 180
-- **json** — files: 2 (3.1%), LOC: 173
-- **toml** — files: 2 (3.1%), LOC: 30
-
-## Directory Tree (depth ≤ 10)
-
-```text
-- .gitignore
-- REPO_BRIEF.md
-- honeypot-platform
-  - docs
-    - ARCHITECTURE.md
-    - DEPLOYMENT.md
-    - DSL_REFERENCE.md
-    - EVENT_SCHEMA.md
-    - PACK_SPEC.md
-    - README.md
-    - SECURITY.md
-    - SENSORS.md
-    - STORAGE_LAYOUT.md
-  - scripts
-    - check_docs.sh
-  - deploy
-    - compose
-      - README.md
-  - packages
-    - hoho_core
-      - pyproject.toml
-    - hoho_runtime
-  - packs
-    - high
-      - example_wp_stack.yaml
-    - low
-      - example_upload_sink.yaml
-      - example_web.yaml
-  - sensors
-    - fsmon
-      - Dockerfile
-      - entrypoint.sh
-    - http_proxy
-    - pcap
-      - hoho_core
-        - __init__.py
-        - version.py
-      - hoho_runtime
-        - cli.py
-        - config.py
-      - fsmon
-        - fsmon.py
-        - rules.schema.json
-      - proxy
-        - capture_addon.py
-        - dsl
-          - __init__.py
-          - actions.py
-          - engine.py
-          - matchers.py
-          - templates.py
-        - model
-          - artifact.py
-          - event.py
-        - schema
-          - pack_v1.json
-          - validate.py
-        - storage
-          - base.py
-          - fs.py
-        - utils
-          - filenames.py
-          - hashing.py
-          - jsonl.py
-          - redact.py
-          - time.py
-        - orchestration
-          - compose_render.py
-          - compose_run.py
-        - server
-          - http.py
-          - tcp.py
-  - run
-    - artifacts
-      - example-upload-sink
-        - index
-          - events.jsonl
-      - example-web
-```
-
-## Recent Commits
-- fe48da6 | 2026-02-10 | Merge pull request #2 from chudamax/codex/implement-yaml-parsing-and-validation
-- 8f582f5 | 2026-02-10 | Implement YAML pack parsing and sidecar-aware compose rendering
-- 9c5165c | 2026-02-10 | updates
-- faecb69 | 2026-02-10 | updates
-- 002af03 | 2026-02-10 | Merge pull request #1 from chudamax/codex/create-yaml-first-honeypot-platform
-- d757b05 | 2026-02-10 | Remove generated artifact blob from repository
-- c6f004d | 2026-02-10 | Initial commit
-
-## Files (embedded, trimmed)
-[REDACTED]
-
-### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
-```
-artifacts/
-run/
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-#poetry.toml
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
-#pdm.lock
-#pdm.toml
-.pdm-python
-.pdm-build/
-
-# pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
-#pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
-
-# Generated compose/runtime outputs
-honeypot-platform/deploy/compose/*
-!honeypot-platform/deploy/compose/README.md
-honeypot-platform/run/artifacts/**
-```
-
-### `REPO_BRIEF.md`  _(~56.7 KB; showing ≤800 lines)_
-```md
-# Repository Brief: hoho2
-
-_Generated 2026-02-10 11:24 UTC_
-
-## Quick Facts
-- **Branch:** main
-- **Commit:** 002af03 (2026-02-10 12:05:16 +0100)
-- **Total commits:** 3
-- **Files scanned:** 65
-- **Text files embedded (after filters):** 65
-
-## Language & LOC Overview (approx.)
-- **python** — files: 32 (49.2%), LOC: 621
-- **md** — files: 15 (23.1%), LOC: 222
-- **other** — files: 6 (9.2%), LOC: 229
-- **yaml** — files: 4 (6.2%), LOC: 121
-- **bash** — files: 4 (6.2%), LOC: 50
-- **json** — files: 2 (3.1%), LOC: 37
-- **toml** — files: 2 (3.1%), LOC: 26
-
-## Directory Tree (depth ≤ 10)
-
-```text
-- .gitignore
-- honeypot-platform
-  - docs
-    - ARCHITECTURE.md
-    - DEPLOYMENT.md
-    - DSL_REFERENCE.md
-    - EVENT_SCHEMA.md
-    - PACK_SPEC.md
-    - README.md
-    - SECURITY.md
-    - SENSORS.md
-    - STORAGE_LAYOUT.md
-  - scripts
-    - check_docs.sh
-  - deploy
-    - compose
-      - README.md
-  - packages
-    - hoho_core
-      - pyproject.toml
-    - hoho_runtime
-  - packs
-    - high
-      - example_wp_stack.yaml
-    - low
-      - example_upload_sink.yaml
-      - example_web.yaml
-  - sensors
-    - fsmon
-      - Dockerfile
-      - entrypoint.sh
-    - http_proxy
-    - pcap
-      - example-wp-stack
-        - docker-compose.yml
-      - hoho_core
-        - __init__.py
-        - version.py
-      - hoho_runtime
-        - cli.py
-        - config.py
-      - fsmon
-        - fsmon.py
-        - rules.schema.json
-      - proxy
-        - capture_addon.py
-        - dsl
-          - __init__.py
-          - actions.py
-          - engine.py
-          - matchers.py
-          - templates.py
-        - model
-          - artifact.py
-          - event.py
-        - schema
-          - pack_v1.json
-          - validate.py
-        - storage
-          - base.py
-          - fs.py
-        - utils
-          - filenames.py
-          - hashing.py
-          - jsonl.py
-          - redact.py
-          - time.py
-        - orchestration
-          - compose_render.py
-          - compose_run.py
-        - server
-          - http.py
-          - tcp.py
-  - run
-    - artifacts
-      - example-upload-sink
-        - index
-          - events.jsonl
-      - example-web
-```
-
-## Recent Commits
-- 002af03 | 2026-02-10 | Merge pull request #1 from chudamax/codex/create-yaml-first-honeypot-platform
-- d757b05 | 2026-02-10 | Remove generated artifact blob from repository
-- c6f004d | 2026-02-10 | Initial commit
-
-## Files (embedded, trimmed)
-[REDACTED]
-
-### `.gitignore`  _(~4.6 KB; showing ≤800 lines)_
-```
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
 ```
 <!-- trimmed: file exceeded per-file limits -->
 
-### `honeypot-platform/deploy/compose/README.md`  _(~0.4 KB; showing ≤800 lines)_
+### `honeypot-platform/deploy/compose/README.md`  _(~0.5 KB; showing ≤800 lines)_
 ```md
-# Rendered Compose Output
+# Compose output directory
 
-`hoho render-compose` writes generated Compose bundles into this tree.
+By default, `hoho` writes compose bundles under `<project_root>/deploy/compose/<honeypot_id>/`.
 
-- Default (`hoho render-compose <pack>`): `deploy/compose/<pack_id>/docker-compose.yml`
-- Run-specific (`hoho render-compose <pack> --run-id <run_id>` or `hoho run <pack>`):
-  `deploy/compose/<pack_id>/<run_id>/docker-compose.yml`
+When `-o/--output` is not provided, the CLI discovers `project_root` by walking up from the pack path and selecting:
+1. the first ancestor containing `deploy/compose` (or `deploy/compose/README.md`),
+2. otherwise the first ancestor containing `packs/`,
+3. otherwise the pack file's parent directory.
 
-Run-specific folders are intended for concurrent isolated stacks.
+If `-o/--output` is provided, `hoho` keeps existing behavior and uses that path as given.
 ```
 
 ### `honeypot-platform/docs/ARCHITECTURE.md`  _(~1.2 KB; showing ≤800 lines)_
@@ -1214,72 +1223,91 @@ High-interaction packs define stack services and sensor attachments. Compose ren
 5. Optional object materialization can be added under `objects/<event_id>/...` in future versions.
 ```
 
-### `honeypot-platform/docs/DEPLOYMENT.md`  _(~2.4 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/DEPLOYMENT.md`  _(~0.6 KB; showing ≤800 lines)_
 ```md
 # Deployment
 
-## Quickstart: Low-Interaction Pack
+## High-interaction quickstart
 1. Validate pack:
-   - `hoho validate packs/low/example_web.yaml`
-2. Run runtime:
-   - `hoho run packs/low/example_web.yaml`
-3. Send traffic to configured listen port.
-4. Inspect `run/artifacts/<pack_id>/index/events.jsonl` and `blobs/`.
-
-## Quickstart: High-Interaction Pack (simple render mode)
-1. Validate pack:
-   - `hoho validate packs/high/example_wp_stack.yaml`
-2. Render compose bundle:
-   - `hoho render-compose packs/high/example_wp_stack.yaml`
+   - `hoho validate packs/high/<honeypot_id>.yaml`
+2. Render compose (fixed output path):
+   - `hoho render-compose packs/high/<honeypot_id>.yaml`
 3. Start stack:
-   - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml up -d`
-4. Artifacts land on host under:
-   - `run/artifacts/example-wp-stack/...`
+   - `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml up -d`
+4. Inspect artifacts:
+   - `run/artifacts/<honeypot_id>/index/events.jsonl`
+   - `run/artifacts/<honeypot_id>/blobs/`
 
-## Quickstart: High-Interaction Pack (`hoho run`, isolated)
-1. Start run:
-   - `hoho run packs/high/example_wp_stack.yaml`
-2. `hoho run` prints JSON with `pack_id`, `run_id`, `artifacts_host_path`, `compose_file`, `project_name`.
-3. Artifacts land on host under:
-   - `run/artifacts/<honeypot_id>/...`
-
-## Smoke Commands (high interaction)
-From `honeypot-platform/`:
-1. Render:
-   - `hoho render-compose packs/high/example_wp_stack.yaml`
-2. Bring up:
-   - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml up -d`
-3. Generate traffic:
-   - `curl -i http://127.0.0.1:8088/`
-4. Trigger fsmon via watched volume-backed path:
-   - `docker compose -f deploy/compose/example-wp-stack/docker-compose.yml exec web sh -lc 'echo test > /var/www/html/wp-content/uploads/probe.txt'`
-5. Verify artifacts/events:
-   - `tail -n 50 run/artifacts/example-wp-stack/index/events.jsonl`
-
-## Multi-instance verification helpers
-After starting isolated runs with `hoho run`:
-
-```bash
-# find the newest run
-ls -1d run/artifacts/<honeypot_id>
-
-# tail events
-tail -n 20 run/artifacts/<honeypot_id>/index/events.jsonl
-
-# list blobs
-find run/artifacts/<honeypot_id>/blobs -type f | head
+## Notes
+- `deploy/compose/**` is generated and should not be committed.
+- `run/artifacts/<honeypot_id>/` is overwritten for each new run of the same honeypot.
+- Run only one active stack per `honeypot_id`.
 ```
 
-## Generated Output Policy
-- `deploy/compose/**` is generated output from `hoho render-compose` and should not be committed.
-- Runtime artifacts under `run/artifacts/**` are also generated and ignored.
-- Keep only `deploy/compose/README.md` tracked as documentation for this build-output directory.
+### `honeypot-platform/docs/DIRECTORY_LAYOUT.md`  _(~2.6 KB; showing ≤800 lines)_
+```md
+# DIRECTORY_LAYOUT.md
 
-## Recommended Isolation
-- Use dedicated network segments for honeypot exposure.
-- Restrict outbound egress from honeypot and sensor networks.
-- Run with non-privileged users wherever possible.
-- Mount artifact storage on isolated volumes with monitoring.
+## Simple Layout v1 (authoritative)
+
+### Source packs (YAML only)
+- `honeypot-platform/packs/low/<honeypot_id>.yaml`
+- `honeypot-platform/packs/high/<honeypot_id>.yaml`
+
+Optional assets (only if required):
+- `honeypot-platform/packs/low/<honeypot_id>/**`
+- `honeypot-platform/packs/high/<honeypot_id>/**`
+
+### Operator docs/scripts
+- `honeypot-platform/honeypots/low/<honeypot_id>/README.md`
+- `honeypot-platform/honeypots/high/<honeypot_id>/README.md`
+- `honeypot-platform/honeypots/high/<honeypot_id>/reset.sh` (recommended)
+
+### Generated output (never committed)
+- Compose: `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml` (overwritten)
+- Artifacts: `honeypot-platform/run/artifacts/<honeypot_id>/**` (overwritten)
+
+## MUST rules
+- MUST use `honeypot_id` as the only filesystem identifier.
+- MUST set `metadata.id == <honeypot_id>` in the corresponding YAML.
+- MUST keep packs as `.yaml` files under `packs/{low,high}`.
+- MUST keep human docs under `honeypots/{low,high}/<honeypot_id>/README.md`.
+- MUST render compose to `deploy/compose/<honeypot_id>/docker-compose.yml`.
+- MUST write artifacts to `run/artifacts/<honeypot_id>/...`.
+- MUST overwrite compose + artifacts in place for each run.
+
+## MUST NOT rules
+- MUST NOT create `run/artifacts/<runs-subtree>/**`.
+- MUST NOT create Markdown beside pack YAML files (`packs/**/*.md`).
+- MUST NOT commit generated compose files under `honeypots/**`.
+- MUST NOT create folders that differ from `honeypot_id` (example forbidden: `honeypots/high/2021-41773_42013/`).
+
+## Naming
+- Recommended `honeypot_id` format: `cve-YYYY-NNNN` or `cve-YYYY-NNNN_YYYY-NNNN`.
+- Examples:
+  - `cve-2021-41773_42013`
+  - `cve-2020-25213`
+
+## Overwrite warning
+Simple Layout v1 has **no run isolation**. Operators must not run two copies of the same honeypot concurrently. Starting a new run for a honeypot overwrites prior artifacts and compose output for that `honeypot_id`.
+
+Operational guidance:
+- Stop existing compose project first.
+- Clear `run/artifacts/<honeypot_id>/` before new runs.
+- Use per-honeypot reset scripts for consistent restart behavior.
+
+## Examples
+
+Low interaction:
+- Pack: `honeypot-platform/packs/low/cve-2020-25213.yaml`
+- README: `honeypot-platform/honeypots/low/cve-2020-25213/README.md`
+- Artifacts: `honeypot-platform/run/artifacts/cve-2020-25213/`
+
+High interaction:
+- Pack: `honeypot-platform/packs/high/cve-2021-41773_42013.yaml`
+- README: `honeypot-platform/honeypots/high/cve-2021-41773_42013/README.md`
+- Compose: `honeypot-platform/deploy/compose/cve-2021-41773_42013/docker-compose.yml`
+- Artifacts: `honeypot-platform/run/artifacts/cve-2021-41773_42013/`
 ```
 
 ### `honeypot-platform/docs/DSL_REFERENCE.md`  _(~1.0 KB; showing ≤800 lines)_
@@ -1345,7 +1373,7 @@ Every event includes:
 ```
 ```
 
-### `honeypot-platform/docs/PACK_SPEC.md`  _(~2.9 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/PACK_SPEC.md`  _(~4.0 KB; showing ≤800 lines)_
 ```md
 # Pack Specification (v1)
 
@@ -1428,6 +1456,42 @@ Redirect troubleshooting:
 Schema validation is run first (shape/types). Semantic checks run after schema validation and enforce interaction-specific requirements:
 - low interaction packs require `behaviors`
 - high interaction packs require `stack`
+
+
+### `egress_proxy`
+```yaml
+- name: egress
+  type: egress_proxy
+  attach:
+    services: ["web"]
+  config:
+    listen_host: "0.0.0.0"
+    listen_port: 3128
+    force_egress_via_proxy: true
+    tls_mitm:
+      enabled: true
+      ca_install:
+        enabled: true
+        mode: auto
+        custom_cert_path: null
+        custom_key_path: null
+      install_trust:
+        enabled: true
+        also_set_env_bundles: true
+        extra_commands: []
+    capture:
+      enabled: true
+      bodies: "*"
+      max_bytes: 52428800
+      store_ok_only: true
+      min_bytes: 1
+      redact_headers: [REDACTED]
+```
+- High-interaction only.
+- `attach.services[]` must point to services in `stack.services`.
+- `force_egress_via_proxy: true` renders `hp_internal` (internal) and `hp_external` networks, attaching app services only to internal and proxy to both.
+- Capture defaults to `bodies: "*"` (all response bodies, subject to caps); use `bodies: "none"` or `capture.enabled: false` for metadata-only mode.
+- TLS MITM can generate and persist a per-stack CA and optionally trigger post-up CA trust installation for attached services.
 ```
 
 ### `honeypot-platform/docs/README.md`  _(~0.2 KB; showing ≤800 lines)_
@@ -1437,7 +1501,7 @@ Schema validation is run first (shape/types). Semantic checks run after schema v
 This directory contains architecture, specification, sensor, storage, deployment, and security guidance for the YAML-first honeypot platform.
 ```
 
-### `honeypot-platform/docs/SECURITY.md`  _(~0.7 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/SECURITY.md`  _(~1.1 KB; showing ≤800 lines)_
 ```md
 # Security
 
@@ -1460,9 +1524,15 @@ Captured payloads are treated as opaque bytes. The platform never executes, impo
 - Enable strict size limits to reduce resource abuse.
 - Redact sensitive headers by default.
 - Avoid shelling out with untrusted input.
+
+
+## Egress Proxy + TLS MITM Safety
+- Captured response bodies (including binaries) are untrusted and must be handled as malware-grade content.
+- The generated MITM CA is honeypot-only; never reuse it in production or on analyst workstations.
+[REDACTED]
 ```
 
-### `honeypot-platform/docs/SENSORS.md`  _(~2.5 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/SENSORS.md`  _(~3.1 KB; showing ≤800 lines)_
 ```md
 # Sensors
 
@@ -1524,937 +1594,286 @@ Runtime env used by renderer:
 
 ## Operational Notes
 Disk usage can grow quickly from uploads and pcap segments. Use external rotation, retention cleanup, and dedicated storage volumes.
+
+
+## Egress Proxy Sensor
+- Runs mitmproxy in explicit forward-proxy mode.
+- Emits `sensor.egress_proxy.http` per flow with request/response metadata and redacted headers.
+- Supports response-body capture with `capture.bodies: "*"` (default) or metadata-only with `"none"`.
+- Persists mitmproxy confdir under artifacts and exports CA cert to `<artifacts>/<stack_id>/ca/egress-ca.crt`.
+- Runtime can execute `/hoho/ca/install-ca.sh` in attached services after startup and emits `system.ca_install.succeeded` / `system.ca_install.failed` events.
+- If trust install fails, HTTP capture still works; HTTPS may degrade to CONNECT-only visibility.
 ```
 
-### `honeypot-platform/docs/STORAGE_LAYOUT.md`  _(~1.2 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/STORAGE_LAYOUT.md`  _(~0.5 KB; showing ≤800 lines)_
 ```md
 # Storage Layout
 
-## Root Structure
 Default root is `./run/artifacts`.
 
-### Simple mode (no run id)
-Used by low-interaction runtime and `hoho render-compose` without `--run-id`.
+Simple Layout v1 stores data in a single stable directory per honeypot:
 
 ```text
-<root>/<pack_id>/
+<root>/<honeypot_id>/
   index/events.jsonl
   blobs/<sha256_prefix>/<sha256>
   objects/<event_id>/<kind>/<filename>
 ```
 
-### Run mode (isolated instances)
-Used by `hoho run` for high-interaction packs by default, and by `hoho render-compose --run-id <id>`.
+There is no run-isolated `runs/` subtree. A new run for the same honeypot overwrites the previous artifact tree.
 
-```text
-<root>/runs/<run_id>/<pack_id>/
-  index/events.jsonl
-  blobs/<sha256_prefix>/<sha256>
-  objects/<event_id>/<kind>/<filename>
+## Operational warning
+- Do not run two copies of the same honeypot concurrently.
+- Clear `<root>/<honeypot_id>/` before starting a new run when you need a clean capture session.
 ```
 
-Each run gets a unique `<run_id>` directory, so concurrent stacks do not interleave artifacts. Cleanup is straightforward: remove one `runs/<run_id>` directory.
-
-## Blob Dedupe
-Blobs are keyed by SHA256 and written once. Repeated payloads map to existing blob paths. `storage_ref` values in events point to the stable blob or object location.
-
-## Event File
-`events.jsonl` is append-only and stores one JSON object per line for easy stream processing.
-
-## Object Materialization
-`objects/` is reserved for per-event extracted files or metadata sidecars when operators need easier browsing than raw blob references.
-```
-
-### `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`  _(~13.6 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`  _(~2.1 KB; showing ≤800 lines)_
 ```md
-<!--
-File: docs/runbooks/high-interaction-honeypot-from-cve.md
-Purpose: Codex/humans runbook to create a new HIGH-interaction honeypot from a CVE ID.
--->
+# Runbook: high-interaction honeypot from CVE
 
-# Runbook: Create a high-interaction honeypot from a CVE (real service in a sandbox)
+## Required layout (Simple Layout v1)
+Follow `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
 
-This runbook describes a repeatable process to implement a **high-interaction** honeypot starting from only a **CVE name/ID** (e.g., `CVE-2020-25213`).
+- Pack YAML: `honeypot-platform/packs/high/<honeypot_id>.yaml`
+- Pack assets (optional): `honeypot-platform/packs/high/<honeypot_id>/**`
+- Operator doc: `honeypot-platform/honeypots/high/<honeypot_id>/README.md`
+- Reset script: `honeypot-platform/honeypots/high/<honeypot_id>/reset.sh`
+- Compose output: `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`
+- Artifacts: `honeypot-platform/run/artifacts/<honeypot_id>/...`
 
-High-interaction here means: you run a **real (vulnerable) service** in a controlled sandbox and capture **full attacker workflow** (pre-exploit probes, exploitation, post-exploitation downloads, file drops, process activity) for later analysis.
+## Capture priorities
+- PCAP capture.
+- HTTP proxy capture for downloads and request metadata.
+- Filesystem monitoring.
+- Process/audit telemetry where available.
 
-> This is a **defensive** runbook. It focuses on safe deployment, isolation, and telemetry.  
-> Do **not** embed weaponized payloads or “how-to exploit” instructions in the repo.
+## Forbidden
+- Do not create `run/artifacts/<runs-subtree>/**`.
+- Do not use run-isolated filesystem paths.
+- Do not put Markdown files in `honeypot-platform/packs/**`.
 
----
+## Workflow
+1. Research target CVE and deployable vulnerable stack.\
+2. Sometimes vulnerables images for testing are available at hub.docker.com. Search for it.
+3. Build high-interaction YAML at `packs/high/<honeypot_id>.yaml`.
+4. Add sensors for pcap/proxy/fs monitoring.
+5. Create `honeypots/high/<honeypot_id>/README.md` and `reset.sh`.
+6. Validate, render compose, and run.
 
-## Where to put this so Codex uses it
+## Validation and run
+From repo root:
 
-**Recommended:**
-- Save this file as: `docs/runbooks/high-interaction-honeypot-from-cve.md`
-- Add a pointer in your repo-root `AGENTS.md`:
+```bash
+PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
+  python -m hoho_runtime.cli validate honeypot-platform/packs/high/<honeypot_id>.yaml
 
+PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
+  python -m hoho_runtime.cli render-compose honeypot-platform/packs/high/<honeypot_id>.yaml
+
+
+docker compose -p "hoho-<honeypot_id>" \
+  -f honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml up -d
+```
+
+## Why output overwrites
+Simple Layout v1 intentionally overwrites compose/artifacts in fixed per-honeypot locations.
+
+Operational guidance:
+- Only one active run per `honeypot_id`.
+- Stop/down the previous compose stack before restarting.
+- Clear `run/artifacts/<honeypot_id>/` before a new run.
+```
+
+### `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`  _(~1.5 KB; showing ≤800 lines)_
 ```md
-# AGENTS.md (repo root)
+# Runbook: low-interaction honeypot from CVE
 
-## Honeypots
-- When asked to create a new high-interaction honeypot from a CVE, ALWAYS read:
-  docs/runbooks/high-interaction-honeypot-from-cve.md
-- Prioritize isolation + capture (pcap, proxy downloads, fsmon, process/audit logs).
+## Required layout (Simple Layout v1)
+Follow `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
+
+- Pack YAML: `honeypot-platform/packs/low/<honeypot_id>.yaml`
+- Pack assets (optional): `honeypot-platform/packs/low/<honeypot_id>/**`
+- Operator doc: `honeypot-platform/honeypots/low/<honeypot_id>/README.md`
+- Compose output: `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`
+- Artifacts: `honeypot-platform/run/artifacts/<honeypot_id>/...`
+
+## Forbidden
+- Do not create `run/artifacts/<runs-subtree>/**`.
+- Do not create Markdown files in `honeypot-platform/packs/**`.
+- Do not use extra identifiers (`pack_id`, `run_id`) in filesystem paths.
+
+## Workflow
+1. Research CVE protocol surface and request patterns.
+2. Derive safe request transcripts and matching logic.
+3. Implement low-interaction YAML at `packs/low/<honeypot_id>.yaml`.
+4. Document operator steps at `honeypots/low/<honeypot_id>/README.md`.
+5. Validate and run.
+
+## Validation
+From repo root:
+
+```bash
+PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
+  python -m hoho_runtime.cli validate honeypot-platform/packs/low/<honeypot_id>.yaml
 ```
 
-If you often work in a specific folder (e.g., `honeypots/high/`), add a folder-local `AGENTS.md` there as well.
-
----
-
-## What “high-interaction” means (scope)
-
-A high-interaction honeypot includes:
-
-- A **real service stack** (app + dependencies) at a vulnerable version
-- A safe **sandbox boundary** (container, preferably microVM / gVisor / Kata)
-- **Complete telemetry**:
-  - network (PCAP)
-  - application logs
-  - file-system changes (new/modified files)
-  - process execution / command lines (best-effort)
-  - outbound downloads captured via proxy (HTTP/HTTPS)
-- **Resetability**:
-  - fast “wipe and redeploy” (immutable image + ephemeral volumes)
-  - clear artifact directories for each session/time window
-
----
-
-## Inputs
-
-Minimum required:
-
-- `CVE_ID`: `CVE-YYYY-NNNN`
-
-Optional:
-
-- `PRODUCT_HINT`: “WordPress”, “Apache httpd”, “MOVEit”, etc.
-- `DEPLOYMENT_MODE`: `docker-compose` or `k8s`
-- `ISOLATION_LEVEL`: `container` | `gvisor` | `kata` (prefer stronger isolation for risky CVEs)
-- `INGRESS_PORTS`: e.g., 80/443/8080
-- `EGRESS_POLICY`: `deny-all` (best) or `allow-with-proxy` (common for download capture)
-
----
-
-## Output deliverables
-
-You must produce:
-
-1. A runnable **high-interaction environment** for the CVE:
-   - `docker-compose.yml` or Kubernetes manifests
-   - a pinned vulnerable image reference (or Dockerfile that builds it)
-   - configuration files (app config, reverse proxy config, etc.)
-
-2. A **capture stack**:
-   - PCAP capture (e.g., tcpdump sidecar)
-   - filesystem monitoring (inotify/auditd/agent)
-   - outbound proxy capture (HTTP/HTTPS)
-   - structured event log (JSONL) + blob storage for artifacts
-
-3. Documentation:
-   - `README.md` for the honeypot (how to run/reset, what is captured, safety notes)
-   - “Telemetry contract” (event fields, tags, artifact paths)
-
-Recommended paths (adjust to your repo conventions):
-
-- `honeypots/high/<cve-id>_<slug>/docker-compose.yml`
-- `honeypots/high/<cve-id>_<slug>/README.md`
-- `honeypots/high/<cve-id>_<slug>/config/…`
-- `run/artifacts/high/<cve-id>_<slug>/<session-id>/…`
-
----
-
-## Safety & operational rules (non-negotiable)
-
-- **Isolation first**: assume the service will be compromised.
-  - Prefer **Kata Containers** or **gVisor** if available.
-  - If plain Docker, run rootless where possible and harden aggressively.
-
-- **No sensitive networks**:
-  - Place in an isolated VLAN/DMZ or a dedicated cloud account/subnet.
-  - Never attach to internal corp networks.
-
-- **Egress policy** (choose one):
-  1) **Deny-all egress** (safest) + fake DNS responses, or
-  2) **Allow egress only via a controlled proxy** that captures downloads and can block risky destinations.
-
-- **No credentials reuse**: decoy credentials only; never put real secrets in env vars or config.
-
-- **Artifact hygiene**:
-  - All captures go to a dedicated artifact root with per-session folders.
-[REDACTED]
-
-- **Do not embed exploit payloads** in repo docs or comments. Keep matching/transcripts abstract.
-
----
-
-## Reference architecture (recommended)
-
-### Components
-
-1. **Ingress reverse proxy** (front door)
-   - Terminates TLS (optional), normalizes requests, logs requests
-   - Can implement basic deception headers, rate limits, and route to target
-
-2. **Target service stack** (the vulnerable workload)
-   - App container(s) + DB/cache as required
-   - Version-pinned image(s)
-
-3. **Capture plane**
-   - **PCAP**: tcpdump on the bridge/network namespace (sidecar or host-level)
-   - **FS monitor**: watches web roots, temp dirs, upload dirs, and known persistence locations
-   - **Process/audit**: command lines + exec events (best-effort via auditd/eBPF/agent)
-   - **Outbound proxy**: transparent or explicit proxy to record downloads (HTTP/HTTPS)
-   - **Artifact sink**: local filesystem or object store (MinIO/S3) with immutable session folders
-
-4. **Reset plane**
-   - rebuild/recreate containers
-   - purge writable volumes (or use tmpfs/ephemeral volumes)
-   - rotate artifacts
-
-### Data flow
-
-Ingress → Target (real service)  
-Target egress → Proxy → Internet (optional)  
-All traffic mirrored to PCAP capture  
-FS/proc changes + proxy downloads saved as artifacts  
-Structured events emitted to JSONL
-
----
-
-## Phase 1 — Research the CVE (enough to deploy safely)
-
-### 1.1 Identify deployment requirements
-Determine:
-- product + vulnerable version(s)
-- required dependencies (DB, redis, Java, etc.)
-- baseline “healthy” response when service is working
-- typical attack surface (HTTP endpoints, admin panels, file upload locations)
-
-### 1.2 Decide “what must be captured”
-For this CVE family, decide whether you need:
-- request bodies (uploads, serialized blobs)
-- full response bodies (rare; usually avoid)
-- filesystem diffs (often yes)
-- outbound download capture (often yes for post-exploitation)
-
-Deliverable: a short “capture plan” section in the honeypot README.
-
----
-
-## Phase 2 — Choose/build the vulnerable workload
-
-Preferred options (in order):
-
-1) **Known vulnerable container image** (reproducible, pinned digest)  
-2) Build from upstream release tarballs/packages at a pinned version  
-3) Build from source at a tag/commit (last resort)
-
-Rules:
-- pin versions tightly (tags + digests)
-- document how the vulnerable version was selected
-- keep configuration minimal and realistic (default-ish)
-
-Deliverable: `images.md` or README section listing:
-- image references/digests
-- exposed ports
-- required env vars
-- any initialization steps (DB migration, admin user creation with decoy creds)
-
----
-
-## Phase 3 — Add isolation + hardening controls
-
-### 3.1 Container hardening baseline (even for vulnerable services)
-- drop Linux capabilities (keep minimal)
-- run as non-root where possible (some apps require root; document)
-- read-only filesystem for containers except explicit writable mounts
-- separate networks for ingress vs egress
-- resource limits (cpu/mem/pids)
-- no Docker socket mounted (never)
-
-### 3.2 Stronger isolation (recommended)
-If your environment supports:
-- **Kata**: microVM boundary
-- **gVisor**: syscall interception sandbox
-
-Deliverable: a short section in README indicating the chosen isolation level and how to enable it.
-
----
-
-## Phase 4 — Build the capture stack
-
-### 4.1 PCAP capture (must-have)
-Capture at least:
-- ingress traffic to target
-- egress traffic from target (if allowed)
-
-Implementation options:
-- tcpdump on the Docker network interface (host-level)
-- sidecar container sharing the network namespace (k8s: sidecar; docker: `network_mode: service:<name>`)
-
-Output:
-- `pcap/<timestamp>.pcap.gz`
-
-### 4.2 HTTP/HTTPS outbound download capture (recommended)
-Goal: capture files/tools pulled during post-exploitation.
-
-Approaches:
-- explicit proxy env vars (`HTTP_PROXY`, `HTTPS_PROXY`) in the target container
-- transparent proxy via iptables redirect in the target namespace
-- include a local CA and trust it in the target container (for HTTPS interception) **only if you accept that risk and document it**
-
-Outputs:
-- proxy access logs (structured)
-- downloaded binaries/scripts saved as blobs
-- optional: SHA256 manifest of all captured downloads
-
-### 4.3 Filesystem monitoring (must-have)
-Monitor typical drop locations:
-- web roots
-- upload dirs
-- `/tmp`, `/var/tmp`
-- app-specific plugin/theme/module dirs
-- cron/systemd/autostart locations (if present in container)
-
-Implementation options:
-- lightweight inotify watcher writing JSON events
-- periodic file tree snapshot + diff (slower but simple)
-- auditd/eBPF (more complete, more complex)
-
-Outputs:
-- `fs/events.jsonl`
-- `fs/snapshots/<t>/...` (optional)
-- `blobs/files/<sha256>_<name>` for extracted new/modified files
-
-### 4.4 Process / execution telemetry (best-effort, recommended)
-Capture:
-- process start/exit events
-- command line, uid/gid
-- network connections (optional)
-
-Implementation options (pick what you can run safely):
-- auditd inside container (sometimes heavy)
-- host-level eBPF agent (preferred if you control host)
-- app-layer logs (always)
-
-Output:
-- `proc/events.jsonl`
-
----
-
-## Phase 5 — Define the artifact layout (consistent & analyzable)
-
-Recommended artifact root:
-- `run/artifacts/high/<cve-id>_<slug>/<session-id>/`
-
-Within a session:
-- `events/events.jsonl` (normalized events across subsystems)
-- `pcap/traffic.pcap.gz`
-- `proxy/` (logs + downloads + manifests)
-- `fs/` (fs events + extracted files)
-- `app/` (container logs, app logs)
-- `meta/session.json` (timestamps, image digests, config hash)
-
-Session ID suggestions:
-- ISO timestamp + random suffix
-- include honeypot id and port mapping
-
----
-
-## Phase 6 — Run, reset, and rotate
-
-### 6.1 Run
-- bring up the stack
-- verify health endpoints
-- verify capture tools are writing artifacts
-- verify egress policy is correct
-
-### 6.2 Reset (must be fast)
-Provide a `reset.sh` (or Make target) that:
-- stops containers
-- deletes writable volumes (or recreates them)
-- starts fresh
-- rotates artifacts into a new session folder
-
-### 6.3 Rotation & retention
-- rotate PCAP and logs by time and size
-- keep a retention policy to avoid disk exhaustion
-
----
-
-## Phase 7 — Smoke validation (no exploit payloads)
-
-Validate that the honeypot “feels real” without executing exploitation:
-
-- `curl /` and a few expected endpoints (login page, static assets)
-- confirm reverse proxy logs are recorded
-- confirm PCAP contains the test traffic
-- upload a benign file (if the app supports uploads) and confirm:
-  - request body capture (if enabled)
-  - fs monitor recorded a new file
-  - blob extraction stored it
-
----
-
-## Minimal documentation for every high-interaction honeypot
-
-Create `honeypots/high/<cve-id>_<slug>/README.md` with:
-
-- Overview: CVE, product, vulnerable version(s)
-- How to run / stop / reset
-- Ports exposed
-- Egress policy (deny-all vs proxy-only)
-- What is captured:
-  - PCAP
-  - proxy downloads
-  - fs changes
-  - process telemetry
-- Artifact directory structure
-- Safety notes (isolation level, warnings)
-
----
-
-## Acceptance checklist (definition of done)
-
-- [ ] Stack is runnable via `docker compose up` (or `kubectl apply`)
-- [ ] Target service is reachable and returns plausible responses
-- [ ] PCAP is created and rotated
-- [ ] Filesystem monitor records and extracts new/modified files
-- [ ] Proxy capture is in place (if egress allowed) and stores downloads as blobs
-- [ ] Structured events exist (JSONL) with consistent fields and tags, including `cve:<CVE_ID>`
-- [ ] Reset is one command and produces a fresh session folder
-- [ ] README exists with safety + capture details
-
----
-
-## Templates (generic, safe)
-
-### A) Suggested docker-compose layout (conceptual)
-
-> This is a conceptual template showing component roles. Adapt to your repo conventions and target app.
-
-```yaml
-services:
-  ingress:
-    image: nginx:stable
-    ports:
-      - "8080:80"
-    volumes:
-      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on: [target]
-    networks: [ingress_net]
-
-  target:
-    image: <pinned-vulnerable-image>
-    networks:
-      - ingress_net
-      - egress_net
-    environment:
-      # if using explicit proxy:
-      # HTTP_PROXY: http://proxy:8080
-      # HTTPS_PROXY: http://proxy:8080
-      # NO_PROXY: localhost,127.0.0.1
-      - TZ=UTC
-    volumes:
-      - target_data:/var/lib/target   # keep minimal; prefer ephemeral
-      - ./run/artifacts:/artifacts
-
-  proxy:
-    image: <proxy-image>
-    networks: [egress_net]
-    volumes:
-      - ./run/artifacts:/artifacts
-
-  pcap:
-    image: <tcpdump-image>
-    # docker: share netns with target
-    network_mode: "service:target"
-    volumes:
-      - ./run/artifacts:/artifacts
-
-  fsmon:
-    image: <fsmon-image>
-    volumes:
-      - target_data:/watch:ro
-      - ./run/artifacts:/artifacts
-    depends_on: [target]
-    networks: [ingress_net]
-
-networks:
-  ingress_net: {}
-  egress_net: {}
-
-volumes:
-  target_data: {}
+## Why output overwrites
+Simple Layout v1 keeps one active artifact location per honeypot. A new run overwrites `run/artifacts/<honeypot_id>/` and compose output for the same `honeypot_id`.
+
+Operational guidance:
+- Stop existing process before restart.
+- Clear `run/artifacts/<honeypot_id>/` before the next run.
+- Do not run two copies of the same honeypot concurrently.
 ```
 
-### B) Event schema (minimal)
-
-Emit events with at least:
-
-- `ts` (ISO8601)
-- `source` (`ingress|app|proxy|pcap|fs|proc`)
-- `cve` (`CVE-YYYY-NNNN`)
-- `honeypot_id`
-- `src_ip`, `src_port`, `dst_port` (when known)
-- `summary`
-- `tags` (list)
-- `artifact_refs` (paths or blob hashes)
-
----
-
-## Notes on “realism”
-
-High-interaction realism comes from:
-- correct base responses (headers, status codes, HTML)
-- real assets (static files, admin panel structure)
-- realistic latency and occasional errors
-- consistent banners/version strings (but do not leak your host identity)
-
-Avoid:
-- too-perfect always-200 responses
-- unrealistic giant debug banners (unless that product actually does)
-- accidental exposure of your infra (hostname, cloud metadata, internal IPs)
-```
-
-### `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`  _(~9.0 KB; showing ≤800 lines)_
+### `honeypot-platform/honeypots/high/cve-2021-41773_42013/README.md`  _(~0.9 KB; showing ≤800 lines)_
 ```md
-<!--
-File: docs/runbooks/low-interaction-honeypot-from-cve.md
-Purpose: Codex/humans runbook to create a new low-interaction honeypot pack from a CVE ID.
--->
-
-# Runbook: Create a low-interaction honeypot from a CVE (YAML-first)
-
-This runbook describes a repeatable process to implement a **low-interaction** honeypot **from only a CVE name/ID** (e.g., `CVE-2021-41773`).
-
-Low-interaction here means: **behavioral emulation** (request/response), not a real vulnerable service.  
-The goal is to **attract and record** probes/exploit attempts and produce high-quality telemetry + artifacts for analysis.
-
----
-
-## Where to put this so Codex uses it
-
-**Recommended:**
-- Save this file as: `docs/runbooks/low-interaction-honeypot-from-cve.md`
-- Add a pointer in your repo-root `AGENTS.md`:
-
-```md
-# AGENTS.md (repo root)
-
-## Honeypots
-- When asked to create a new low-interaction honeypot from a CVE, ALWAYS read:
-  docs/runbooks/low-interaction-honeypot-from-cve.md
-- Follow the runbook exactly: research -> derive request transcripts -> implement YAML pack -> validate/run -> document.
-- Do not paste weaponized payloads into docs or code comments; use abstract patterns only.
-```
-
-If you often work in a specific folder (e.g., `packs/low/`), you can also add a **folder-local** `AGENTS.md` there with the same pointer.
-
----
-
-## Inputs
-
-Minimum required:
-
-- `CVE_ID`: `CVE-YYYY-NNNN`
-
-Optional:
-
-- `PRODUCT_HINT`: if provided (e.g., "Apache httpd"), use it to speed up research.
-- `SERVICE_PERSONA`: desired banner style (server header / HTML style), if you care.
-- `LISTEN_PORTS`: default ports to bind (e.g., 80/443/8080).
-
----
-
-## Output deliverables
-
-You must produce:
-
-1. A new **YAML pack** implementing the emulation behavior.
-2. A short **pack README** describing what it catches, what it stores, and how to run it. Also oneline examples to test the honeypot instance.
-3. A minimal **tagging/telemetry contract** (what events/tags/indicators are emitted).
-
-Recommended paths (adjust to your repo conventions):
-
-- Pack: `packs/low/<cve-id>_<slug>.yaml`
-- Doc:  `packs/low/<cve-id>_<slug>.md`
-
----
-
-## Safety & operational rules (non-negotiable)
-
-- **Never run real vulnerable code** in low-interaction packs.
-- **Never “attack back”** and never add outbound exploitation logic.
-- Store untrusted request bodies as **opaque bytes** (optionally gzip), do not parse/execute.
-[REDACTED]
-
----
-
-## Phase 1 — Research the CVE
-
-### 1.1 Identify the exposed surface
-
-Determine:
-
-- Affected product and typical deployment context
-- Protocol surface (HTTP? SOAP? JSON-RPC? multipart upload? etc.)
-- Default ports/paths (if common)
-- Vulnerability class (path traversal, SQLi, auth bypass, deserialization, etc.)
-- Typical attacker objectives (file read, command exec, web shell dropper, etc.)
-
-**Deliverable:** a short “CVE profile” note (can live in the pack README) with:
-- product/version range (approx)
-- vuln type
-- primary endpoint(s)
-- method(s)
-- expected responses attackers look for
-
-### 1.2 Extract “attack transcripts”
-
-Find at least **one** public PoC/writeup that provides observable request structure:
-
-- HTTP method
-- path(s) / parameter names
-- required headers (if any)
-- content type and body shape (if POST/PUT)
-- typical status codes and response markers
-
-**Deliverable:** list of 2–5 request patterns:
-- `PRIMARY_PROBES`: most distinctive requests
-- `SECONDARY_FOLLOWUPS`: common follow-up probes (`/`, `/login`, `/robots.txt`, etc.)
-- `NEGATIVE_CASES`: patterns you should *not* over-match
-- `EXAMPLES_TO_TEST`: exploitations examples
-
----
-
-## Phase 2 — Design the emulation behavior
-
-### 2.1 Choose “service persona”
-
-Pick:
-- `Server` header value
-- baseline landing page/body style (HTML/text/JSON)
-- whether to emulate TLS (if your platform supports it)
-
-### 2.2 Decide what to capture
-
-At minimum, capture:
-- method/path/query
-- selected headers (with redaction)
-- body bytes when relevant (uploads, serialized blobs, etc.)
-- source IP / connection metadata (whatever your platform provides)
-
-Tagging guidance:
-- Always tag `cve:<CVE_ID>`
-- Add `product:<name>` and `technique:<vuln-type>`
-- Use a simple `verdict`: `probe | exploit | upload | unknown`
-
-### 2.3 Decide response strategy
-
-For each primary probe:
-- choose a plausible status: `200/403/404/500`
-- return plausible headers and small body marker
-- optionally add:
-  - `delay` + jitter
-  - `drop` (timeout simulation) for some patterns
-
-Goal: scanners/exploit scripts should think “something is there” and keep going,  
-but you should not reveal “too perfect” behavior.
-
----
-
-## Phase 3 — Implement the YAML pack
-
-Create a new file:
-
-`packs/low/<cve-id>_<short-slug>.yaml`
-
-Example filename:
-- `packs/low/cve-2021-41773_apache-traversal.yaml`
-
-### 3.1 YAML template (copy/paste)
-
-> Adjust keys to match your engine’s schema; the structure below is intentionally generic.
-
-```yaml
-apiVersion: honeypot.dev/v1
-kind: HoneypotPack
-
-metadata:
-  id: cve-YYYY-NNNN-short-slug
-  name: "CVE-YYYY-NNNN <Product> <VulnType> (low)"
-  interaction: low
-  tags:
-    - cve
-    - cve:YYYY-NNNN
-    - product:<product>
-    - technique:<vuln-type>
-  description: >
-    Low-interaction emulation for CVE-YYYY-NNNN. Captures probes/exploit attempts
-    and returns plausible responses. Does not run real vulnerable software.
-
-listen:
-  - host: 0.0.0.0
-    port: 8080
-
-telemetry:
-  emit_events: true
-  redact_headers: [REDACTED]
-
-limits:
-  max_body_bytes: 1048576
-  max_upload_bytes: 10485760
-
-storage:
-  backend: filesystem
-  root: ./run/artifacts
-
-behaviors:
-  # --- Primary probe 1 ---
-  - name: primary-probe-1
-    match:
-      method: GET
-      pathRegex: "<stable pattern from transcript>"
-    actions:
-      - emit_event:
-          verdict: exploit
-          tags: ["cve:CVE-YYYY-NNNN", "product:<product>", "technique:<vuln-type>"]
-          indicators: ["cve:CVE-YYYY-NNNN"]
-      - delay:
-          ms: 120
-          jitterMs: 80
-      - respond:
-          status: 200
-          headers:
-            Content-Type: text/plain
-            Server: "<persona>"
-          body: "OK"
-
-  # --- Primary probe 2 (POST example) ---
-  - name: primary-probe-2
-    match:
-      method: POST
-      path: "<path from transcript>"
-      contentTypeContains: "application/x-www-form-urlencoded"
-    actions:
-      - emit_event:
-          verdict: exploit
-          tags: ["cve:CVE-YYYY-NNNN", "product:<product>", "technique:<vuln-type>"]
-      - store_body:
-          kind: request_body
-          gzip: true
-      - respond:
-          status: 500
-          headers:
-            Content-Type: text/plain
-            Server: "<persona>"
-          body: "Internal Server Error"
-
-  # --- Secondary: landing ---
-  - name: landing
-    match:
-      method: GET
-      path: /
-    actions:
-      - emit_event:
-          verdict: probe
-          tags: ["product:<product>"]
-    respond:
-      status: 200
-      headers:
-        Content-Type: text/html
-        Server: "<persona>"
-      body: "<html><body><h1>It works</h1></body></html>"
-
-  # --- Default catch-all ---
-  - name: default
-    match:
-      pathGlob: "/*"
-    actions:
-      - emit_event:
-          verdict: unknown
-          tags: []
-    respond:
-      status: 404
-      headers:
-        Content-Type: text/plain
-      body: "not found"
-```
-
-### 3.2 Match rules: how to avoid overfitting
-
-Prefer matching on:
-- distinctive paths (or path prefixes)
-- presence of parameter keys (not full payload values)
-- short header tokens (only if truly distinctive)
-
-Avoid:
-- full payload regexes that capture weaponized strings
-- matching on user-agent only
-- matching on highly variable encodings unless necessary
-
-Rule ordering:
-- Most specific CVE rules first
-- Generic landing/catch-all last
-
----
-
-## Phase 4 — Validate & run (smoke)
-
-1. Validate (if your platform supports it):
-- `honeypot validate packs/low/<pack>.yaml`
-
-2. Run:
-- `honeypot run packs/low/<pack>.yaml`
-
-3. Send harmless requests:
-- `curl -i http://127.0.0.1:<port>/`
-- `curl -i http://127.0.0.1:<port>/<known-probe-path>`
-
-4. Confirm artifacts exist:
-- event log (e.g., JSONL)
-- stored request bodies (if enabled)
-
----
-
-## Phase 5 — Document the pack
-
-Create:
-
-`packs/low/<cve-id>_<slug>.md`
-
-Minimum contents:
-- What it emulates (product/vuln family)
-- What it captures (which endpoints, whether it stores bodies)
-- Event tags/fields used
-- How to run it (port, command)
-- Known limitations (what is *not* emulated)
-
----
-
-## Acceptance checklist
-
-A pack is “done” when:
-
-- [ ] YAML pack committed under `packs/low/`
-- [ ] Pack has `metadata.id`, CVE tags, and persona headers
-- [ ] ≥2 primary probe behaviors implemented from transcripts
-- [ ] Every request emits an event
-- [ ] POST/PUT bodies are stored when relevant (gzip, size limit)
-- [ ] Responses are plausible (status + headers + small body)
-- [ ] A short pack README exists under `packs/low/`
-
----
-
-## Optional: future automation (scaffolder)
-
-If you later build a CLI scaffolder, desired behavior:
-
-- `honeypot scaffold --cve CVE-YYYY-NNNN --out packs/low/...`
-- Pull CVE metadata and references
-- Create YAML skeleton + README stub
-- Leave TODOs for transcript-derived match rules
-```
-
-### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_traversal_rce/README.md`  _(~2.3 KB; showing ≤800 lines)_
-```md
-# High-Interaction Honeypot: Apache 2.4.49/2.4.50 Traversal RCE
-
-## Overview
-- CVEs: `CVE-2021-41773` (path traversal + file disclosure) and `CVE-2021-42013` (path traversal + RCE when CGI is enabled).
-- Product: Apache HTTP Server (`httpd`) vulnerable branch `2.4.49/2.4.50`.
-- Pack file: `packs/high/cve-2021-41773_42013_apache_traversal_rce.yaml`.
-
-## Capture plan
-This honeypot prioritizes full attacker workflow visibility with currently supported sensors:
-- PCAP rotation via `pcap-sensor`.
-- Reverse-proxy request/response metadata + request body capture via `proxy-sensor`.
-- Filesystem monitoring for web content, CGI paths, and `/tmp` via `fsmon-sensor`.
-
-Process telemetry is best-effort in this repository; add host eBPF/audit integrations in deployment environments that support them.
+# High-Interaction Honeypot: CVE-2021-41773 / CVE-2021-42013
+
+## Honeypot ID
+- `honeypot_id`: `cve-2021-41773_42013`
+- Pack YAML: `honeypot-platform/packs/high/cve-2021-41773_42013.yaml`
 
 ## Run
 From `honeypot-platform/`:
 
 ```bash
-hoho validate packs/high/cve-2021-41773_42013_apache_traversal_rce.yaml
-hoho run packs/high/cve-2021-41773_42013_apache_traversal_rce.yaml
+hoho validate packs/high/cve-2021-41773_42013.yaml
+hoho run packs/high/cve-2021-41773_42013.yaml
 ```
 
-If you prefer manual compose:
+Manual compose flow:
 
 ```bash
-hoho render-compose packs/high/cve-2021-41773_42013_apache_traversal_rce.yaml
-docker compose -f deploy/compose/cve-2021-41773_42013_apache_traversal_rce/docker-compose.yml up -d
+hoho render-compose packs/high/cve-2021-41773_42013.yaml
+docker compose -f deploy/compose/cve-2021-41773_42013/docker-compose.yml up -d
 ```
 
 ## Stop
+
 ```bash
-docker compose -f deploy/compose/cve-2021-41773_42013_apache_traversal_rce/docker-compose.yml down -v
+docker compose -p hoho-cve-2021-41773_42013 -f deploy/compose/cve-2021-41773_42013/docker-compose.yml down -v
 ```
+
+## Artifacts
+Artifacts are always written to:
+
+- `honeypot-platform/run/artifacts/cve-2021-41773_42013/`
+
+Simple Layout v1 intentionally overwrites this folder for each new run.
 
 ## One-command reset
-Use `./honeypots/high/cve-2021-41773_42013_apache_traversal_rce/reset.sh`.
-- Stops/removes prior compose project.
-- Creates a new session artifact folder under `run/artifacts/high/cve-2021-41773_42013_apache_traversal_rce/<session-id>/`.
-- Re-renders compose with that artifact root.
-- Starts a fresh stack.
+Use:
 
-## Ports and exposure
-- Host `8091` -> proxy sensor -> Apache `80`.
-
-## Egress policy
-- Default deployment leaves container egress unchanged.
-- For production capture zones, enforce network policy with deny-all or proxy-only egress at infrastructure layer.
-
-## Artifact directory structure
-Each reset/run creates a session root:
-
-```text
-run/artifacts/high/cve-2021-41773_42013_apache_traversal_rce/<session-id>/
-  cve-2021-41773_42013_apache_traversal_rce/
-    index/events.jsonl
-    blobs/
+```bash
+./honeypot-platform/honeypots/high/cve-2021-41773_42013/reset.sh
+```
 ```
 
-## Safety notes
-- Treat this target as compromised-by-design.
-- Deploy in isolated network segments only.
-- Use dedicated artifact storage and retention policy to avoid disk exhaustion.
-```
-
-### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_traversal_rce/reset.sh`  _(~0.9 KB; showing ≤800 lines)_
+### `honeypot-platform/honeypots/high/cve-2021-41773_42013/reset.sh`  _(~0.8 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
-PACK="packs/high/cve-2021-41773_42013_apache_traversal_rce.yaml"
-PACK_ID="cve-2021-41773_42013_apache_traversal_rce"
-SESSION_ID="$(date -u +%Y%m%dT%H%M%SZ)-$(openssl rand -hex 3)"
-ARTIFACT_ROOT="${ROOT_DIR}/run/artifacts/high/${PACK_ID}/${SESSION_ID}"
-OUT_DIR="${ROOT_DIR}/deploy/compose/${PACK_ID}"
-COMPOSE_FILE="${OUT_DIR}/docker-compose.yml"
-
-mkdir -p "${ARTIFACT_ROOT}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+HONEYPOT_ID="cve-2021-41773_42013"
+PACK="${ROOT_DIR}/packs/high/${HONEYPOT_ID}.yaml"
+ARTIFACT_DIR="${ROOT_DIR}/run/artifacts/${HONEYPOT_ID}"
+COMPOSE_DIR="${ROOT_DIR}/deploy/compose/${HONEYPOT_ID}"
+COMPOSE_FILE="${COMPOSE_DIR}/docker-compose.yml"
+PROJECT_NAME="hoho-${HONEYPOT_ID}"
 
 if [ -f "${COMPOSE_FILE}" ]; then
-  docker compose -f "${COMPOSE_FILE}" down -v || true
+  docker compose -p "${PROJECT_NAME}" -f "${COMPOSE_FILE}" down -v || true
 fi
+
+rm -rf "${ARTIFACT_DIR}" "${COMPOSE_DIR}"
 
 (
   cd "${ROOT_DIR}"
-  PYTHONPATH="packages/hoho_core:packages/hoho_runtime" python -m hoho_runtime.cli render-compose "${PACK}" \
-    --artifacts-root "${ARTIFACT_ROOT}" \
-    -o "${OUT_DIR}"
+  PYTHONPATH="packages/hoho_core:packages/hoho_runtime" python -m hoho_runtime.cli render-compose "${PACK}"
 )
 
-docker compose -f "${COMPOSE_FILE}" up -d
+docker compose -p "${PROJECT_NAME}" -f "${COMPOSE_FILE}" up -d
 
-echo "session_id=${SESSION_ID}"
-echo "artifacts=${ARTIFACT_ROOT}/${PACK_ID}"
+echo "honeypot_id=${HONEYPOT_ID}"
+echo "artifacts=run/artifacts/${HONEYPOT_ID}/"
+```
+
+### `honeypot-platform/honeypots/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce/README.md`  _(~3.2 KB; showing ≤800 lines)_
+```md
+# Apache httpd 2.4.49/2.4.50 Traversal + RCE (low-interaction)
+
+## CVE profile
+- **Primary CVEs:** CVE-2021-41773 (path traversal / file read) and CVE-2021-42013 (incomplete fix bypass, enabling traversal and CGI RCE patterns).
+- **Product:** Apache HTTP Server (`httpd`) 2.4.49 and 2.4.50.
+- **Vulnerability family:** Path normalization bypass with traversal into sensitive filesystem paths; when CGI is enabled, traversal to shell binaries can be used for command execution attempts.
+- **Exposed surface:** HTTP on common web ports, especially paths under `/cgi-bin/` and sometimes `/icons/` with encoded traversal segments.
+- **Attacker objectives:**
+[REDACTED]
+  - Reach CGI-capable executable paths (for example shell entrypoints) and send command-style bodies.
+
+## Transcript-derived request patterns emulated
+
+### Primary probes
+1. **Traversal file-read probe (`GET`)**
+   - Distinctive structure: [REDACTED]
+[REDACTED]
+
+2. **Traversal-to-CGI RCE probe (`POST`)**
+   - Distinctive structure: encoded traversal path ending in `bin/sh` under `/cgi-bin/`.
+   - Emulated by behavior `cgi-rce-binsh-probe`.
+   - Request body is stored as compressed artifact for analysis.
+
+3. **Double-encoded traversal normalization probe (`GET`)**
+   - Distinctive structure: double-encoded dot segments (`%%32%65` style) plus sensitive target path.
+   - Emulated by behavior `traversal-normalization-probe`.
+
+### Secondary follow-up
+- `GET /` landing probe with Apache-like banner and “It works!” response.
+
+### Negative matching intent
+- The pack does **not** match only on user-agent.
+- The pack does **not** require exact payload command strings.
+- Matching focuses on stable path/encoding traits to avoid overfitting.
+
+## Telemetry contract
+- Global tags in metadata:
+  - `cve:2021-41773`
+  - `cve:2021-42013`
+  - `product:apache-httpd`
+  - `technique:path-traversal`
+  - `technique:rce`
+- Verdicts emitted: `probe`, `exploit`, `unknown`.
+- Indicators used:
+  - `file-read-probe`
+  - `cgi-bin-sh-exec`
+  - `double-encoded-dot-segments`
+- Header redaction: [REDACTED]
+- Body capture: enabled for `POST` CGI RCE probe (`store_body` with gzip).
+
+## How to run
+From the repository root:
+
+```bash
+python -m hoho_runtime.cli validate honeypot-platform/packs/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
+PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
+  python -m hoho_runtime.cli run honeypot-platform/packs/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
+```
+
+## Harmless test requests
+
+```bash
+curl -i http://127.0.0.1:8088/
+curl -i "http: [REDACTED]
+curl -i -X POST "http://127.0.0.1:8088/cgi-bin/.%2e/%2e%2e/%2e%2e/%2e%2e/bin/sh" -d "echo test"
+```
+
+## Known limitations
+- This is behavioral emulation only; no real Apache parser, CGI runtime, or filesystem access exists.
+- Only selected transcript patterns are emulated; many variants may hit the default `404`/`unknown` rule.
+- Response bodies are intentionally minimal to avoid acting as a real vulnerable target.
 ```
 
 ### `honeypot-platform/packages/hoho_core/README.md`  _(~0.1 KB; showing ≤800 lines)_
@@ -2666,37 +2085,83 @@ from .validate import validate_pack
 __all__ = ["validate_pack"]
 ```
 
-### `honeypot-platform/packages/hoho_core/hoho_core/schema/pack_v1.json`  _(~4.9 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/hoho_core/schema/pack_v1.json`  _(~11.0 KB; showing ≤800 lines)_
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
-  "required": ["apiVersion", "kind", "metadata"],
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata"
+  ],
   "properties": {
-    "apiVersion": {"const": "hoho.dev/v1"},
-    "kind": {"const": "HoneypotPack"},
+    "apiVersion": {
+      "const": "hoho.dev/v1"
+    },
+    "kind": {
+      "const": "HoneypotPack"
+    },
     "metadata": {
       "type": "object",
-      "required": ["id", "name", "interaction", "description"],
+      "required": [
+        "id",
+        "name",
+        "interaction",
+        "description"
+      ],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "name": {"type": "string", "minLength": 1},
-        "interaction": {"enum": ["low", "high"]},
-        "tags": {"type": "array", "items": {"type": "string"}},
-        "description": {"type": "string", "minLength": 1}
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interaction": {
+          "enum": [
+            "low",
+            "high"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
       },
       "additionalProperties": true
     },
-    "storage": {"type": "object"},
-    "limits": {"type": "object"},
-    "telemetry": {"type": "object"},
-    "listen": {"type": "array"},
-    "responses": {"type": "object"},
-    "behaviors": {"type": "array"},
+    "storage": {
+      "type": "object"
+    },
+    "limits": {
+      "type": "object"
+    },
+    "telemetry": {
+      "type": "object"
+    },
+    "listen": {
+      "type": "array"
+    },
+    "responses": {
+      "type": "object"
+    },
+    "behaviors": {
+      "type": "array"
+    },
     "stack": {
       "type": "object",
       "properties": {
-        "runtime": {"type": "string"},
+        "runtime": {
+          "type": "string"
+        },
         "services": {
           "type": "object",
           "additionalProperties": {
@@ -2706,18 +2171,26 @@ __all__ = ["validate_pack"]
                 "type": "array",
                 "items": {
                   "oneOf": [
-                    {"type": "string"},
-                    {"type": "object"}
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object"
+                    }
                   ]
                 }
               },
               "networks": {
                 "type": "array",
-                "items": {"type": "string"}
+                "items": {
+                  "type": "string"
+                }
               },
               "ports": {
                 "type": "array",
-                "items": {"type": "string"}
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "additionalProperties": true
@@ -2730,15 +2203,43 @@ __all__ = ["validate_pack"]
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "type", "attach"],
+        "required": [
+          "name",
+          "type",
+          "attach"
+        ],
         "properties": {
-          "name": {"type": "string", "minLength": 1},
-          "type": {"enum": ["fsmon", "proxy", "pcap"]},
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "fsmon",
+              "proxy",
+              "pcap",
+              "egress_proxy"
+            ]
+          },
           "attach": {
             "type": "object",
             "properties": {
-              "service": {"type": "string", "minLength": 1},
-              "network": {"type": "string", "minLength": 1}
+              "service": {
+                "type": "string",
+                "minLength": 1
+              },
+              "network": {
+                "type": "string",
+                "minLength": 1
+              },
+              "services": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
             },
             "additionalProperties": false
           },
@@ -2746,40 +2247,173 @@ __all__ = ["validate_pack"]
             "oneOf": [
               {
                 "type": "object",
-                "required": ["watch"],
+                "required": [
+                  "watch"
+                ],
                 "properties": {
                   "watch": {
                     "type": "array",
                     "minItems": 1,
-                    "items": {"type": "string", "minLength": 1}
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
                   },
                   "allow_globs": {
                     "type": "array",
-                    "items": {"type": "string"}
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "deny_globs": {
                     "type": "array",
-                    "items": {"type": "string"}
+                    "items": {
+                      "type": "string"
+                    }
                   },
-                  "max_bytes": {"type": "integer", "minimum": 1}
+                  "max_bytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
                 },
                 "additionalProperties": false
               },
               {
                 "type": "object",
-                "required": ["upstream"],
+                "required": [
+                  "upstream"
+                ],
                 "properties": {
-                  "upstream": {"type": "string", "minLength": 1},
-                  "listen_port": {"type": "integer", "minimum": 1}
+                  "upstream": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "listen_port": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
                 },
                 "additionalProperties": false
               },
               {
                 "type": "object",
                 "properties": {
-                  "interface": {"type": "string", "minLength": 1},
-                  "rotate_seconds": {"type": "integer", "minimum": 1},
-                  "rotate_count": {"type": "integer", "minimum": 1}
+                  "interface": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "rotate_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "rotate_count": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "listen_host": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "listen_port": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "force_egress_via_proxy": {
+                    "type": "boolean"
+                  },
+                  "tls_mitm": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "ca_install": {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "mode": {
+                            "enum": [
+                              "auto",
+                              "off",
+                              "custom"
+                            ]
+                          },
+                          "custom_cert_path": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "custom_key_path": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "install_trust": {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "also_set_env_bundles": {
+                            "type": "boolean"
+                          },
+                          "extra_commands": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "capture": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "bodies": {
+                        "enum": [
+                          "*",
+                          "none"
+                        ]
+                      },
+                      "max_bytes": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "store_ok_only": {
+                        "type": "boolean"
+                      },
+                      "min_bytes": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "redact_headers": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
                 },
                 "additionalProperties": false
               }
@@ -2789,38 +2423,87 @@ __all__ = ["validate_pack"]
         "allOf": [
           {
             "if": {
-              "properties": {"type": {"const": "fsmon"}},
-              "required": ["type"]
+              "properties": {
+                "type": {
+                  "const": "fsmon"
+                }
+              },
+              "required": [
+                "type"
+              ]
             },
             "then": {
-              "required": ["config"],
+              "required": [
+                "config"
+              ],
               "properties": {
                 "config": {
                   "type": "object",
-                  "required": ["watch"]
+                  "required": [
+                    "watch"
+                  ]
                 },
                 "attach": {
                   "type": "object",
-                  "required": ["service"]
+                  "required": [
+                    "service"
+                  ]
                 }
               }
             }
           },
           {
             "if": {
-              "properties": {"type": {"const": "proxy"}},
-              "required": ["type"]
+              "properties": {
+                "type": {
+                  "const": "proxy"
+                }
+              },
+              "required": [
+                "type"
+              ]
             },
             "then": {
-              "required": ["config"],
+              "required": [
+                "config"
+              ],
               "properties": {
                 "config": {
                   "type": "object",
-                  "required": ["upstream"]
+                  "required": [
+                    "upstream"
+                  ]
                 },
                 "attach": {
                   "type": "object",
-                  "required": ["service"]
+                  "required": [
+                    "service"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "egress_proxy"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "config"
+              ],
+              "properties": {
+                "attach": {
+                  "type": "object",
+                  "required": [
+                    "services"
+                  ]
                 }
               }
             }
@@ -2834,7 +2517,7 @@ __all__ = ["validate_pack"]
 }
 ```
 
-### `honeypot-platform/packages/hoho_core/hoho_core/schema/validate.py`  _(~1.7 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/hoho_core/schema/validate.py`  _(~2.4 KB; showing ≤800 lines)_
 ```python
 import json
 from pathlib import Path
@@ -2889,6 +2572,24 @@ def validate_pack(pack: dict) -> list[str]:
         out.append("semantic error: low interaction pack requires behaviors")
     if interaction == "high" and "stack" not in pack:
         out.append("semantic error: high interaction pack requires stack")
+
+    services = pack.get("stack", {}).get("services", {})
+    service_names = set(services.keys()) if isinstance(services, dict) else set()
+    for sensor in pack.get("sensors", []):
+        if sensor.get("type") != "egress_proxy":
+            continue
+
+        if interaction != "high":
+            out.append("semantic error: sensor type 'egress_proxy' requires metadata.interaction=high")
+
+        attach = sensor.get("attach", {})
+        attached_services = attach.get("services", [])
+        for service_name in attached_services:
+            if service_name not in service_names:
+                out.append(
+                    f"semantic error: egress_proxy sensor '{sensor.get('name', '<unnamed>')}' attaches to unknown service '{service_name}'"
+                )
+
     return out
 ```
 
@@ -3042,13 +2743,12 @@ CLI and runtime components for low-interaction serving and high-interaction comp
 
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~4.1 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~5.5 KB; showing ≤800 lines)_
 ```python
 import argparse
 import json
 import re
-import secrets
-from datetime import datetime, timezone
+import shutil
 from pathlib import Path
 
 from hoho_core.schema.validate import load_pack, validate_pack
@@ -3063,17 +2763,46 @@ def _sanitize_name(value: str) -> str:
     return sanitized or "hoho"
 
 
-def _generate_run_id() -> str:
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    return f"{timestamp}-{secrets.token_hex(3)}"
+def _warn_if_run_id_used(run_id: str | None) -> None:
+    if run_id:
+        print("WARNING: --run-id is deprecated and ignored; Simple Layout v1 always overwrites by honeypot_id.")
 
 
-def _compose_output_dir(pack_id: str, run_id: str | None, output: str | None) -> str | None:
+def _guess_project_root(pack_path: Path) -> Path:
+    current = pack_path.parent
+    candidates: list[Path] = [current, *current.parents]
+
+    for candidate in candidates:
+        compose_dir = candidate / "deploy" / "compose"
+        if compose_dir.is_dir() or (compose_dir / "README.md").exists():
+            return candidate
+
+    for candidate in candidates:
+        if (candidate / "packs").is_dir():
+            return candidate
+
+    return pack_path.parent
+
+
+def _compose_output_dir(honeypot_id: str, output: str | None, project_root: Path) -> str:
     if output:
         return output
-    if run_id:
-        return str(Path("./deploy/compose") / pack_id / run_id)
-    return None
+    return str(project_root / "deploy" / "compose" / honeypot_id)
+
+
+def _resolve_storage_root(pack: dict, artifacts_root_arg: str | None, project_root: Path) -> Path:
+    storage_value = artifacts_root_arg or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT)
+    storage_root = Path(storage_value).expanduser()
+    if not storage_root.is_absolute():
+        storage_root = project_root / storage_root
+    return storage_root.resolve()
+
+
+def _prepare_artifacts_root(storage_root: Path, honeypot_id: str) -> Path:
+    artifacts_dir = storage_root / honeypot_id
+    shutil.rmtree(artifacts_dir, ignore_errors=True)
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+    return artifacts_dir
 
 
 def cmd_validate(args):
@@ -3087,38 +2816,46 @@ def cmd_validate(args):
 
 
 def cmd_render_compose(args):
-    pack = load_pack(args.pack)
+    pack_path = Path(args.pack).expanduser().resolve()
+    project_root = _guess_project_root(pack_path)
+
+    pack = load_pack(str(pack_path))
     errors = validate_pack(pack)
     if errors:
         for e in errors:
             print(f"ERROR: {e}")
         raise SystemExit(1)
 
-    pack_id = pack["metadata"]["id"]
-    out_dir = _compose_output_dir(pack_id, args.run_id, args.output)
-    out = render_compose(pack, out_dir=out_dir, run_id=args.run_id, artifacts_root=args.artifacts_root)
+    honeypot_id = pack["metadata"]["id"]
+    _warn_if_run_id_used(args.run_id)
+    out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
+    storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
+    out = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root))
     print(out)
 
 
 def cmd_run(args):
-    pack = load_pack(args.pack)
+    pack_path = Path(args.pack).expanduser().resolve()
+    project_root = _guess_project_root(pack_path)
+    pack = load_pack(str(pack_path))
+    storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
+
     if pack["metadata"]["interaction"] == "low":
+        pack.setdefault("storage", {})["root"] = str(storage_root)
         run_low_http(pack)
     else:
-        pack_id = pack["metadata"]["id"]
-        run_id = args.run_id or _generate_run_id()
-        out_dir = _compose_output_dir(pack_id, run_id, args.output)
-        compose_file = render_compose(pack, out_dir=out_dir, run_id=run_id, artifacts_root=args.artifacts_root)
+        honeypot_id = pack["metadata"]["id"]
+        _warn_if_run_id_used(args.run_id)
+        out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
 
-        storage_root = Path(args.artifacts_root or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT))
-        artifacts_host_path = (storage_root / "runs" / run_id).resolve() / pack_id
-        project_name = _sanitize_name(f"hoho-{pack_id}-{run_id}")
+        artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id)
+        compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root))
+        project_name = _sanitize_name(f"hoho-{honeypot_id}")
 
         print(
             json.dumps(
                 {
-                    "pack_id": pack_id,
-                    "run_id": run_id,
+                    "honeypot_id": honeypot_id,
                     "artifacts_host_path": str(artifacts_host_path),
                     "compose_file": str(compose_file.resolve()),
                     "project_name": project_name,
@@ -3129,13 +2866,13 @@ def cmd_run(args):
         if args.no_up:
             print(compose_file)
         else:
-            raise SystemExit(run_compose(compose_file, project_name=project_name))
+            raise SystemExit(run_compose(compose_file, project_name=project_name, pack=pack, artifacts_root=storage_root))
 
 
 def cmd_explain(args):
     pack = load_pack(args.pack)
     plan = {
-        "pack_id": pack["metadata"]["id"],
+        "honeypot_id": pack["metadata"]["id"],
         "interaction": pack["metadata"]["interaction"],
         "listen": pack.get("listen", []),
         "limits": pack.get("limits", {}),
@@ -3195,10 +2932,11 @@ DEFAULT_LIMITS = {
 
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~8.8 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~15.2 KB; showing ≤800 lines)_
 ```python
 from copy import deepcopy
 from pathlib import Path, PurePosixPath
+import shutil
 
 import yaml
 
@@ -3209,6 +2947,7 @@ SENSOR_IMAGES = {
     "proxy": "hoho/sensor-http-proxy:latest",
     "fsmon": "hoho/sensor-fsmon:latest",
     "pcap": "hoho/sensor-pcap:latest",
+    "egress_proxy": "hoho/sensor-egress-proxy:latest",
 }
 
 
@@ -3294,23 +3033,72 @@ def _storage_env(pack_id: str) -> dict:
     }
 
 
+def _inject_egress_proxy_env(service: dict, service_names: list[str], port: int, set_env_bundles: bool):
+    env = service.setdefault("environment", {})
+    proxy_url = f"http://egress:{port}"
+    no_proxy = ",".join(["localhost", "127.0.0.1", *service_names])
+
+    env["HTTP_PROXY"] = proxy_url
+    env["HTTPS_PROXY"] = proxy_url
+    env["NO_PROXY"] = no_proxy
+    env["http_proxy"] = proxy_url
+    env["https_proxy"] = proxy_url
+    env["no_proxy"] = no_proxy
+
+    if set_env_bundles:
+        env["SSL_CERT_FILE"] = "/hoho/ca/egress-ca.crt"
+        env["REQUESTS_CA_BUNDLE"] = "/hoho/ca/egress-ca.crt"
+        env["CURL_CA_BUNDLE"] = "/hoho/ca/egress-ca.crt"
+        env["NODE_EXTRA_CA_CERTS"] = "/hoho/ca/egress-ca.crt"
+
+
 def render_compose(
     pack: dict,
     out_dir: str | None = None,
-    run_id: str | None = None,
     artifacts_root: str | None = None,
 ) -> Path:
     pack_id = pack["metadata"]["id"]
     root = Path(out_dir or f"./deploy/compose/{pack_id}")
+    shutil.rmtree(root, ignore_errors=True)
     root.mkdir(parents=True, exist_ok=True)
 
+    runtime_dir = root / "runtime" / "ca"
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    install_script = runtime_dir / "install-ca.sh"
+    install_script.write_text(
+        """#!/usr/bin/env sh
+set -eu
+
+cert_path=${1:-/hoho/ca/egress-ca.crt}
+if [ ! -f \"$cert_path\" ]; then
+    echo \"CA cert not found: $cert_path\" >&2
+    exit 1
+fi
+
+if command -v update-ca-certificates >/dev/null 2>&1; then
+    mkdir -p /usr/local/share/ca-certificates
+    cp \"$cert_path\" /usr/local/share/ca-certificates/hoho-egress-ca.crt
+    update-ca-certificates || true
+fi
+
+if command -v update-ca-trust >/dev/null 2>&1; then
+    mkdir -p /etc/pki/ca-trust/source/anchors
+    cp \"$cert_path\" /etc/pki/ca-trust/source/anchors/hoho-egress-ca.crt
+    update-ca-trust extract || true
+fi
+
+exit 0
+""",
+        encoding="utf-8",
+    )
+
     storage_root = Path(artifacts_root or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT))
-    run_root_host = storage_root / "runs" / run_id if run_id else storage_root
-    run_root_host.mkdir(parents=True, exist_ok=True)
-    artifacts_bind_mount = f"{run_root_host.resolve()}:/artifacts"
+    storage_root.mkdir(parents=True, exist_ok=True)
+    artifacts_bind_mount = f"{storage_root.resolve()}:/artifacts"
 
     services = deepcopy(pack.get("stack", {}).get("services", {}))
     networks_used: set[str] = set()
+    network_defs: dict[str, dict] = {}
 
     for service in services.values():
         networks_used.update(_collect_service_networks(service))
@@ -3423,6 +3211,88 @@ def render_compose(
             if config.get("interface") is not None:
                 sensor_service["environment"]["PCAP_INTERFACE"] = str(config["interface"])
 
+        elif stype == "egress_proxy":
+            if pack.get("metadata", {}).get("interaction") != "high":
+                raise ValueError(f"egress_proxy sensor '{sname}' requires metadata.interaction=high")
+
+            attach_services = _as_list(attach.get("services", []))
+            for attach_service_name in attach_services:
+                if attach_service_name not in services:
+                    raise ValueError(
+                        f"egress_proxy sensor '{sname}' attaches to unknown service '{attach_service_name}'"
+                    )
+
+            listen_host = str(config.get("listen_host", "0.0.0.0"))
+            listen_port = int(config.get("listen_port", 3128))
+            force_egress = _as_bool(config.get("force_egress_via_proxy"), default=True)
+
+            tls_mitm = config.get("tls_mitm", {})
+            tls_mitm_enabled = _as_bool(tls_mitm.get("enabled"), default=False)
+            ca_install = tls_mitm.get("ca_install", {})
+            ca_install_enabled = _as_bool(ca_install.get("enabled"), default=True)
+            ca_install_mode = str(ca_install.get("mode", "auto"))
+            custom_cert_path = ca_install.get("custom_cert_path")
+            custom_key_path = ca_install.get("custom_key_path")
+            install_trust = tls_mitm.get("install_trust", {})
+            install_trust_enabled = _as_bool(install_trust.get("enabled"), default=True)
+            set_env_bundles = _as_bool(install_trust.get("also_set_env_bundles"), default=True)
+            extra_commands = _as_list(install_trust.get("extra_commands", []))
+
+            capture = config.get("capture", {})
+            capture_enabled = _as_bool(capture.get("enabled"), default=True)
+            capture_bodies = str(capture.get("bodies", "*"))
+            capture_max_bytes = int(capture.get("max_bytes", 52428800))
+            capture_store_ok_only = _as_bool(capture.get("store_ok_only"), default=True)
+            capture_min_bytes = int(capture.get("min_bytes", 1))
+            redact_headers =[REDACTED]
+
+            sensor_service["environment"].update(
+                {
+                    "PROXY_LISTEN_HOST": listen_host,
+                    "PROXY_LISTEN_PORT": str(listen_port),
+                    "PROXY_STACK_ID": pack_id,
+                    "PROXY_TLS_MITM_ENABLED": "true" if tls_mitm_enabled else "false",
+                    "PROXY_CA_INSTALL_ENABLED": "true" if ca_install_enabled else "false",
+                    "PROXY_CA_INSTALL_MODE": ca_install_mode,
+                    "PROXY_CUSTOM_CERT_PATH": str(custom_cert_path or ""),
+                    "PROXY_CUSTOM_KEY_PATH": str(custom_key_path or ""),
+                    "PROXY_CAPTURE_ENABLED": "true" if capture_enabled else "false",
+                    "PROXY_CAPTURE_BODIES": capture_bodies,
+                    "PROXY_CAPTURE_MAX_BYTES": str(capture_max_bytes),
+                    "PROXY_CAPTURE_STORE_OK_ONLY": "true" if capture_store_ok_only else "false",
+                    "PROXY_CAPTURE_MIN_BYTES": str(capture_min_bytes),
+                    "PROXY_REDACT_HEADERS": ",".join(redact_headers),
+                }
+            )
+            if extra_commands:
+                sensor_service["environment"]["PROXY_TRUST_EXTRA_COMMANDS"] = "\n".join(
+                    str(cmd) for cmd in extra_commands
+                )
+
+            sensor_service["volumes"].append(f"{(root / 'runtime').resolve()}:/runtime:ro")
+            sensor_service["volumes"].append(f"{(storage_root / pack_id).resolve()}:/artifacts/{pack_id}")
+
+            if force_egress:
+                network_defs["hp_internal"] = {"internal": True}
+                network_defs["hp_external"] = {}
+                sensor_service["networks"] = ["hp_internal", "hp_external"]
+                networks_used.update({"hp_internal", "hp_external"})
+
+                all_service_names = sorted([name for name in services.keys() if name != sname])
+                for attach_service_name in attach_services:
+                    attach_service = services[attach_service_name]
+                    attach_service["networks"] = ["hp_internal"]
+                    _inject_egress_proxy_env(attach_service, all_service_names, listen_port, set_env_bundles)
+                    attach_service.setdefault("volumes", []).extend(
+                        [
+                            f"{(root / 'runtime' / 'ca' / 'install-ca.sh').resolve()}:/hoho/ca/install-ca.sh:ro",
+                            f"{(storage_root / pack_id / 'ca' / 'egress-ca.crt').resolve()}:/hoho/ca/egress-ca.crt:ro",
+                        ]
+                    )
+            else:
+                for attach_service_name in attach_services:
+                    _inject_egress_proxy_env(services[attach_service_name], sorted(services.keys()), listen_port, set_env_bundles)
+
         services[sname] = sensor_service
 
     compose = {"services": services}
@@ -3431,26 +3301,157 @@ def render_compose(
     if named_volumes:
         compose["volumes"] = {volume_name: {} for volume_name in named_volumes}
 
-    if networks_used:
-        compose["networks"] = {name: {} for name in sorted(networks_used)}
+    if networks_used or network_defs:
+        compose["networks"] = {name: network_defs.get(name, {}) for name in sorted(networks_used | set(network_defs.keys()))}
 
     out = root / "docker-compose.yml"
     out.write_text(yaml.safe_dump(compose, sort_keys=False), encoding="utf-8")
     return out
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~0.3 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~4.3 KB; showing ≤800 lines)_
 ```python
+import json
 import subprocess
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 
-def run_compose(compose_file: Path, project_name: str | None = None) -> int:
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _append_event(storage_pack_root: Path, event: dict) -> None:
+    events_path = storage_pack_root / "index" / "events.jsonl"
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    with events_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(event) + "\n")
+
+
+def _emit_ca_install_event(
+    *,
+    storage_pack_root: Path,
+    pack_id: str,
+    service_name: str,
+    kind: str,
+    exit_code: int | None = None,
+    stderr_snippet: str | None = None,
+) -> None:
+    event = {
+        "schema_version": 1,
+        "event_id": f"ca-install-{service_name}-{int(time.time() * 1000)}",
+        "ts": _now_iso(),
+        "pack_id": pack_id,
+        "interaction": "high",
+        "component": "runtime.compose",
+        "kind": kind,
+        "service": service_name,
+    }
+    if exit_code is not None:
+        event["exit_code"] = exit_code
+    if stderr_snippet:
+        event["stderr_snippet"] = stderr_snippet
+    _append_event(storage_pack_root, event)
+
+
+def _wait_for_ca_cert(ca_path: Path, timeout_seconds: int = 30, poll_seconds: float = 1.0) -> bool:
+    deadline = time.time() + timeout_seconds
+    while time.time() < deadline:
+        if ca_path.exists() and ca_path.stat().st_size > 0:
+            return True
+        time.sleep(poll_seconds)
+    return False
+
+
+def _run_ca_install(
+    *,
+    compose_file: Path,
+    project_name: str | None,
+    service_name: str,
+    storage_pack_root: Path,
+    pack_id: str,
+) -> None:
+    print ("AAAAAAAAAAAAAAA")
+    cmd = ["docker", "compose"]
+    if project_name:
+        cmd.extend(["-p", project_name])
+    cmd.extend(["-f", str(compose_file), "exec", "-T", service_name, "sh", "/hoho/ca/install-ca.sh", "/hoho/ca/egress-ca.crt"])
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    print (proc.stderr)
+    print (proc.stdout)
+    if proc.returncode == 0:
+        _emit_ca_install_event(
+            storage_pack_root=storage_pack_root,
+            pack_id=pack_id,
+            service_name=service_name,
+            kind="system.ca_install.succeeded",
+        )
+        return
+
+    stderr = (proc.stderr or "").strip()
+    _emit_ca_install_event(
+        storage_pack_root=storage_pack_root,
+        pack_id=pack_id,
+        service_name=service_name,
+        kind="system.ca_install.failed",
+        exit_code=proc.returncode,
+        stderr_snippet=stderr[:500],
+    )
+
+
+def run_compose(
+    compose_file: Path,
+    project_name: str | None = None,
+    *,
+    pack: dict | None = None,
+    artifacts_root: Path | None = None,
+) -> int:
     cmd = ["docker", "compose"]
     if project_name:
         cmd.extend(["-p", project_name])
     cmd.extend(["-f", str(compose_file), "up", "-d"])
-    return subprocess.call(cmd)
+    #cmd.extend(["-f", str(compose_file), "up"])
+    rc = subprocess.call(cmd)
+    if rc != 0 or not pack or not artifacts_root:
+        return rc
+
+    pack_id = pack.get("metadata", {}).get("id", "unknown-pack")
+    storage_pack_root = artifacts_root / pack_id
+
+    for sensor in pack.get("sensors", []):
+        if sensor.get("type") != "egress_proxy":
+            continue
+        tls_mitm = sensor.get("config", {}).get("tls_mitm", {})
+        if not bool(tls_mitm.get("enabled", False)):
+            continue
+        install_trust = tls_mitm.get("install_trust", {})
+        if not bool(install_trust.get("enabled", True)):
+            continue
+
+        ca_path = storage_pack_root / "ca" / "egress-ca.crt"
+        if not _wait_for_ca_cert(ca_path):
+            for service in sensor.get("attach", {}).get("services", []):
+                _emit_ca_install_event(
+                    storage_pack_root=storage_pack_root,
+                    pack_id=pack_id,
+                    service_name=service,
+                    kind="system.ca_install.failed",
+                    exit_code=1,
+                    stderr_snippet=f"timed out waiting for CA certificate at {ca_path}",
+                )
+            continue
+
+        for service in sensor.get("attach", {}).get("services", []):
+            _run_ca_install(
+                compose_file=compose_file,
+                project_name=project_name,
+                service_name=service,
+                storage_pack_root=storage_pack_root,
+                pack_id=pack_id,
+            )
+
+    return rc
 ```
 
 ### `honeypot-platform/packages/hoho_runtime/hoho_runtime/server/__init__.py`  _(~0.0 KB; showing ≤800 lines)_
@@ -3644,13 +3645,13 @@ sensors:
       service: proxy-sensor
 ```
 
-### `honeypot-platform/packs/high/cve-2021-41773_42013_apache_traversal_rce.yaml`  _(~1.4 KB; showing ≤800 lines)_
+### `honeypot-platform/packs/high/cve-2021-41773_42013.yaml`  _(~2.4 KB; showing ≤800 lines)_
 ```yaml
 apiVersion: hoho.dev/v1
 kind: HoneypotPack
 metadata:
-  id: cve-2021-41773_42013_apache_traversal_rce
-  name: apache-httpd-2.4.49-2.4.50-traversal-rce
+  id: cve-2021-41773_42013
+  name: cve-2021-41773_42013
   interaction: high
   tags:
     - web
@@ -3670,15 +3671,16 @@ stack:
   runtime: compose
   services:
     apache:
-      image: httpd:2.4.49
+      image: blueteamsteve/cve-2021-41773:with-cgid
       ports:
-        - 8091:80
+        - 8096:80
       volumes:
-        - ./packs/high/cve-2021-41773_42013_apache_traversal_rce/htdocs:/usr/local/apache2/htdocs
-        - ./packs/high/cve-2021-41773_42013_apache_traversal_rce/cgi-bin:/usr/local/apache2/cgi-bin
+        - ./packs/high/cve-2021-41773_42013/htdocs:/usr/local/apache2/htdocs
+        - ./packs/high/cve-2021-41773_42013/cgi-bin:/usr/local/apache2/cgi-bin
         - tmpdata:/tmp
       networks:
         - frontend
+        - hp_internal
 sensors:
   - name: proxy-sensor
     type: proxy
@@ -3709,9 +3711,38 @@ sensors:
       rotate_count: 20
     attach:
       service: proxy-sensor
+  - name: egress
+    type: egress_proxy
+    attach:
+      services: ["apache"]    # list of stack service names to proxy egress for
+    config:
+      listen_host: "0.0.0.0"
+      listen_port: 3128
+
+      force_egress_via_proxy: true
+
+      tls_mitm:
+        enabled: true
+        ca_install:
+          enabled: true
+          mode: auto               # auto|off|custom
+          custom_cert_path: null   # used when mode=custom (host path)
+          custom_key_path: null
+        install_trust:
+          enabled: true
+          also_set_env_bundles: true  # SSL_CERT_FILE/REQUESTS_CA_BUNDLE/CURL_CA_BUNDLE/NODE_EXTRA_CA_CERTS
+          extra_commands: []          # optional extra per-image commands
+
+      capture:
+        enabled: true
+        bodies: "*"                # DEFAULT: capture all response bodies
+        max_bytes: 52428800        # 50MB cap per response
+        store_ok_only: true        # default true (2xx/3xx)
+        min_bytes: 1               # default 1 (set higher if you want to reduce noise)
+        redact_headers: [REDACTED]
 ```
 
-### `honeypot-platform/packs/high/cve-2021-41773_42013_apache_traversal_rce/cgi-bin/health.sh`  _(~0.1 KB; showing ≤800 lines)_
+### `honeypot-platform/packs/high/cve-2021-41773_42013/cgi-bin/health.sh`  _(~0.1 KB; showing ≤800 lines)_
 ```bash
 #!/bin/sh
 echo "Content-Type: text/plain"
@@ -3719,7 +3750,7 @@ echo ""
 echo "ok"
 ```
 
-### `honeypot-platform/packs/high/cve-2021-41773_42013_apache_traversal_rce/htdocs/index.html`  _(~0.3 KB; showing ≤800 lines)_
+### `honeypot-platform/packs/high/cve-2021-41773_42013/htdocs/index.html`  _(~0.3 KB; showing ≤800 lines)_
 ```html
 <!doctype html>
 <html>
@@ -3814,81 +3845,6 @@ sensors:
       rotate_count: 10
     attach:
       service: proxy-sensor
-```
-
-### `honeypot-platform/packs/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.md`  _(~3.2 KB; showing ≤800 lines)_
-```md
-# Apache httpd 2.4.49/2.4.50 Traversal + RCE (low-interaction)
-
-## CVE profile
-- **Primary CVEs:** CVE-2021-41773 (path traversal / file read) and CVE-2021-42013 (incomplete fix bypass, enabling traversal and CGI RCE patterns).
-- **Product:** Apache HTTP Server (`httpd`) 2.4.49 and 2.4.50.
-- **Vulnerability family:** Path normalization bypass with traversal into sensitive filesystem paths; when CGI is enabled, traversal to shell binaries can be used for command execution attempts.
-- **Exposed surface:** HTTP on common web ports, especially paths under `/cgi-bin/` and sometimes `/icons/` with encoded traversal segments.
-- **Attacker objectives:**
-[REDACTED]
-  - Reach CGI-capable executable paths (for example shell entrypoints) and send command-style bodies.
-
-## Transcript-derived request patterns emulated
-
-### Primary probes
-1. **Traversal file-read probe (`GET`)**
-   - Distinctive structure: [REDACTED]
-[REDACTED]
-
-2. **Traversal-to-CGI RCE probe (`POST`)**
-   - Distinctive structure: encoded traversal path ending in `bin/sh` under `/cgi-bin/`.
-   - Emulated by behavior `cgi-rce-binsh-probe`.
-   - Request body is stored as compressed artifact for analysis.
-
-3. **Double-encoded traversal normalization probe (`GET`)**
-   - Distinctive structure: double-encoded dot segments (`%%32%65` style) plus sensitive target path.
-   - Emulated by behavior `traversal-normalization-probe`.
-
-### Secondary follow-up
-- `GET /` landing probe with Apache-like banner and “It works!” response.
-
-### Negative matching intent
-- The pack does **not** match only on user-agent.
-- The pack does **not** require exact payload command strings.
-- Matching focuses on stable path/encoding traits to avoid overfitting.
-
-## Telemetry contract
-- Global tags in metadata:
-  - `cve:2021-41773`
-  - `cve:2021-42013`
-  - `product:apache-httpd`
-  - `technique:path-traversal`
-  - `technique:rce`
-- Verdicts emitted: `probe`, `exploit`, `unknown`.
-- Indicators used:
-  - `file-read-probe`
-  - `cgi-bin-sh-exec`
-  - `double-encoded-dot-segments`
-- Header redaction: [REDACTED]
-- Body capture: enabled for `POST` CGI RCE probe (`store_body` with gzip).
-
-## How to run
-From the repository root:
-
-```bash
-python -m hoho_runtime.cli validate honeypot-platform/packs/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
-PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
-  python -m hoho_runtime.cli run honeypot-platform/packs/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
-```
-
-## Harmless test requests
-
-```bash
-curl -i http://127.0.0.1:8088/
-curl -i "http: [REDACTED]
-curl -i -X POST "http://127.0.0.1:8088/cgi-bin/.%2e/%2e%2e/%2e%2e/%2e%2e/bin/sh" -d "echo test"
-```
-
-## Known limitations
-- This is behavioral emulation only; no real Apache parser, CGI runtime, or filesystem access exists.
-- Only selected transcript patterns are emulated; many variants may hit the default `404`/`unknown` rule.
-- Response bodies are intentionally minimal to avoid acting as a real vulnerable target.
 ```
 
 ### `honeypot-platform/packs/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml`  _(~3.5 KB; showing ≤800 lines)_
@@ -4146,19 +4102,7 @@ behaviors:
       body: forbidden
 ```
 
-### `honeypot-platform/run/artifacts/example-upload-sink/index/events.jsonl`  _(~1.1 KB; showing ≤800 lines)_
-```
-{"schema_version":1,"event_id":"61dfc609-6a77-4a20-8697-1fae4c7a97cc","ts":"2026-02-10T10:59:45.779097+00:00","pack_id":"example-upload-sink","interaction":"low","component":"runtime.http","src":{"ip":"127.0.0.1","port":58474,"forwarded_for":[],"user_agent":"curl/8.5.0"},"proto":"http","request":{"method":"POST","path":"/api/upload","query":{},"headers_redacted":{"Host":"127.0.0.1:8081","User-Agent":"curl/8.5.0","Accept":"*/*","Content-Length":"335","Content-Type":"multipart/form-data; boundary=------------------------lJfSta67QKjFM4bQe7rGeN"},"content_type":"multipart/form-data; boundary=------------------------lJfSta67QKjFM4bQe7rGeN","content_length":335},"response":{"status_code":201,"bytes_sent":27,"profile":null},"classification":{"verdict":"upload","tags":["multipart"],"indicators":["file-upload"]},"decision":{"truncated":false,"oversized":false,"rate_limited":false,"dropped":false},"artifacts":[{"kind":"request_body","sha256":"1a939cffc5e1f8abf5bbda975b4b012eb5f2543f455261dce84aa611d2479073","size":230,"mime":"application/gzip","storage_ref":"blobs/1a/1a939cffc5e1f8abf5bbda975b4b012eb5f2543f455261dce84aa611d2479073","meta":{}}]}
-```
-
-### `honeypot-platform/run/artifacts/example-web/index/events.jsonl`  _(~3.5 KB; showing ≤800 lines)_
-```
-{"schema_version":1,"event_id":"33fc0764-0135-47cb-b35e-592d0e51d345","ts":"2026-02-10T11:18:36.099237+00:00","pack_id":"example-web","interaction":"low","component":"runtime.http","src":{"ip":"192.168.0.59","port":60372,"forwarded_for":[],"user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"},"proto":"http","request":{"method":"GET","path":"/","query":{},"headers_redacted":{"Host":"192.168.0.21:8088","Connection":"keep-alive","DNT":"1","Upgrade-Insecure-Requests":"1","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36","Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","Accept-Encoding":"gzip, deflate","Accept-Language":"en,ru;q=0.9,en-US;q=0.8,zh-CN;q=0.7,zh;q=0.6","Cookie":"<redacted>"},"content_type":"","content_length":0},"response":{"status_code":200,"bytes_sent":43,"profile":null},"classification":{"verdict":"probe","tags":["landing"],"indicators":[]},"decision":{"truncated":false,"oversized":false,"rate_limited":false,"dropped":false},"artifacts":[]}
-{"schema_version":1,"event_id":"0663755a-c94c-49fe-b8cc-0f763f513cfe","ts":"2026-02-10T11:18:36.132115+00:00","pack_id":"example-web","interaction":"low","component":"runtime.http","src":{"ip":"192.168.0.59","port":51292,"forwarded_for":[],"user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"},"proto":"http","request":{"method":"GET","path":"/favicon.ico","query":{},"headers_redacted":{"Host":"192.168.0.21:8088","Connection":"keep-alive","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36","DNT":"1","Accept":"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8","Referer":"http://192.168.0.21:8088/","Accept-Encoding":"gzip, deflate","Accept-Language":"en,ru;q=0.9,en-US;q=0.8,zh-CN;q=0.7,zh;q=0.6","Cookie":"<redacted>"},"content_type":"","content_length":0},"response":{"status_code":404,"bytes_sent":9,"profile":null},"classification":{"verdict":"unknown","tags":[],"indicators":[]},"decision":{"truncated":false,"oversized":false,"rate_limited":false,"dropped":false},"artifacts":[]}
-{"schema_version":1,"event_id":"84899a61-e277-4e42-aa42-3880b5e0af30","ts":"2026-02-10T11:18:39.064558+00:00","pack_id":"example-web","interaction":"low","component":"runtime.http","src":{"ip":"192.168.0.59","port":52784,"forwarded_for":[],"user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"},"proto":"http","request":{"method":"GET","path":"/","query":{},"headers_redacted":{"Host":"192.168.0.21:8088","Connection":"keep-alive","DNT":"1","Upgrade-Insecure-Requests":"1","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36","Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","Accept-Encoding":"gzip, deflate","Accept-Language":"en,ru;q=0.9,en-US;q=0.8,zh-CN;q=0.7,zh;q=0.6","Cookie":"<redacted>"},"content_type":"","content_length":0},"response":{"status_code":200,"bytes_sent":43,"profile":null},"classification":{"verdict":"probe","tags":["landing"],"indicators":[]},"decision":{"truncated":false,"oversized":false,"rate_limited":false,"dropped":false},"artifacts":[]}
-```
-
-### `honeypot-platform/scripts/build_sensors.sh`  _(~0.2 KB; showing ≤800 lines)_
+### `honeypot-platform/scripts/build_sensors.sh`  _(~0.3 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -4167,6 +4111,7 @@ cd "$(dirname "$0")/.."
 docker build -t hoho/sensor-fsmon:latest sensors/fsmon
 docker build -t hoho/sensor-http-proxy:latest sensors/http_proxy
 docker build -t hoho/sensor-pcap:latest sensors/pcap
+docker build -t hoho/sensor-egress-proxy:latest sensors/egress_proxy
 ```
 
 ### `honeypot-platform/scripts/check_docs.sh`  _(~0.6 KB; showing ≤800 lines)_
@@ -4196,6 +4141,228 @@ for d in "${DOCS[@]}"; do
   (( sec_count >= 2 )) || { echo "need at least 2 sections: $d"; exit 1; }
   echo "ok: $d"
 done
+```
+
+### `honeypot-platform/scripts/check_layout.sh`  _(~0.7 KB; showing ≤800 lines)_
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT_DIR"
+
+fail() {
+  echo "layout check failed: $1" >&2
+  exit 1
+}
+
+RUNS_SUBTREE="runs"
+LEGACY_RUNS_PATH="run/artifacts/${RUNS_SUBTREE}"
+
+if [ -d "$LEGACY_RUNS_PATH" ]; then
+  fail "forbidden path exists: ${LEGACY_RUNS_PATH}"
+fi
+
+if find packs -type f -name '*.md' | grep -q .; then
+  fail "forbidden markdown file found under packs/"
+fi
+
+if find honeypots -type f -name '*.yaml' | grep -q .; then
+  fail "forbidden yaml file found under honeypots/"
+fi
+
+if find honeypots -type f \( -name 'docker-compose*.yml' -o -name 'docker-compose*.yaml' \) | grep -q .; then
+  fail "forbidden compose file found under honeypots/"
+fi
+
+echo "layout check passed"
+```
+
+### `honeypot-platform/sensors/egress_proxy/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_
+```
+FROM python:3.11-slim
+WORKDIR /app
+COPY proxy/egress_capture_addon.py /app/egress_capture_addon.py
+COPY entrypoint.sh /entrypoint.sh
+RUN pip install --no-cache-dir mitmproxy && chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+```
+
+### `honeypot-platform/sensors/egress_proxy/entrypoint.sh`  _(~1.4 KB; showing ≤800 lines)_
+```bash
+#!/usr/bin/env sh
+set -eu
+
+: "${PROXY_LISTEN_HOST:=0.0.0.0}"
+: "${PROXY_LISTEN_PORT:=3128}"
+: "${PROXY_STACK_ID:=${HOHO_PACK_ID:-unknown-pack}}"
+: "${PROXY_TLS_MITM_ENABLED:=false}"
+: "${PROXY_CA_INSTALL_ENABLED:=true}"
+: "${PROXY_CA_INSTALL_MODE:=auto}"
+: "${PROXY_CUSTOM_CERT_PATH:=}"
+: "${PROXY_CUSTOM_KEY_PATH:=}"
+
+CONF_DIR="/artifacts/${PROXY_STACK_ID}/mitmproxy-conf"
+CA_DIR="/artifacts/${PROXY_STACK_ID}/ca"
+mkdir -p "${CONF_DIR}" "${CA_DIR}"
+
+mode=$(printf '%s' "${PROXY_TLS_MITM_ENABLED}" | tr '[:upper:]' '[:lower:]')
+if [ "${mode}" = "true" ] || [ "${mode}" = "1" ] || [ "${mode}" = "yes" ] || [ "${mode}" = "on" ]; then
+  TLS_ARGS=""
+else
+  TLS_ARGS="--set connection_strategy=lazy"
+fi
+
+if [ "${PROXY_CA_INSTALL_MODE}" = "custom" ] && [ -n "${PROXY_CUSTOM_CERT_PATH}" ] && [ -n "${PROXY_CUSTOM_KEY_PATH}" ]; then
+  cp "${PROXY_CUSTOM_CERT_PATH}" "${CONF_DIR}/mitmproxy-ca-cert.pem"
+  cp "${PROXY_CUSTOM_KEY_PATH}" "${CONF_DIR}/mitmproxy-ca.pem"
+fi
+
+set -- \
+  --mode regular \
+  --listen-host "${PROXY_LISTEN_HOST}" \
+  --listen-port "${PROXY_LISTEN_PORT}" \
+  --set confdir="${CONF_DIR}" \
+  -s /app/egress_capture_addon.py
+
+if [ -n "${TLS_ARGS}" ]; then
+  # shellcheck disable=SC2086
+  set -- "$@" ${TLS_ARGS}
+fi
+
+mitmdump "$@" &
+child=$!
+
+for _ in $(seq 1 30); do
+  if [ -f "${CONF_DIR}/mitmproxy-ca-cert.pem" ]; then
+    cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
+    break
+  fi
+  sleep 1
+done
+
+wait "$child"
+```
+
+### `honeypot-platform/sensors/egress_proxy/proxy/egress_capture_addon.py`  _(~3.9 KB; showing ≤800 lines)_
+```python
+import hashlib
+import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlparse
+
+PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
+CAPTURE_ENABLED = os.getenv("PROXY_CAPTURE_ENABLED", "true").lower() in {"1", "true", "yes", "on"}
+CAPTURE_BODIES = os.getenv("PROXY_CAPTURE_BODIES", "*")
+CAPTURE_MAX_BYTES = int(os.getenv("PROXY_CAPTURE_MAX_BYTES", "52428800"))
+CAPTURE_STORE_OK_ONLY = os.getenv("PROXY_CAPTURE_STORE_OK_ONLY", "true").lower() in {"1", "true", "yes", "on"}
+CAPTURE_MIN_BYTES = int(os.getenv("PROXY_CAPTURE_MIN_BYTES", "1"))
+REDACT_HEADERS =[REDACTED]
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _events_path() -> Path:
+    return ROOT / PACK_ID / "index" / "events.jsonl"
+
+
+def _append_event(ev: dict) -> None:
+    path = _events_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(ev) + "\n")
+
+
+def _redact(headers) -> dict:
+    out = {}
+    for k, v in headers.items(multi=True):
+        out[k] = "<redacted>" if k.lower() in REDACT_HEADERS else v
+    return out
+
+
+def _guess_filename(flow_id: str, url: str, headers, digest: str) -> str:
+    content_disp = headers.get("Content-Disposition", "")
+    marker = "filename="
+    if marker in content_disp:
+        candidate = content_disp.split(marker, 1)[1].strip().strip('"\'')
+        if candidate:
+            return candidate
+
+    path = urlparse(url).path
+    tail = Path(path).name
+    if tail:
+        return tail
+    return f"{digest[:32] if digest else flow_id}.bin"
+
+
+def response(flow):
+    req = flow.request
+    resp = flow.response
+    event_id = flow.id
+
+    body = (resp.raw_content or b"") if resp else b""
+    total_bytes = len(body)
+    should_store = CAPTURE_ENABLED and CAPTURE_BODIES == "*"
+    if CAPTURE_STORE_OK_ONLY and resp is not None:
+        should_store = should_store and (200 <= resp.status_code <= 399)
+    should_store = should_store and total_bytes >= CAPTURE_MIN_BYTES
+
+    artifacts = []
+    if should_store:
+        stored = body[:CAPTURE_MAX_BYTES]
+        digest = hashlib.sha256(stored).hexdigest()
+        truncated = len(stored) < total_bytes
+
+        blob_path = ROOT / PACK_ID / "blobs" / digest[:2] / digest
+        blob_path.parent.mkdir(parents=True, exist_ok=True)
+        if not blob_path.exists():
+            blob_path.write_bytes(stored)
+
+        filename = _guess_filename(event_id, req.pretty_url, resp.headers if resp else {}, digest)
+        obj_path = ROOT / PACK_ID / "objects" / event_id / "egress.response" / filename
+        obj_path.parent.mkdir(parents=True, exist_ok=True)
+        if not obj_path.exists():
+            obj_path.symlink_to(blob_path)
+
+        artifacts.append(
+            {
+                "kind": "egress.response_body",
+                "sha256": digest,
+                "bytes_captured": len(stored),
+                "bytes_total": total_bytes,
+                "truncated": truncated,
+                "filename_guess": filename,
+                "url": req.pretty_url,
+                "storage_ref": f"blobs/{digest[:2]}/{digest}",
+            }
+        )
+
+    ev = {
+        "schema_version": 1,
+        "event_id": event_id,
+        "ts": _now(),
+        "pack_id": PACK_ID,
+        "interaction": "high",
+        "kind": "sensor.egress_proxy.http",
+        "component": "sensor.egress_proxy",
+        "request": {
+            "method": req.method,
+            "url": req.pretty_url,
+            "headers_redacted": _redact(req.headers),
+        },
+        "response": {
+            "status_code": resp.status_code if resp else None,
+            "headers_redacted": _redact(resp.headers) if resp else {},
+            "bytes": total_bytes,
+        },
+        "artifacts": artifacts,
+    }
+    _append_event(ev)
 ```
 
 ### `honeypot-platform/sensors/fsmon/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_

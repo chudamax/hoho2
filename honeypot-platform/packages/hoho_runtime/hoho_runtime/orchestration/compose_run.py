@@ -59,11 +59,14 @@ def _run_ca_install(
     storage_pack_root: Path,
     pack_id: str,
 ) -> None:
+    print ("AAAAAAAAAAAAAAA")
     cmd = ["docker", "compose"]
     if project_name:
         cmd.extend(["-p", project_name])
     cmd.extend(["-f", str(compose_file), "exec", "-T", service_name, "sh", "/hoho/ca/install-ca.sh", "/hoho/ca/egress-ca.crt"])
     proc = subprocess.run(cmd, capture_output=True, text=True)
+    print (proc.stderr)
+    print (proc.stdout)
     if proc.returncode == 0:
         _emit_ca_install_event(
             storage_pack_root=storage_pack_root,
@@ -95,6 +98,7 @@ def run_compose(
     if project_name:
         cmd.extend(["-p", project_name])
     cmd.extend(["-f", str(compose_file), "up", "-d"])
+    #cmd.extend(["-f", str(compose_file), "up"])
     rc = subprocess.call(cmd)
     if rc != 0 or not pack or not artifacts_root:
         return rc
