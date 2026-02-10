@@ -1,5 +1,393 @@
 # Repository Brief: hoho2
 
+_Generated 2026-02-10 18:50 UTC_
+
+## Quick Facts
+- **Branch:** main
+- **Commit:** 3ceb032 (2026-02-10 18:50:30 +0000)
+- **Total commits:** 41
+- **Files scanned:** 83
+- **Text files embedded (after filters):** 83
+
+## Language & LOC Overview (approx.)
+- **python** — files: 36 (43.4%), LOC: 1912
+- **md** — files: 22 (26.5%), LOC: 5809
+- **bash** — files: 9 (10.8%), LOC: 236
+- **yaml** — files: 6 (7.2%), LOC: 490
+- **other** — files: 5 (6.0%), LOC: 243
+- **json** — files: 2 (2.4%), LOC: 437
+- **toml** — files: 2 (2.4%), LOC: 30
+- **html** — files: 1 (1.2%), LOC: 12
+
+## Directory Tree (depth ≤ 10)
+
+```text
+- .gitignore
+- AGENTS.md
+- REPO_BRIEF.md
+- honeypot-platform
+  - docs
+    - ARCHITECTURE.md
+    - DEPLOYMENT.md
+    - DIRECTORY_LAYOUT.md
+    - DSL_REFERENCE.md
+    - EVENT_SCHEMA.md
+    - PACK_SPEC.md
+    - README.md
+    - SECURITY.md
+    - SENSORS.md
+    - STORAGE_LAYOUT.md
+  - scripts
+    - build_sensors.sh
+    - check_docs.sh
+    - check_layout.sh
+  - deploy
+    - compose
+      - README.md
+    - runbooks
+      - high-interaction-honeypot-from-cve.md
+      - low-interaction-honeypot-from-cve.md
+  - packages
+    - hoho_core
+      - pyproject.toml
+    - hoho_runtime
+  - packs
+    - high
+      - cve-2020-25213_wp_file_upload.yaml
+      - cve-2021-41773_42013.yaml
+      - example_wp_stack.yaml
+    - low
+      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
+      - example_upload_sink.yaml
+      - example_web.yaml
+  - sensors
+    - egress_proxy
+      - Dockerfile
+      - entrypoint.sh
+    - fsmon
+    - http_proxy
+    - pcap
+  - honeypots
+      - cve-2021-41773_42013
+        - README.md
+        - reset.sh
+      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
+      - hoho_core
+        - __init__.py
+        - version.py
+      - hoho_runtime
+        - cli.py
+        - config.py
+      - proxy
+        - egress_capture_addon.py
+        - gen_ca.py
+      - fsmon
+        - fsmon.py
+        - rules.schema.json
+        - capture_addon.py
+        - dsl
+          - __init__.py
+          - actions.py
+          - engine.py
+          - matchers.py
+          - templates.py
+        - model
+          - artifact.py
+          - event.py
+        - schema
+          - pack_v1.json
+          - validate.py
+        - storage
+          - base.py
+          - fs.py
+        - utils
+          - filenames.py
+          - hashing.py
+          - jsonl.py
+          - redact.py
+          - time.py
+        - orchestration
+          - ca_pregen.py
+          - compose_down_all.py
+          - compose_render.py
+          - compose_run.py
+        - server
+          - http.py
+          - tcp.py
+        - cgi-bin
+          - health.sh
+        - htdocs
+          - index.html
+```
+
+## Recent Commits
+- 3ceb032 | 2026-02-10 | up
+- 8407a4c | 2026-02-10 | Merge branch 'main' of github.com:chudamax/hoho2
+- 3130cb2 | 2026-02-10 | updates
+- 6f74138 | 2026-02-10 | Merge pull request #13 from chudamax/codex/add-host-side-ca-generation-for-egress-proxy
+- e6def8f | 2026-02-10 | Pre-generate runtime egress CA before compose up
+- 81214e2 | 2026-02-10 | Merge pull request #12 from chudamax/codex/add-hoho-down-all-command
+- 71386d5 | 2026-02-10 | Add hoho down-all cleanup command
+- 0fe9066 | 2026-02-10 | Merge pull request #11 from chudamax/codex/fix-egress_proxy-ca-generation-delay
+- 2045ad6 | 2026-02-10 | Fix egress proxy CA auto-generation and runtime wait logic
+- 3141788 | 2026-02-10 | Merge pull request #10 from chudamax/codex/fix-events.jsonl-permission-error
+
+## Files (embedded, trimmed)
+> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+
+### `.gitignore`  _(~4.8 KB; showing ≤800 lines)_
+```
+artifacts/
+run/
+deploy/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# Generated compose/runtime outputs
+honeypot-platform/deploy/compose/*
+!honeypot-platform/deploy/compose/README.md
+honeypot-platform/run/artifacts/**
+
+honeypot-platform/deploy/compose/**/runtime/ca/**
+```
+
+### `AGENTS.md`  _(~1.4 KB; showing ≤800 lines)_
+```md
+# AGENTS.md (repo root)
+
+## Honeypot layout (Simple Layout v1)
+- Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
+- Always use `honeypot_id == metadata.id`.
+- Create packs only at `honeypot-platform/packs/{low,high}/<honeypot_id>.yaml`.
+- Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
+- Never create `.md` next to pack YAML files.
+- Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
+- Compose always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
+- Never create `honeypot-platform/run/artifacts/<runs-subtree>/**`.
+- Never create non-canonical honeypot folders such as `honeypot-platform/honeypots/high/<cve-only>/`.
+
+# Honeypots: low-interaction
+- When asked to create a new low-interaction honeypot from a CVE, ALWAYS read:
+  `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`
+- Follow the runbook exactly: research -> derive request transcripts -> implement YAML pack -> validate/run -> document.
+
+## Honeypots: high-interaction
+- When asked to create a new high-interaction honeypot from a CVE, ALWAYS read:
+  `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`
+- Prioritize isolation + capture: pcap, proxy download capture, filesystem monitoring, process/audit logs.
+- Provide a one-command reset script at `honeypot-platform/honeypots/high/<honeypot_id>/reset.sh`.
+```
+
+### `REPO_BRIEF.md`  _(~155.3 KB; showing ≤800 lines)_
+```md
+# Repository Brief: hoho2
+
 _Generated 2026-02-10 17:52 UTC_
 
 ## Quick Facts
@@ -132,7 +520,7 @@ _Generated 2026-02-10 17:52 UTC_
 - a724fc1 | 2026-02-10 | Merge pull request #8 from chudamax/codex/fix-hoho-cli-output-paths
 
 ## Files (embedded, trimmed)
-> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+[REDACTED]
 
 ### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
 ```
@@ -798,393 +1186,10 @@ _Generated 2026-02-10 16:55 UTC_
     - EVENT_SCHEMA.md
     - PACK_SPEC.md
     - README.md
-    - SECURITY.md
-    - SENSORS.md
-    - STORAGE_LAYOUT.md
-  - scripts
-    - build_sensors.sh
-    - check_docs.sh
-    - check_layout.sh
-  - deploy
-    - compose
-      - README.md
-    - runbooks
-      - high-interaction-honeypot-from-cve.md
-      - low-interaction-honeypot-from-cve.md
-  - packages
-    - hoho_core
-      - pyproject.toml
-    - hoho_runtime
-  - packs
-    - high
-      - cve-2020-25213_wp_file_upload.yaml
-      - cve-2021-41773_42013.yaml
-      - example_wp_stack.yaml
-    - low
-      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
-      - example_upload_sink.yaml
-      - example_web.yaml
-  - sensors
-    - egress_proxy
-      - Dockerfile
-      - entrypoint.sh
-    - fsmon
-    - http_proxy
-    - pcap
-  - honeypots
-      - cve-2021-41773_42013
-        - README.md
-        - reset.sh
-      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
-      - hoho_core
-        - __init__.py
-        - version.py
-      - hoho_runtime
-        - cli.py
-        - config.py
-      - proxy
-        - egress_capture_addon.py
-      - fsmon
-        - fsmon.py
-        - rules.schema.json
-        - capture_addon.py
-        - dsl
-          - __init__.py
-          - actions.py
-          - engine.py
-          - matchers.py
-          - templates.py
-        - model
-          - artifact.py
-          - event.py
-        - schema
-          - pack_v1.json
-          - validate.py
-        - storage
-          - base.py
-          - fs.py
-        - utils
-          - filenames.py
-          - hashing.py
-          - jsonl.py
-          - redact.py
-          - time.py
-        - orchestration
-          - compose_render.py
-          - compose_run.py
-        - server
-          - http.py
-          - tcp.py
-        - cgi-bin
-          - health.sh
-        - htdocs
-          - index.html
-```
-
-## Recent Commits
-- f497d6e | 2026-02-10 | Merge pull request #9 from chudamax/codex/add-egress_proxy-sensor-type
-- 87640a3 | 2026-02-10 | Add high-interaction egress proxy sensor with MITM capture pipeline
-- a724fc1 | 2026-02-10 | Merge pull request #8 from chudamax/codex/fix-hoho-cli-output-paths
-- 90753a1 | 2026-02-10 | Fix hoho default output paths to use pack project root
-- ce2988a | 2026-02-10 | up
-- a6f656d | 2026-02-10 | up
-- 1d6a931 | 2026-02-10 | up
-- bcb465c | 2026-02-10 | Merge pull request #7 from chudamax/codex/simplify-honeypot-layout-and-migrate-files
-- 39c1111 | 2026-02-10 | Simplify honeypot layout to honeypot_id-only paths
-- 69b2412 | 2026-02-10 | up
-
-## Files (embedded, trimmed)
-[REDACTED]
-
-### `.gitignore`  _(~4.7 KB; showing ≤800 lines)_
-```
-artifacts/
-run/
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-#poetry.toml
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
-#pdm.lock
-#pdm.toml
-.pdm-python
-.pdm-build/
-
-# pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
-#pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
-
-# Generated compose/runtime outputs
-honeypot-platform/deploy/compose/*
-!honeypot-platform/deploy/compose/README.md
-honeypot-platform/run/artifacts/**
-```
-
-### `AGENTS.md`  _(~1.4 KB; showing ≤800 lines)_
-```md
-# AGENTS.md (repo root)
-
-## Honeypot layout (Simple Layout v1)
-- Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
-- Always use `honeypot_id == metadata.id`.
-- Create packs only at `honeypot-platform/packs/{low,high}/<honeypot_id>.yaml`.
-- Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
-- Never create `.md` next to pack YAML files.
-- Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
-- Compose always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
-- Never create `honeypot-platform/run/artifacts/<runs-subtree>/**`.
-- Never create non-canonical honeypot folders such as `honeypot-platform/honeypots/high/<cve-only>/`.
-
-# Honeypots: low-interaction
-- When asked to create a new low-interaction honeypot from a CVE, ALWAYS read:
-  `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`
-- Follow the runbook exactly: research -> derive request transcripts -> implement YAML pack -> validate/run -> document.
-
-## Honeypots: high-interaction
-- When asked to create a new high-interaction honeypot from a CVE, ALWAYS read:
-  `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`
-- Prioritize isolation + capture: pcap, proxy download capture, filesystem monitoring, process/audit logs.
-- Provide a one-command reset script at `honeypot-platform/honeypots/high/<honeypot_id>/reset.sh`.
-```
-
-### `REPO_BRIEF.md`  _(~112.3 KB; showing ≤800 lines)_
-```md
-# Repository Brief: hoho2
-
-_Generated 2026-02-10 15:43 UTC_
-
-## Quick Facts
-- **Branch:** main
-- **Commit:** ce2988a (2026-02-10 15:37:08 +0000)
-- **Total commits:** 25
-- **Files scanned:** 77
-- **Text files embedded (after filters):** 77
-
-## Language & LOC Overview (approx.)
-- **python** — files: 32 (41.6%), LOC: 962
-- **md** — files: 22 (28.6%), LOC: 5141
-- **bash** — files: 8 (10.4%), LOC: 152
-- **yaml** — files: 6 (7.8%), LOC: 460
-- **other** — files: 4 (5.2%), LOC: 232
-- **json** — files: 2 (2.6%), LOC: 173
-- **toml** — files: 2 (2.6%), LOC: 30
-- **html** — files: 1 (1.3%), LOC: 12
-
-## Directory Tree (depth ≤ 10)
-
-```text
-- .gitignore
-- AGENTS.md
-- REPO_BRIEF.md
-- honeypot-platform
-  - docs
-    - ARCHITECTURE.md
-    - DEPLOYMENT.md
-    - DIRECTORY_LAYOUT.md
-    - DSL_REFERENCE.md
-    - EVENT_SCHEMA.md
-    - PACK_SPEC.md
-    - README.md
-    - SECURITY.md
-    - SENSORS.md
 ```
 <!-- trimmed: file exceeded per-file limits -->
 
-### `honeypot-platform/deploy/compose/README.md`  _(~0.5 KB; showing ≤800 lines)_
+### `honeypot-platform/deploy/compose/README.md`  _(~1.2 KB; showing ≤800 lines)_
 ```md
 # Compose output directory
 
@@ -1196,6 +1201,18 @@ When `-o/--output` is not provided, the CLI discovers `project_root` by walking 
 3. otherwise the pack file's parent directory.
 
 If `-o/--output` is provided, `hoho` keeps existing behavior and uses that path as given.
+
+
+## Runtime egress MITM CA
+
+For high-interaction stacks using the egress proxy with TLS MITM + CA install enabled, `hoho run` now pre-generates (or reuses) a host-side runtime CA before `docker compose up`:
+
+- `deploy/compose/<honeypot_id>/runtime/ca/egress-ca.crt`
+- `deploy/compose/<honeypot_id>/runtime/ca/egress-ca.key`
+- `deploy/compose/<honeypot_id>/runtime/ca/mitmproxy-ca.pem` (combined cert + key)
+- `deploy/compose/<honeypot_id>/runtime/ca/mitmproxy-ca-cert.pem` (cert only)
+
+Attached services mount `runtime/ca/egress-ca.crt` at `/hoho/ca/egress-ca.crt`, and the egress proxy mounts `runtime/ca` and uses those files in custom CA mode so all services trust and interception use the same CA material.
 ```
 
 ### `honeypot-platform/docs/ARCHITECTURE.md`  _(~1.2 KB; showing ≤800 lines)_
@@ -2759,7 +2776,7 @@ hoho down-all --dry-run
 
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~6.7 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~8.9 KB; showing ≤800 lines)_
 ```python
 import argparse
 import json
@@ -2772,6 +2789,7 @@ from hoho_runtime.config import DEFAULT_STORAGE_ROOT
 from hoho_runtime.orchestration.compose_down_all import down_all
 from hoho_runtime.orchestration.compose_render import render_compose
 from hoho_runtime.orchestration.compose_run import run_compose
+from hoho_runtime.orchestration.ca_pregen import EgressCAError, ensure_egress_ca, normalize_custom_ca
 from hoho_runtime.server.http import run_low_http
 
 
@@ -2830,6 +2848,37 @@ def _prepare_artifacts_root(storage_root: Path, honeypot_id: str) -> Path:
     return artifacts_dir
 
 
+
+
+def _find_egress_proxy_sensor(pack: dict) -> dict | None:
+    for sensor in pack.get("sensors", []):
+        if sensor.get("type") == "egress_proxy":
+            return sensor
+    return None
+
+
+def _runtime_ca_required(sensor: dict | None) -> bool:
+    if not sensor:
+        return False
+    config = sensor.get("config", {})
+    tls_mitm = config.get("tls_mitm", {})
+    if not _bool_enabled(tls_mitm.get("enabled", False), default=False):
+        return False
+    ca_install = tls_mitm.get("ca_install", {})
+    if not _bool_enabled(ca_install.get("enabled", True), default=True):
+        return False
+    return str(ca_install.get("mode", "auto")).strip().lower() != "off"
+
+
+def _bool_enabled(value: object, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
 def cmd_validate(args):
     pack = load_pack(args.pack)
     errors = validate_pack(pack)
@@ -2875,6 +2924,24 @@ def cmd_run(args):
 
         artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id)
         compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root))
+        compose_root = compose_file.parent
+        runtime_ca_dir = compose_root / "runtime" / "ca"
+        egress_sensor = _find_egress_proxy_sensor(pack)
+        if _runtime_ca_required(egress_sensor):
+            tls_mitm = egress_sensor.get("config", {}).get("tls_mitm", {})
+            ca_install = tls_mitm.get("ca_install", {})
+            ca_mode = str(ca_install.get("mode", "auto")).strip().lower()
+            try:
+                if ca_mode == "custom" and ca_install.get("custom_cert_path") and ca_install.get("custom_key_path"):
+                    normalize_custom_ca(
+                        runtime_ca_dir,
+                        cert_path=Path(str(ca_install.get("custom_cert_path"))).expanduser().resolve(),
+                        key_path=Path(str(ca_install.get("custom_key_path"))).expanduser().resolve(),
+                    )
+                else:
+                    ensure_egress_ca(runtime_ca_dir, common_name=f"hoho-egress-ca-{honeypot_id}")
+            except EgressCAError as exc:
+                raise SystemExit(f"[hoho] ERROR: failed to prepare runtime egress CA: {exc}") from exc
         project_name = _sanitize_name(f"hoho-{honeypot_id}")
 
         print(
@@ -2982,6 +3049,156 @@ DEFAULT_LIMITS = {
 ### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/__init__.py`  _(~0.0 KB; showing ≤800 lines)_
 ```python
 
+```
+
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/ca_pregen.py`  _(~4.2 KB; showing ≤800 lines)_
+```python
+from __future__ import annotations
+
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+
+class EgressCAError(RuntimeError):
+    """Raised when host-side egress CA generation fails."""
+
+
+def _write_bundle(cert_path: Path, key_path: Path, bundle_path: Path) -> None:
+    cert = cert_path.read_text(encoding="utf-8")
+    key = key_path.read_text(encoding="utf-8")
+    bundle_path.write_text(f"{cert.rstrip()}\n{key.rstrip()}\n", encoding="utf-8")
+
+
+def _set_private_key_mode(key_path: Path) -> None:
+    try:
+        os.chmod(key_path, 0o600)
+    except OSError:
+        # Best-effort on platforms/filesystems that do not support UNIX modes.
+        return
+
+
+def _run_openssl(args: list[str], *, cwd: Path) -> None:
+    cmd = ["openssl", *args]
+    try:
+        proc = subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True)
+    except FileNotFoundError as exc:
+        raise EgressCAError("openssl is required to pre-generate runtime egress CA but was not found") from exc
+
+    if proc.returncode != 0:
+        stderr = (proc.stderr or "").strip()
+        raise EgressCAError(f"openssl command failed ({' '.join(cmd)}): {stderr[:500]}")
+
+
+def ensure_egress_ca(
+    ca_dir: Path,
+    *,
+    common_name: str,
+    days_valid: int = 3650,
+    overwrite: bool = False,
+) -> dict:
+    """
+    Ensures CA exists in ca_dir.
+    Returns metadata dict with paths and a "created" bool.
+    """
+    ca_dir.mkdir(parents=True, exist_ok=True)
+
+    cert_path = ca_dir / "egress-ca.crt"
+    key_path = ca_dir / "egress-ca.key"
+    mitm_cert_path = ca_dir / "mitmproxy-ca-cert.pem"
+    mitm_bundle_path = ca_dir / "mitmproxy-ca.pem"
+    openssl_conf = ca_dir / "openssl.cnf"
+
+    created = overwrite
+    if not overwrite and cert_path.exists() and key_path.exists():
+        created = False
+    else:
+        openssl_conf.write_text(
+            """[req]
+distinguished_name=req_distinguished_name
+x509_extensions=v3_ca
+prompt=no
+
+[req_distinguished_name]
+CN=unused
+
+[v3_ca]
+basicConstraints=critical,CA:TRUE
+keyUsage=critical,keyCertSign,cRLSign
+subjectKeyIdentifier=hash
+""",
+            encoding="utf-8",
+        )
+
+        _run_openssl(["genrsa", "-out", str(key_path), "4096"], cwd=ca_dir)
+        _set_private_key_mode(key_path)
+        _run_openssl(
+            [
+                "req",
+                "-x509",
+                "-new",
+                "-nodes",
+                "-key",
+                str(key_path),
+                "-sha256",
+                "-days",
+                str(days_valid),
+                "-out",
+                str(cert_path),
+                "-subj",
+                f"/CN={common_name}",
+                "-config",
+                str(openssl_conf),
+                "-extensions",
+                "v3_ca",
+            ],
+            cwd=ca_dir,
+        )
+        created = True
+
+    shutil.copyfile(cert_path, mitm_cert_path)
+    _write_bundle(cert_path, key_path, mitm_bundle_path)
+    _set_private_key_mode(key_path)
+
+    return {
+        "created": created,
+        "common_name": common_name,
+        "egress_ca_crt": str(cert_path),
+        "egress_ca_key": str(key_path),
+        "mitmproxy_ca_pem": str(mitm_bundle_path),
+        "mitmproxy_ca_cert_pem": str(mitm_cert_path),
+    }
+
+
+def normalize_custom_ca(ca_dir: Path, *, cert_path: Path, key_path: Path) -> dict:
+    """Copy user-provided cert/key into canonical runtime CA paths."""
+    ca_dir.mkdir(parents=True, exist_ok=True)
+
+    out_cert = ca_dir / "egress-ca.crt"
+    out_key = ca_dir / "egress-ca.key"
+    out_mitm_cert = ca_dir / "mitmproxy-ca-cert.pem"
+    out_bundle = ca_dir / "mitmproxy-ca.pem"
+
+    if not cert_path.exists():
+        raise EgressCAError(f"custom CA certificate path does not exist: {cert_path}")
+    if not key_path.exists():
+        raise EgressCAError(f"custom CA key path does not exist: {key_path}")
+
+    shutil.copyfile(cert_path, out_cert)
+    shutil.copyfile(key_path, out_key)
+    shutil.copyfile(out_cert, out_mitm_cert)
+    _write_bundle(out_cert, out_key, out_bundle)
+    _set_private_key_mode(out_key)
+
+    return {
+        "created": True,
+        "common_name": "custom",
+        "egress_ca_crt": str(out_cert),
+        "egress_ca_key": str(out_key),
+        "mitmproxy_ca_pem": str(out_bundle),
+        "mitmproxy_ca_cert_pem": str(out_mitm_cert),
+    }
 ```
 
 ### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_down_all.py`  _(~5.2 KB; showing ≤800 lines)_
@@ -3154,7 +3371,7 @@ def down_all(
     )
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~15.2 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~15.7 KB; showing ≤800 lines)_
 ```python
 from copy import deepcopy
 from pathlib import Path, PurePosixPath
@@ -3492,7 +3709,17 @@ exit 0
                 )
 
             sensor_service["volumes"].append(f"{(root / 'runtime').resolve()}:/runtime:ro")
+            sensor_service["volumes"].append(f"{(root / 'runtime' / 'ca').resolve()}:/runtime/ca:ro")
             sensor_service["volumes"].append(f"{(storage_root / pack_id).resolve()}:/artifacts/{pack_id}")
+
+            if tls_mitm_enabled and ca_install_enabled and ca_install_mode.strip().lower() != "off":
+                sensor_service["environment"].update(
+                    {
+                        "PROXY_CA_INSTALL_MODE": "custom",
+                        "PROXY_CUSTOM_CERT_PATH": "/runtime/ca/egress-ca.crt",
+                        "PROXY_CUSTOM_KEY_PATH": "/runtime/ca/egress-ca.key",
+                    }
+                )
 
             if force_egress:
                 network_defs["hp_internal"] = {"internal": True}
@@ -3508,7 +3735,7 @@ exit 0
                     attach_service.setdefault("volumes", []).extend(
                         [
                             f"{(root / 'runtime' / 'ca' / 'install-ca.sh').resolve()}:/hoho/ca/install-ca.sh:ro",
-                            f"{(storage_root / pack_id / 'ca' / 'egress-ca.crt').resolve()}:/hoho/ca/egress-ca.crt:ro",
+                            f"{(root / 'runtime' / 'ca' / 'egress-ca.crt').resolve()}:/hoho/ca/egress-ca.crt:ro",
                         ]
                     )
             else:
@@ -3531,7 +3758,7 @@ exit 0
     return out
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~7.1 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~5.7 KB; showing ≤800 lines)_
 ```python
 import json
 import os
@@ -3619,15 +3846,6 @@ def _emit_ca_install_event(
         print(f"[hoho] WARN: cannot append to events.jsonl: {exc}")
 
 
-def _wait_for_ca_cert(ca_path: Path, timeout_seconds: int = 120, poll_seconds: float = 1.0) -> bool:
-    deadline = time.time() + timeout_seconds
-    while time.time() < deadline:
-        if ca_path.exists() and ca_path.stat().st_size > 0:
-            return True
-        time.sleep(poll_seconds)
-    return False
-
-
 
 
 def _bool_enabled(value: object, default: bool = False) -> bool:
@@ -3638,22 +3856,6 @@ def _bool_enabled(value: object, default: bool = False) -> bool:
     if isinstance(value, (int, float)):
         return bool(value)
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
-
-
-def _ca_wait_seconds(default: int = 120) -> int:
-    raw_value = os.getenv("HOHO_CA_WAIT_SECONDS")
-    if raw_value is None:
-        return default
-    try:
-        parsed = int(raw_value)
-    except ValueError:
-        print(f"[hoho] WARN: invalid HOHO_CA_WAIT_SECONDS={raw_value!r}; using default {default}")
-        return default
-    if parsed <= 0:
-        print(f"[hoho] WARN: non-positive HOHO_CA_WAIT_SECONDS={parsed}; using default {default}")
-        return default
-    return parsed
-
 
 def _run_ca_install(
     *,
@@ -3705,8 +3907,8 @@ def run_compose(
     cmd = ["docker", "compose"]
     if project_name:
         cmd.extend(["-p", project_name])
-    cmd.extend(["-f", str(compose_file), "up", "-d"])
-    #cmd.extend(["-f", str(compose_file), "up"])
+    #cmd.extend(["-f", str(compose_file), "up", "-d"])
+    cmd.extend(["-f", str(compose_file), "up"])
     rc = subprocess.call(cmd)
     if rc != 0 or not pack or not artifacts_root:
         return rc
@@ -3727,20 +3929,6 @@ def run_compose(
         if not _bool_enabled(ca_install.get("enabled", True), default=True):
             continue
         if str(ca_install.get("mode", "auto")).strip().lower() == "off":
-            continue
-
-        ca_path = storage_pack_root / "ca" / "egress-ca.crt"
-        wait_seconds = _ca_wait_seconds()
-        if not _wait_for_ca_cert(ca_path, timeout_seconds=wait_seconds):
-            for service in sensor.get("attach", {}).get("services", []):
-                _emit_ca_install_event(
-                    storage_pack_root=storage_pack_root,
-                    pack_id=pack_id,
-                    service_name=service,
-                    kind="system.ca_install.failed",
-                    exit_code=1,
-                    stderr_snippet=f"timed out waiting for CA certificate at {ca_path}",
-                )
             continue
 
         for service in sensor.get("attach", {}).get("services", []):
@@ -4490,7 +4678,7 @@ RUN pip install --no-cache-dir mitmproxy && chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
-### `honeypot-platform/sensors/egress_proxy/entrypoint.sh`  _(~2.8 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/egress_proxy/entrypoint.sh`  _(~2.5 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env sh
 set -eu
@@ -4526,7 +4714,12 @@ if is_truthy "${PROXY_TLS_MITM_ENABLED}" && is_truthy "${PROXY_CA_INSTALL_ENABLE
     custom)
       if [ -n "${PROXY_CUSTOM_CERT_PATH}" ] && [ -n "${PROXY_CUSTOM_KEY_PATH}" ]; then
         cp "${PROXY_CUSTOM_CERT_PATH}" "${CONF_DIR}/mitmproxy-ca-cert.pem"
-        cp "${PROXY_CUSTOM_KEY_PATH}" "${CONF_DIR}/mitmproxy-ca.pem"
+        {
+          cat "${PROXY_CUSTOM_CERT_PATH}"
+          printf '\n'
+          cat "${PROXY_CUSTOM_KEY_PATH}"
+          printf '\n'
+        } > "${CONF_DIR}/mitmproxy-ca.pem"
         cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
         echo "Using custom CA from ${PROXY_CUSTOM_CERT_PATH}"
         CA_READY=1
@@ -4568,17 +4761,6 @@ fi
 
 mitmdump "$@" &
 child=$!
-
-if is_truthy "${PROXY_TLS_MITM_ENABLED}" && is_truthy "${PROXY_CA_INSTALL_ENABLED}" && [ "${CA_MODE}" != "off" ] && [ "${CA_READY}" -eq 0 ]; then
-  for _ in $(seq 1 30); do
-    if [ -s "${CONF_DIR}/mitmproxy-ca-cert.pem" ]; then
-      cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
-      echo "Exported fallback CA to ${CA_DIR}/egress-ca.crt"
-      break
-    fi
-    sleep 1
-  done
-fi
 
 wait "$child"
 ```

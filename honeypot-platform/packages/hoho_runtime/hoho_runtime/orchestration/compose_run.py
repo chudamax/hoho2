@@ -4,7 +4,7 @@ import subprocess
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-
+from typing import Iterable
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -127,6 +127,12 @@ def _run_ca_install(
         stderr_snippet=stderr[:500],
     )
 
+def _compose_base_cmd(compose_file: Path, project_name: str | None) -> list[str]:
+    cmd = ["docker", "compose"]
+    if project_name:
+        cmd.extend(["-p", project_name])
+    cmd.extend(["-f", str(compose_file)])
+    return cmd
 
 def run_compose(
     compose_file: Path,
@@ -134,6 +140,10 @@ def run_compose(
     *,
     pack: dict | None = None,
     artifacts_root: Path | None = None,
+    attach_logs: bool = True,
+    log_services: Iterable[str] | None = None,  # None => all services
+    log_tail: int | str = "all",                  # e.g. 0, 200, "all"
+    log_no_color: bool = True,
 ) -> int:
     if pack and artifacts_root:
         pack_id = pack.get("metadata", {}).get("id", "unknown-pack")
@@ -142,30 +152,41 @@ def run_compose(
         (storage_pack_root / "ca").mkdir(parents=True, exist_ok=True)
         ensure_pack_eventlog(storage_pack_root)
 
-    cmd = ["docker", "compose"]
-    if project_name:
-        cmd.extend(["-p", project_name])
-    cmd.extend(["-f", str(compose_file), "up", "-d"])
-    rc = subprocess.call(cmd)
-    if rc != 0 or not pack or not artifacts_root:
+    base = _compose_base_cmd(compose_file, project_name)
+
+    # 1) Start detached so post-start steps can run.
+    rc = subprocess.call([*base, "up", "-d"])
+    if rc != 0:
         return rc
 
-    pack_id = pack.get("metadata", {}).get("id", "unknown-pack")
-    storage_pack_root = artifacts_root / pack_id
+    # 2) Post-start installs (CA, etc.)
+    if pack and artifacts_root:
+        pack_id = pack.get("metadata", {}).get("id", "unknown-pack")
+        storage_pack_root = artifacts_root / pack_id
 
-    for sensor in pack.get("sensors", []):
-        if sensor.get("type") != "egress_proxy":
-            continue
-        tls_mitm = sensor.get("config", {}).get("tls_mitm", {})
-        if not _bool_enabled(tls_mitm.get("enabled", False)):
-            continue
-        for service in sensor.get("attach", {}).get("services", []):
-            _run_ca_install(
-                compose_file=compose_file,
-                project_name=project_name,
-                service_name=service,
-                storage_pack_root=storage_pack_root,
-                pack_id=pack_id,
-            )
+        for sensor in pack.get("sensors", []):
+            if sensor.get("type") != "egress_proxy":
+                continue
+            tls_mitm = sensor.get("config", {}).get("tls_mitm", {})
+            if not _bool_enabled(tls_mitm.get("enabled", False)):
+                continue
+            for service in sensor.get("attach", {}).get("services", []):
+                _run_ca_install(
+                    compose_file=compose_file,
+                    project_name=project_name,
+                    service_name=service,
+                    storage_pack_root=storage_pack_root,
+                    pack_id=pack_id,
+                )
 
-    return rc
+    # 3) Attach back to logs AFTER everything is installed.
+    print (11111111111)
+    if attach_logs:
+        cmd = [*base, "logs", "-f", "--tail", str(log_tail)]
+        if log_no_color:
+            cmd.append("--no-color")
+        if log_services:
+            cmd.extend(list(log_services))
+        return subprocess.call(cmd)
+
+    return 0

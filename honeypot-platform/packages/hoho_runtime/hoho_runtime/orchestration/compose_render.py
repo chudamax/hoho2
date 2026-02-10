@@ -362,6 +362,9 @@ exit 0
                         ]
                     )
 
+            sensor_service["networks"] = list(networks_used)
+            #networks_used.update({"hp_internal", "hp_external", "frontend"})
+            
             if force_egress:
                 network_defs["hp_internal"] = {"internal": True}
                 network_defs["hp_external"] = {}
