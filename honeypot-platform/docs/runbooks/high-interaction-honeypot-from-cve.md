@@ -22,11 +22,12 @@ Follow `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
 - Do not put Markdown files in `honeypot-platform/packs/**`.
 
 ## Workflow
-1. Research target CVE and deployable vulnerable stack.
-2. Build high-interaction YAML at `packs/high/<honeypot_id>.yaml`.
-3. Add sensors for pcap/proxy/fs monitoring.
-4. Create `honeypots/high/<honeypot_id>/README.md` and `reset.sh`.
-5. Validate, render compose, and run.
+1. Research target CVE and deployable vulnerable stack.\
+2. Sometimes vulnerables images for testing are available at hub.docker.com. Search for it.
+3. Build high-interaction YAML at `packs/high/<honeypot_id>.yaml`.
+4. Add sensors for pcap/proxy/fs monitoring.
+5. Create `honeypots/high/<honeypot_id>/README.md` and `reset.sh`.
+6. Validate, render compose, and run.
 
 ## Validation and run
 From repo root:
