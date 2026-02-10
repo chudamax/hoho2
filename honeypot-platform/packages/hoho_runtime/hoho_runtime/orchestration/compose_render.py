@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pathlib import Path, PurePosixPath
+import shutil
 
 import yaml
 
@@ -98,17 +99,16 @@ def _storage_env(pack_id: str) -> dict:
 def render_compose(
     pack: dict,
     out_dir: str | None = None,
-    run_id: str | None = None,
     artifacts_root: str | None = None,
 ) -> Path:
     pack_id = pack["metadata"]["id"]
     root = Path(out_dir or f"./deploy/compose/{pack_id}")
+    shutil.rmtree(root, ignore_errors=True)
     root.mkdir(parents=True, exist_ok=True)
 
     storage_root = Path(artifacts_root or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT))
-    run_root_host = storage_root / "runs" / run_id if run_id else storage_root
-    run_root_host.mkdir(parents=True, exist_ok=True)
-    artifacts_bind_mount = f"{run_root_host.resolve()}:/artifacts"
+    storage_root.mkdir(parents=True, exist_ok=True)
+    artifacts_bind_mount = f"{storage_root.resolve()}:/artifacts"
 
     services = deepcopy(pack.get("stack", {}).get("services", {}))
     networks_used: set[str] = set()

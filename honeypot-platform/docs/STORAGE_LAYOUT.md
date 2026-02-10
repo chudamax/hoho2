@@ -1,35 +1,18 @@
 # Storage Layout
 
-## Root Structure
 Default root is `./run/artifacts`.
 
-### Simple mode (no run id)
-Used by low-interaction runtime and `hoho render-compose` without `--run-id`.
+Simple Layout v1 stores data in a single stable directory per honeypot:
 
 ```text
-<root>/<pack_id>/
+<root>/<honeypot_id>/
   index/events.jsonl
   blobs/<sha256_prefix>/<sha256>
   objects/<event_id>/<kind>/<filename>
 ```
 
-### Run mode (isolated instances)
-Used by `hoho run` for high-interaction packs by default, and by `hoho render-compose --run-id <id>`.
+There is no run-isolated `runs/` subtree. A new run for the same honeypot overwrites the previous artifact tree.
 
-```text
-<root>/runs/<run_id>/<pack_id>/
-  index/events.jsonl
-  blobs/<sha256_prefix>/<sha256>
-  objects/<event_id>/<kind>/<filename>
-```
-
-Each run gets a unique `<run_id>` directory, so concurrent stacks do not interleave artifacts. Cleanup is straightforward: remove one `runs/<run_id>` directory.
-
-## Blob Dedupe
-Blobs are keyed by SHA256 and written once. Repeated payloads map to existing blob paths. `storage_ref` values in events point to the stable blob or object location.
-
-## Event File
-`events.jsonl` is append-only and stores one JSON object per line for easy stream processing.
-
-## Object Materialization
-`objects/` is reserved for per-event extracted files or metadata sidecars when operators need easier browsing than raw blob references.
+## Operational warning
+- Do not run two copies of the same honeypot concurrently.
+- Clear `<root>/<honeypot_id>/` before starting a new run when you need a clean capture session.

@@ -1,8 +1,7 @@
 import argparse
 import json
 import re
-import secrets
-from datetime import datetime, timezone
+import shutil
 from pathlib import Path
 
 from hoho_core.schema.validate import load_pack, validate_pack
@@ -17,17 +16,22 @@ def _sanitize_name(value: str) -> str:
     return sanitized or "hoho"
 
 
-def _generate_run_id() -> str:
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-    return f"{timestamp}-{secrets.token_hex(3)}"
+def _warn_if_run_id_used(run_id: str | None) -> None:
+    if run_id:
+        print("WARNING: --run-id is deprecated and ignored; Simple Layout v1 always overwrites by honeypot_id.")
 
 
-def _compose_output_dir(pack_id: str, run_id: str | None, output: str | None) -> str | None:
+def _compose_output_dir(honeypot_id: str, output: str | None) -> str:
     if output:
         return output
-    if run_id:
-        return str(Path("./deploy/compose") / pack_id / run_id)
-    return None
+    return str(Path("./deploy/compose") / honeypot_id)
+
+
+def _prepare_artifacts_root(storage_root: Path, honeypot_id: str) -> Path:
+    artifacts_dir = storage_root / honeypot_id
+    shutil.rmtree(artifacts_dir, ignore_errors=True)
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+    return artifacts_dir
 
 
 def cmd_validate(args):
@@ -48,9 +52,10 @@ def cmd_render_compose(args):
             print(f"ERROR: {e}")
         raise SystemExit(1)
 
-    pack_id = pack["metadata"]["id"]
-    out_dir = _compose_output_dir(pack_id, args.run_id, args.output)
-    out = render_compose(pack, out_dir=out_dir, run_id=args.run_id, artifacts_root=args.artifacts_root)
+    honeypot_id = pack["metadata"]["id"]
+    _warn_if_run_id_used(args.run_id)
+    out_dir = _compose_output_dir(honeypot_id, args.output)
+    out = render_compose(pack, out_dir=out_dir, artifacts_root=args.artifacts_root)
     print(out)
 
 
@@ -59,20 +64,19 @@ def cmd_run(args):
     if pack["metadata"]["interaction"] == "low":
         run_low_http(pack)
     else:
-        pack_id = pack["metadata"]["id"]
-        run_id = args.run_id or _generate_run_id()
-        out_dir = _compose_output_dir(pack_id, run_id, args.output)
-        compose_file = render_compose(pack, out_dir=out_dir, run_id=run_id, artifacts_root=args.artifacts_root)
+        honeypot_id = pack["metadata"]["id"]
+        _warn_if_run_id_used(args.run_id)
+        out_dir = _compose_output_dir(honeypot_id, args.output)
 
         storage_root = Path(args.artifacts_root or pack.get("storage", {}).get("root", DEFAULT_STORAGE_ROOT))
-        artifacts_host_path = (storage_root / "runs" / run_id).resolve() / pack_id
-        project_name = _sanitize_name(f"hoho-{pack_id}-{run_id}")
+        artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id).resolve()
+        compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=args.artifacts_root)
+        project_name = _sanitize_name(f"hoho-{honeypot_id}")
 
         print(
             json.dumps(
                 {
-                    "pack_id": pack_id,
-                    "run_id": run_id,
+                    "honeypot_id": honeypot_id,
                     "artifacts_host_path": str(artifacts_host_path),
                     "compose_file": str(compose_file.resolve()),
                     "project_name": project_name,
@@ -89,7 +93,7 @@ def cmd_run(args):
 def cmd_explain(args):
     pack = load_pack(args.pack)
     plan = {
-        "pack_id": pack["metadata"]["id"],
+        "honeypot_id": pack["metadata"]["id"],
         "interaction": pack["metadata"]["interaction"],
         "listen": pack.get("listen", []),
         "limits": pack.get("limits", {}),
