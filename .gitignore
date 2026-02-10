@@ -212,3 +212,5 @@ __marimo__/
 honeypot-platform/deploy/compose/*
 !honeypot-platform/deploy/compose/README.md
 honeypot-platform/run/artifacts/**
+
+honeypot-platform/deploy/compose/**/runtime/ca/**

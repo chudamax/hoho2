@@ -32,7 +32,12 @@ if is_truthy "${PROXY_TLS_MITM_ENABLED}" && is_truthy "${PROXY_CA_INSTALL_ENABLE
     custom)
       if [ -n "${PROXY_CUSTOM_CERT_PATH}" ] && [ -n "${PROXY_CUSTOM_KEY_PATH}" ]; then
         cp "${PROXY_CUSTOM_CERT_PATH}" "${CONF_DIR}/mitmproxy-ca-cert.pem"
-        cp "${PROXY_CUSTOM_KEY_PATH}" "${CONF_DIR}/mitmproxy-ca.pem"
+        {
+          cat "${PROXY_CUSTOM_CERT_PATH}"
+          printf '\n'
+          cat "${PROXY_CUSTOM_KEY_PATH}"
+          printf '\n'
+        } > "${CONF_DIR}/mitmproxy-ca.pem"
         cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
         echo "Using custom CA from ${PROXY_CUSTOM_CERT_PATH}"
         CA_READY=1
@@ -74,16 +79,5 @@ fi
 
 mitmdump "$@" &
 child=$!
-
-if is_truthy "${PROXY_TLS_MITM_ENABLED}" && is_truthy "${PROXY_CA_INSTALL_ENABLED}" && [ "${CA_MODE}" != "off" ] && [ "${CA_READY}" -eq 0 ]; then
-  for _ in $(seq 1 30); do
-    if [ -s "${CONF_DIR}/mitmproxy-ca-cert.pem" ]; then
-      cp "${CONF_DIR}/mitmproxy-ca-cert.pem" "${CA_DIR}/egress-ca.crt"
-      echo "Exported fallback CA to ${CA_DIR}/egress-ca.crt"
-      break
-    fi
-    sleep 1
-  done
-fi
 
 wait "$child"

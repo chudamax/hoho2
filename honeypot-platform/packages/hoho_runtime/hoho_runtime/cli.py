@@ -9,6 +9,7 @@ from hoho_runtime.config import DEFAULT_STORAGE_ROOT
 from hoho_runtime.orchestration.compose_down_all import down_all
 from hoho_runtime.orchestration.compose_render import render_compose
 from hoho_runtime.orchestration.compose_run import run_compose
+from hoho_runtime.orchestration.ca_pregen import EgressCAError, ensure_egress_ca, normalize_custom_ca
 from hoho_runtime.server.http import run_low_http
 
 
@@ -67,6 +68,37 @@ def _prepare_artifacts_root(storage_root: Path, honeypot_id: str) -> Path:
     return artifacts_dir
 
 
+
+
+def _find_egress_proxy_sensor(pack: dict) -> dict | None:
+    for sensor in pack.get("sensors", []):
+        if sensor.get("type") == "egress_proxy":
+            return sensor
+    return None
+
+
+def _runtime_ca_required(sensor: dict | None) -> bool:
+    if not sensor:
+        return False
+    config = sensor.get("config", {})
+    tls_mitm = config.get("tls_mitm", {})
+    if not _bool_enabled(tls_mitm.get("enabled", False), default=False):
+        return False
+    ca_install = tls_mitm.get("ca_install", {})
+    if not _bool_enabled(ca_install.get("enabled", True), default=True):
+        return False
+    return str(ca_install.get("mode", "auto")).strip().lower() != "off"
+
+
+def _bool_enabled(value: object, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
 def cmd_validate(args):
     pack = load_pack(args.pack)
     errors = validate_pack(pack)
@@ -112,6 +144,24 @@ def cmd_run(args):
 
         artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id)
         compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root))
+        compose_root = compose_file.parent
+        runtime_ca_dir = compose_root / "runtime" / "ca"
+        egress_sensor = _find_egress_proxy_sensor(pack)
+        if _runtime_ca_required(egress_sensor):
+            tls_mitm = egress_sensor.get("config", {}).get("tls_mitm", {})
+            ca_install = tls_mitm.get("ca_install", {})
+            ca_mode = str(ca_install.get("mode", "auto")).strip().lower()
+            try:
+                if ca_mode == "custom" and ca_install.get("custom_cert_path") and ca_install.get("custom_key_path"):
+                    normalize_custom_ca(
+                        runtime_ca_dir,
+                        cert_path=Path(str(ca_install.get("custom_cert_path"))).expanduser().resolve(),
+                        key_path=Path(str(ca_install.get("custom_key_path"))).expanduser().resolve(),
+                    )
+                else:
+                    ensure_egress_ca(runtime_ca_dir, common_name=f"hoho-egress-ca-{honeypot_id}")
+            except EgressCAError as exc:
+                raise SystemExit(f"[hoho] ERROR: failed to prepare runtime egress CA: {exc}") from exc
         project_name = _sanitize_name(f"hoho-{honeypot_id}")
 
         print(
