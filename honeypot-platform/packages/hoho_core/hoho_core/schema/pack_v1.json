@@ -1,32 +1,78 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
-  "required": ["apiVersion", "kind", "metadata"],
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata"
+  ],
   "properties": {
-    "apiVersion": {"const": "hoho.dev/v1"},
-    "kind": {"const": "HoneypotPack"},
+    "apiVersion": {
+      "const": "hoho.dev/v1"
+    },
+    "kind": {
+      "const": "HoneypotPack"
+    },
     "metadata": {
       "type": "object",
-      "required": ["id", "name", "interaction", "description"],
+      "required": [
+        "id",
+        "name",
+        "interaction",
+        "description"
+      ],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "name": {"type": "string", "minLength": 1},
-        "interaction": {"enum": ["low", "high"]},
-        "tags": {"type": "array", "items": {"type": "string"}},
-        "description": {"type": "string", "minLength": 1}
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interaction": {
+          "enum": [
+            "low",
+            "high"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
       },
       "additionalProperties": true
     },
-    "storage": {"type": "object"},
-    "limits": {"type": "object"},
-    "telemetry": {"type": "object"},
-    "listen": {"type": "array"},
-    "responses": {"type": "object"},
-    "behaviors": {"type": "array"},
+    "storage": {
+      "type": "object"
+    },
+    "limits": {
+      "type": "object"
+    },
+    "telemetry": {
+      "type": "object"
+    },
+    "listen": {
+      "type": "array"
+    },
+    "responses": {
+      "type": "object"
+    },
+    "behaviors": {
+      "type": "array"
+    },
     "stack": {
       "type": "object",
       "properties": {
-        "runtime": {"type": "string"},
+        "runtime": {
+          "type": "string"
+        },
         "services": {
           "type": "object",
           "additionalProperties": {
@@ -36,18 +82,26 @@
                 "type": "array",
                 "items": {
                   "oneOf": [
-                    {"type": "string"},
-                    {"type": "object"}
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object"
+                    }
                   ]
                 }
               },
               "networks": {
                 "type": "array",
-                "items": {"type": "string"}
+                "items": {
+                  "type": "string"
+                }
               },
               "ports": {
                 "type": "array",
-                "items": {"type": "string"}
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "additionalProperties": true
@@ -60,15 +114,43 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "type", "attach"],
+        "required": [
+          "name",
+          "type",
+          "attach"
+        ],
         "properties": {
-          "name": {"type": "string", "minLength": 1},
-          "type": {"enum": ["fsmon", "proxy", "pcap"]},
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "fsmon",
+              "proxy",
+              "pcap",
+              "egress_proxy"
+            ]
+          },
           "attach": {
             "type": "object",
             "properties": {
-              "service": {"type": "string", "minLength": 1},
-              "network": {"type": "string", "minLength": 1}
+              "service": {
+                "type": "string",
+                "minLength": 1
+              },
+              "network": {
+                "type": "string",
+                "minLength": 1
+              },
+              "services": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
             },
             "additionalProperties": false
           },
@@ -76,40 +158,173 @@
             "oneOf": [
               {
                 "type": "object",
-                "required": ["watch"],
+                "required": [
+                  "watch"
+                ],
                 "properties": {
                   "watch": {
                     "type": "array",
                     "minItems": 1,
-                    "items": {"type": "string", "minLength": 1}
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
                   },
                   "allow_globs": {
                     "type": "array",
-                    "items": {"type": "string"}
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "deny_globs": {
                     "type": "array",
-                    "items": {"type": "string"}
+                    "items": {
+                      "type": "string"
+                    }
                   },
-                  "max_bytes": {"type": "integer", "minimum": 1}
+                  "max_bytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
                 },
                 "additionalProperties": false
               },
               {
                 "type": "object",
-                "required": ["upstream"],
+                "required": [
+                  "upstream"
+                ],
                 "properties": {
-                  "upstream": {"type": "string", "minLength": 1},
-                  "listen_port": {"type": "integer", "minimum": 1}
+                  "upstream": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "listen_port": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
                 },
                 "additionalProperties": false
               },
               {
                 "type": "object",
                 "properties": {
-                  "interface": {"type": "string", "minLength": 1},
-                  "rotate_seconds": {"type": "integer", "minimum": 1},
-                  "rotate_count": {"type": "integer", "minimum": 1}
+                  "interface": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "rotate_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "rotate_count": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "listen_host": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "listen_port": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "force_egress_via_proxy": {
+                    "type": "boolean"
+                  },
+                  "tls_mitm": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "ca_install": {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "mode": {
+                            "enum": [
+                              "auto",
+                              "off",
+                              "custom"
+                            ]
+                          },
+                          "custom_cert_path": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "custom_key_path": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "install_trust": {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "also_set_env_bundles": {
+                            "type": "boolean"
+                          },
+                          "extra_commands": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "capture": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "bodies": {
+                        "enum": [
+                          "*",
+                          "none"
+                        ]
+                      },
+                      "max_bytes": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "store_ok_only": {
+                        "type": "boolean"
+                      },
+                      "min_bytes": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "redact_headers": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
                 },
                 "additionalProperties": false
               }
@@ -119,38 +334,87 @@
         "allOf": [
           {
             "if": {
-              "properties": {"type": {"const": "fsmon"}},
-              "required": ["type"]
+              "properties": {
+                "type": {
+                  "const": "fsmon"
+                }
+              },
+              "required": [
+                "type"
+              ]
             },
             "then": {
-              "required": ["config"],
+              "required": [
+                "config"
+              ],
               "properties": {
                 "config": {
                   "type": "object",
-                  "required": ["watch"]
+                  "required": [
+                    "watch"
+                  ]
                 },
                 "attach": {
                   "type": "object",
-                  "required": ["service"]
+                  "required": [
+                    "service"
+                  ]
                 }
               }
             }
           },
           {
             "if": {
-              "properties": {"type": {"const": "proxy"}},
-              "required": ["type"]
+              "properties": {
+                "type": {
+                  "const": "proxy"
+                }
+              },
+              "required": [
+                "type"
+              ]
             },
             "then": {
-              "required": ["config"],
+              "required": [
+                "config"
+              ],
               "properties": {
                 "config": {
                   "type": "object",
-                  "required": ["upstream"]
+                  "required": [
+                    "upstream"
+                  ]
                 },
                 "attach": {
                   "type": "object",
-                  "required": ["service"]
+                  "required": [
+                    "service"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "egress_proxy"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "config"
+              ],
+              "properties": {
+                "attach": {
+                  "type": "object",
+                  "required": [
+                    "services"
+                  ]
                 }
               }
             }

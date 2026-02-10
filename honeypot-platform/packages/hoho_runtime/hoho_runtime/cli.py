@@ -119,7 +119,7 @@ def cmd_run(args):
         if args.no_up:
             print(compose_file)
         else:
-            raise SystemExit(run_compose(compose_file, project_name=project_name))
+            raise SystemExit(run_compose(compose_file, project_name=project_name, pack=pack, artifacts_root=storage_root))
 
 
 def cmd_explain(args):

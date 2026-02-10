@@ -58,3 +58,12 @@ Runtime env used by renderer:
 
 ## Operational Notes
 Disk usage can grow quickly from uploads and pcap segments. Use external rotation, retention cleanup, and dedicated storage volumes.
+
+
+## Egress Proxy Sensor
+- Runs mitmproxy in explicit forward-proxy mode.
+- Emits `sensor.egress_proxy.http` per flow with request/response metadata and redacted headers.
+- Supports response-body capture with `capture.bodies: "*"` (default) or metadata-only with `"none"`.
+- Persists mitmproxy confdir under artifacts and exports CA cert to `<artifacts>/<stack_id>/ca/egress-ca.crt`.
+- Runtime can execute `/hoho/ca/install-ca.sh` in attached services after startup and emits `system.ca_install.succeeded` / `system.ca_install.failed` events.
+- If trust install fails, HTTP capture still works; HTTPS may degrade to CONNECT-only visibility.
