@@ -47,12 +47,19 @@
   config:
     upstream: http://web:80
     listen_port: 8080
+    listen_host: 0.0.0.0
+    keep_host_header: true
   attach:
     service: web
 ```
 - `config.upstream` is required.
-- `listen_port` defaults to `8080`.
+- `listen_port` defaults to `8080` and is used for both proxy bind port and moved port mappings.
+- `listen_host` is optional and defaults to `0.0.0.0`.
+- `keep_host_header` is optional and defaults to `true` so upstream services receive the original client `Host` header.
 - Port fronting rule: if attached service publishes host ports, renderer moves published ports from the app service to the proxy service, mapping to the proxy listen port.
+
+Redirect troubleshooting:
+- If redirects point to internal service names like `web:...`, ensure `keep_host_header: true` (default) in proxy config.
 
 ### `pcap`
 ```yaml
