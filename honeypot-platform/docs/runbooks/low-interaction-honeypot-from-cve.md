@@ -51,7 +51,7 @@ Optional:
 You must produce:
 
 1. A new **YAML pack** implementing the emulation behavior.
-2. A short **pack README** describing what it catches, what it stores, and how to run it.
+2. A short **pack README** describing what it catches, what it stores, and how to run it. Also oneline examples to test the honeypot instance.
 3. A minimal **tagging/telemetry contract** (what events/tags/indicators are emitted).
 
 Recommended paths (adjust to your repo conventions):
@@ -65,8 +65,6 @@ Recommended paths (adjust to your repo conventions):
 
 - **Never run real vulnerable code** in low-interaction packs.
 - **Never “attack back”** and never add outbound exploitation logic.
-- **Do not paste weaponized payloads** into docs or code comments.
-  - Only include *abstracted* patterns required for matching/emulation.
 - Store untrusted request bodies as **opaque bytes** (optionally gzip), do not parse/execute.
 - Default to logging with header redaction (`Authorization`/`Cookie`/etc.).
 
@@ -105,8 +103,7 @@ Find at least **one** public PoC/writeup that provides observable request struct
 - `PRIMARY_PROBES`: most distinctive requests
 - `SECONDARY_FOLLOWUPS`: common follow-up probes (`/`, `/login`, `/robots.txt`, etc.)
 - `NEGATIVE_CASES`: patterns you should *not* over-match
-
-> Don’t copy full exploit strings. Extract only stable identifiers (paths, parameter keys, short tokens).
+- `EXAMPLES_TO_TEST`: exploitations examples
 
 ---
 
@@ -326,7 +323,6 @@ A pack is “done” when:
 - [ ] POST/PUT bodies are stored when relevant (gzip, size limit)
 - [ ] Responses are plausible (status + headers + small body)
 - [ ] A short pack README exists under `packs/low/`
-- [ ] No weaponized payloads are embedded in docs/comments
 
 ---
 
