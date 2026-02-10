@@ -145,8 +145,7 @@ def run_compose(
     cmd = ["docker", "compose"]
     if project_name:
         cmd.extend(["-p", project_name])
-    #cmd.extend(["-f", str(compose_file), "up", "-d"])
-    cmd.extend(["-f", str(compose_file), "up"])
+    cmd.extend(["-f", str(compose_file), "up", "-d"])
     rc = subprocess.call(cmd)
     if rc != 0 or not pack or not artifacts_root:
         return rc
@@ -160,15 +159,6 @@ def run_compose(
         tls_mitm = sensor.get("config", {}).get("tls_mitm", {})
         if not _bool_enabled(tls_mitm.get("enabled", False)):
             continue
-        install_trust = tls_mitm.get("install_trust", {})
-        if not _bool_enabled(install_trust.get("enabled", True), default=True):
-            continue
-        ca_install = tls_mitm.get("ca_install", {})
-        if not _bool_enabled(ca_install.get("enabled", True), default=True):
-            continue
-        if str(ca_install.get("mode", "auto")).strip().lower() == "off":
-            continue
-
         for service in sensor.get("attach", {}).get("services", []):
             _run_ca_install(
                 compose_file=compose_file,
