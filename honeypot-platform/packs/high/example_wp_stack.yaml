@@ -1,0 +1,29 @@
+{
+  "apiVersion": "hoho.dev/v1",
+  "kind": "HoneypotPack",
+  "metadata": {
+    "id": "example-wp-stack",
+    "name": "Example High-Interaction Web Stack",
+    "interaction": "high",
+    "tags": ["web", "stack"],
+    "description": "Generic web stack placeholder with shared sensors."
+  },
+  "storage": {"backend": "filesystem", "root": "./run/artifacts"},
+  "telemetry": {"emit_events": true, "redact_headers": ["Authorization", "Cookie"]},
+  "stack": {
+    "runtime": "compose",
+    "services": {
+      "web": {
+        "image": "nginx:alpine",
+        "ports": ["8088:80"],
+        "volumes": ["webdata:/var/www/html"],
+        "networks": ["frontend"]
+      }
+    }
+  },
+  "sensors": [
+    {"name": "proxy-sensor", "type": "proxy", "config": {"upstream": "http://web:80"}, "attach": {"service": "web"}},
+    {"name": "fsmon-sensor", "type": "fsmon", "config": {"watch": ["/var/www/html"]}, "attach": {"service": "web"}},
+    {"name": "pcap-sensor", "type": "pcap", "config": {"interface": "any"}, "attach": {"network": "frontend"}}
+  ]
+}
