@@ -16,16 +16,10 @@ if [ -d "$LEGACY_RUNS_PATH" ]; then
   fail "forbidden path exists: ${LEGACY_RUNS_PATH}"
 fi
 
-if find packs -type f -name '*.md' | grep -q .; then
-  fail "forbidden markdown file found under packs/"
-fi
-
-if find honeypots -type f -name '*.yaml' | grep -q .; then
-  fail "forbidden yaml file found under honeypots/"
-fi
-
 if find honeypots -type f \( -name 'docker-compose*.yml' -o -name 'docker-compose*.yaml' \) | grep -q .; then
   fail "forbidden compose file found under honeypots/"
 fi
+
+python3 scripts/validate_honeypots_layout.py
 
 echo "layout check passed"

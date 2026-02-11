@@ -1,22 +1,29 @@
 # AGENTS.md (repo root)
 
-## Honeypot layout (Simple Layout v1)
+## Honeypot layout (Unified Layout v2)
 Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
 
 MUST:
 - Always use `honeypot_id == metadata.id`.
-- Create packs only at `honeypot-platform/packs/{low,high}/<honeypot_id>.yaml`.
+- Create honeypots only at:
+  - `honeypot-platform/honeypots/low/<honeypot_id>/honeypot.yaml`
+  - `honeypot-platform/honeypots/high/<honeypot_id>/honeypot.yaml`
 - Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
+- Keep YAML-referenced local paths relative and inside the same honeypot folder.
 - Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
 - Compose output always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
 
 MUST NOT:
-- Do not create `.md` next to pack YAML files (`packs/**/*.md` is forbidden).
 - Do not create `honeypot-platform/run/artifacts/<runs-subtree>/**` (no run-id subtrees).
 - Do not create non-canonical honeypot folders (example forbidden: `honeypots/high/2021-41773_42013/`).
+- Do not add new honeypot YAML definitions under `honeypot-platform/packs/`.
 
-## Docs that must be consulted (before implementing or changing packs)
-- Pack + schema rules: `honeypot-platform/docs/PACK_SPEC.md`
+## Deprecated compatibility
+- `honeypot-platform/packs/{low,high}/*.yaml` may still be invoked by CLI for one compatibility window.
+- CLI should emit deprecation warnings for `packs/` paths.
+
+## Docs that must be consulted (before implementing or changing honeypots)
+- Spec + schema rules: `honeypot-platform/docs/PACK_SPEC.md`
 - Sensor behavior + env contracts: `honeypot-platform/docs/SENSORS.md`
 - Storage layout + overwrite semantics: `honeypot-platform/docs/STORAGE_LAYOUT.md`
 - Deployment notes: `honeypot-platform/docs/DEPLOYMENT.md`
@@ -48,12 +55,12 @@ Use `egress_proxy` when you want to capture attacker tooling fetched by the comp
 - If `tls_mitm.install_trust.enabled: true`, runtime executes `/hoho/ca/install-ca.sh` in attached services and emits:
   `system.ca_install.succeeded` / `system.ca_install.failed` events.
 
-## Working reference packs (golden examples)
-High-interaction (full stack + sensors):
-- `honeypot-platform/packs/high/cve-2021-41773_42013_apache_rce.yaml`
+## Working reference honeypots (golden examples)
+High-interaction:
+- `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`
 
-Low-interaction (DSL emulation):
-- `honeypot-platform/packs/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml`
+Low-interaction:
+- `honeypot-platform/honeypots/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce/honeypot.yaml`
 
 ## Operational commands (stop/cleanup)
 - Stop everything: `hoho down-all` (optionally `--volumes`)
