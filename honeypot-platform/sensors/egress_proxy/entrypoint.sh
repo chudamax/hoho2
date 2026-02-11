@@ -4,7 +4,7 @@ set -eu
 : "${PROXY_LISTEN_HOST:=0.0.0.0}"
 : "${PROXY_LISTEN_PORT:=3128}"
 : "${PROXY_STACK_ID:=${HOHO_PACK_ID:-unknown-pack}}"
-: "${PROXY_TLS_MITM_ENABLED:=false}"
+: "${PROXY_TLS_MITM_ENABLED:=true}"
 : "${PROXY_CA_CERT_PATH:=/runtime/ca/egress-ca.crt}"
 : "${PROXY_CA_KEY_PATH:=/runtime/ca/egress-ca.key}"
 : "${PROXY_MITM_BUNDLE_PATH:=/runtime/ca/mitmproxy-ca.pem}"

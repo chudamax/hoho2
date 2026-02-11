@@ -29,6 +29,11 @@ Follow `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
 5. Create `honeypots/high/<honeypot_id>/README.md` and `reset.sh`.
 6. Validate, render compose, and run.
 
+## Working example (recommended to read first)
+High-interaction reference pack:
+- [`cve-2021-41773_42013_apache_rce.yaml`](../../packs/high/cve-2021-41773_42013_apache_rce.yaml)
+
+
 ## Validation and run
 From repo root:
 
