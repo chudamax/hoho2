@@ -12,6 +12,10 @@ from hoho_runtime.orchestration.compose_run import run_compose
 from hoho_runtime.orchestration.ca_pregen import EgressCAError, ensure_egress_ca
 from hoho_runtime.server.http import run_low_http
 
+HONEYPOTS_DIRNAME = "honeypots"
+LEVEL_DIRS = ("high", "low")
+HONEYPOT_FILE = "honeypot.yaml"
+
 
 def _sanitize_name(value: str) -> str:
     sanitized = re.sub(r"[^a-z0-9_-]", "-", value.lower()).strip("-_")
@@ -41,10 +45,65 @@ def _resolve_repo_root(start: Path) -> Path:
             return nested_root
 
     for candidate in candidates:
-        if (candidate / "packs").is_dir():
+        if (candidate / "packs").is_dir() or (candidate / HONEYPOTS_DIRNAME).is_dir():
             return candidate
 
     return start
+
+
+def _resolve_pack_arg(raw_arg: str, cwd: Path) -> Path:
+    raw_path = Path(raw_arg).expanduser()
+    candidate = raw_path if raw_path.is_absolute() else (cwd / raw_path)
+
+    if candidate.is_file():
+        pack_path = candidate.resolve()
+        if pack_path.suffix.lower() not in {".yaml", ".yml", ".json"}:
+            raise SystemExit(f"ERROR: expected yaml/json file, got: {raw_arg}")
+        _warn_if_deprecated_packs_path(pack_path)
+        return pack_path
+
+    if candidate.is_dir():
+        pack_path = (candidate / HONEYPOT_FILE)
+        if not pack_path.is_file():
+            raise SystemExit(f"ERROR: directory '{raw_arg}' does not contain {HONEYPOT_FILE}")
+        _warn_if_deprecated_packs_path(pack_path.resolve())
+        return pack_path.resolve()
+
+    return _resolve_honeypot_id(raw_arg, cwd)
+
+
+def _resolve_honeypot_id(honeypot_id: str, cwd: Path) -> Path:
+    repo_root = _resolve_repo_root(cwd)
+    honeypots_root = repo_root / HONEYPOTS_DIRNAME
+    matches: list[Path] = []
+
+    for level in LEVEL_DIRS:
+        candidate = honeypots_root / level / honeypot_id / HONEYPOT_FILE
+        if candidate.is_file():
+            matches.append(candidate.resolve())
+
+    if not matches:
+        raise SystemExit(
+            "ERROR: unable to resolve honeypot input. "
+            "Provide a honeypot directory, honeypot YAML path, or an existing honeypot id under honeypots/{high,low}."
+        )
+
+    if len(matches) > 1:
+        raise SystemExit(
+            f"ERROR: honeypot id '{honeypot_id}' exists in multiple interaction levels: "
+            f"{', '.join(str(match.parent) for match in matches)}. Please pass an explicit path."
+        )
+
+    return matches[0]
+
+
+def _warn_if_deprecated_packs_path(pack_path: Path) -> None:
+    parts = set(pack_path.parts)
+    if "packs" in parts:
+        print(
+            f"WARNING: Deprecated path: {pack_path}. "
+            "Use honeypots/{high,low}/<honeypot_id>/honeypot.yaml instead."
+        )
 
 
 def _compose_output_dir(honeypot_id: str, output: str | None, project_root: Path) -> str:
@@ -95,7 +154,8 @@ def _bool_enabled(value: object, default: bool = False) -> bool:
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
 def cmd_validate(args):
-    pack = load_pack(args.pack)
+    pack_path = _resolve_pack_arg(args.pack, Path.cwd())
+    pack = load_pack(str(pack_path))
     errors = validate_pack(pack)
     if errors:
         for e in errors:
@@ -105,7 +165,7 @@ def cmd_validate(args):
 
 
 def cmd_render_compose(args):
-    pack_path = Path(args.pack).expanduser().resolve()
+    pack_path = _resolve_pack_arg(args.pack, Path.cwd())
     project_root = _guess_project_root(pack_path)
 
     pack = load_pack(str(pack_path))
@@ -124,7 +184,7 @@ def cmd_render_compose(args):
 
 
 def cmd_run(args):
-    pack_path = Path(args.pack).expanduser().resolve()
+    pack_path = _resolve_pack_arg(args.pack, Path.cwd())
     project_root = _guess_project_root(pack_path)
     pack = load_pack(str(pack_path))
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
@@ -167,7 +227,8 @@ def cmd_run(args):
 
 
 def cmd_explain(args):
-    pack = load_pack(args.pack)
+    pack_path = _resolve_pack_arg(args.pack, Path.cwd())
+    pack = load_pack(str(pack_path))
     plan = {
         "honeypot_id": pack["metadata"]["id"],
         "interaction": pack["metadata"]["interaction"],

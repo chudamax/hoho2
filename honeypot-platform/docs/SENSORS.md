@@ -2,7 +2,7 @@
 
 ## Shared Contract
 All sensors read common environment variables:
-- `HOHO_PACK_ID`
+- `HOHO_PACK_ID` (legacy name; value equals `honeypot_id`)
 - `HOHO_STORAGE_BACKEND=filesystem`
 - `HOHO_STORAGE_ROOT=/artifacts`
 
@@ -10,7 +10,7 @@ All sensors read common environment variables:
 - Simple mode: `<storage.root>`
 - Isolated run mode: `<storage.root>/runs/<run_id>`
 
-Sensors append canonical events to `<root>/<pack_id>/index/events.jsonl` and write artifacts as content-addressed blobs.
+Sensors append canonical events to `<root>/<honeypot_id>/index/events.jsonl` and write artifacts as content-addressed blobs.
 
 ## HTTP Proxy Sensor
 - Built on mitmproxy reverse mode (`--mode reverse:<upstream>`).

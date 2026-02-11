@@ -1,0 +1,77 @@
+apiVersion: hoho.dev/v1
+kind: HoneypotPack
+metadata:
+  id: example-wp-stack
+  name: Example High-Interaction WordPress Stack
+  interaction: high
+  tags:
+    - web
+    - stack
+    - wordpress
+  description: WordPress + MariaDB high-interaction stack with fsmon, proxy, and pcap sidecars.
+storage:
+  backend: filesystem
+  root: ./run/artifacts
+telemetry:
+  emit_events: true
+  redact_headers:
+    - Authorization
+    - Cookie
+stack:
+  runtime: compose
+  services:
+    db:
+      image: mariadb:11
+      environment:
+        MARIADB_DATABASE: wordpress
+        MARIADB_USER: wordpress
+        MARIADB_PASSWORD: wordpress
+        MARIADB_ROOT_PASSWORD: rootpass
+      volumes:
+        - dbdata:/var/lib/mysql
+      networks:
+        - frontend
+    web:
+      image: wordpress:6-apache
+      depends_on:
+        - db
+      environment:
+        WORDPRESS_DB_HOST: db:3306
+        WORDPRESS_DB_USER: wordpress
+        WORDPRESS_DB_PASSWORD: wordpress
+        WORDPRESS_DB_NAME: wordpress
+      ports:
+        - 8088:80
+      volumes:
+        - webdata:/var/www/html
+      networks:
+        - frontend
+sensors:
+  - name: proxy-sensor
+    type: proxy
+    config:
+      upstream: http://web:80
+      listen_port: 8080
+    attach:
+      service: web
+  - name: fsmon-sensor
+    type: fsmon
+    config:
+      watch:
+        - /var/www/html
+        - /var/www/html/wp-content/uploads
+      allow_globs:
+        - "**"
+      deny_globs:
+        - "**/cache/**"
+      max_bytes: 262144
+    attach:
+      service: web
+  - name: pcap-sensor
+    type: pcap
+    config:
+      interface: any
+      rotate_seconds: 60
+      rotate_count: 10
+    attach:
+      service: proxy-sensor

@@ -1,45 +1,26 @@
 # Runbook: low-interaction honeypot from CVE
 
-## Required layout (Simple Layout v1)
-Follow `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
-
-- Pack YAML: `honeypot-platform/packs/low/<honeypot_id>.yaml`
-- Pack assets (optional): `honeypot-platform/packs/low/<honeypot_id>/**`
-- Operator doc: `honeypot-platform/honeypots/low/<honeypot_id>/README.md`
+## Required layout
+- Honeypot folder: `honeypot-platform/honeypots/low/<honeypot_id>/`
+- Definition: `honeypot-platform/honeypots/low/<honeypot_id>/honeypot.yaml`
+- Docs: `honeypot-platform/honeypots/low/<honeypot_id>/README.md`
 - Compose output: `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`
 - Artifacts: `honeypot-platform/run/artifacts/<honeypot_id>/...`
 
-## Forbidden
-- Do not create `run/artifacts/<runs-subtree>/**`.
-- Do not create Markdown files in `honeypot-platform/packs/**`.
-- Do not use extra identifiers (`pack_id`, `run_id`) in filesystem paths.
-
 ## Workflow
 1. Research CVE protocol surface and request patterns.
-2. Derive safe request transcripts and matching logic.
-3. Implement low-interaction YAML at `packs/low/<honeypot_id>.yaml`.
-4. Document operator steps at `honeypots/low/<honeypot_id>/README.md`.
-5. Validate and run.
+2. Implement `honeypot.yaml` at `honeypots/low/<honeypot_id>/`.
+3. Document operation in `README.md`.
+4. Validate and run.
 
-## Working example (recommended to read first)
-Low-interaction reference pack:
-- [`cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml`](../../packs/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml)
-
-
-
-## Validation
-From repo root:
-
+## Validation and run
 ```bash
 PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
-  python -m hoho_runtime.cli validate honeypot-platform/packs/low/<honeypot_id>.yaml
+  python -m hoho_runtime.cli validate honeypot-platform/honeypots/low/<honeypot_id>/honeypot.yaml
+
+PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
+  python -m hoho_runtime.cli run honeypot-platform/honeypots/low/<honeypot_id>
 ```
 
-## Why output overwrites
-Simple Layout v1 keeps one active artifact location per honeypot. A new run overwrites `run/artifacts/<honeypot_id>/` and compose output for the same `honeypot_id`.
-
-Operational guidance:
-- Stop existing process before restart.
-- Clear `run/artifacts/<honeypot_id>/` before the next run.
-- Do not run two copies of the same honeypot concurrently.
-
+## Compatibility note
+`packs/low/*.yaml` invocation is temporarily supported with a deprecation warning.

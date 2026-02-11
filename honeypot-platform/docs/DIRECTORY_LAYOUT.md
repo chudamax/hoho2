@@ -1,62 +1,44 @@
 # DIRECTORY_LAYOUT.md
 
-## Simple Layout v1 (authoritative)
+## Canonical Layout (one honeypot = one folder)
 
-### Source packs (YAML only)
-- `honeypot-platform/packs/low/<honeypot_id>.yaml`
-- `honeypot-platform/packs/high/<honeypot_id>.yaml`
+All honeypot source-of-truth files live together under:
 
-Optional assets (only if required):
-- `honeypot-platform/packs/low/<honeypot_id>/**`
-- `honeypot-platform/packs/high/<honeypot_id>/**`
+- `honeypot-platform/honeypots/high/<honeypot_id>/`
+- `honeypot-platform/honeypots/low/<honeypot_id>/`
 
-### Operator docs/scripts
-- `honeypot-platform/honeypots/low/<honeypot_id>/README.md`
-- `honeypot-platform/honeypots/high/<honeypot_id>/README.md`
-- `honeypot-platform/honeypots/high/<honeypot_id>/reset.sh` (recommended)
+Each honeypot folder must contain:
+- `honeypot.yaml`
+- `README.md`
 
-### Generated output (never committed)
+Optional supporting assets referenced by `honeypot.yaml` must stay inside the same folder.
+
+## Deprecated layout
+
+`honeypot-platform/packs/` is deprecated. Existing files may be kept temporarily for compatibility, but new honeypot definitions must not be added there.
+
+## Generated output (never committed)
 - Compose: `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml` (overwritten)
 - Artifacts: `honeypot-platform/run/artifacts/<honeypot_id>/**` (overwritten)
 
 ## MUST rules
 - MUST use `honeypot_id` as the only filesystem identifier.
-- MUST set `metadata.id == <honeypot_id>` in the corresponding YAML.
-- MUST keep packs as `.yaml` files under `packs/{low,high}`.
-- MUST keep human docs under `honeypots/{low,high}/<honeypot_id>/README.md`.
+- MUST set `metadata.id == <honeypot_id>` in `honeypot.yaml`.
+- MUST keep docs in `honeypots/{low,high}/<honeypot_id>/README.md`.
+- MUST keep referenced local file paths relative and inside the same honeypot folder.
 - MUST render compose to `deploy/compose/<honeypot_id>/docker-compose.yml`.
 - MUST write artifacts to `run/artifacts/<honeypot_id>/...`.
-- MUST overwrite compose + artifacts in place for each run.
 
 ## MUST NOT rules
 - MUST NOT create `run/artifacts/<runs-subtree>/**`.
-- MUST NOT create Markdown beside pack YAML files (`packs/**/*.md`).
+- MUST NOT create non-canonical honeypot folders (example forbidden: `honeypots/high/2021-41773_42013/`).
 - MUST NOT commit generated compose files under `honeypots/**`.
-- MUST NOT create folders that differ from `honeypot_id` (example forbidden: `honeypots/high/2021-41773_42013/`).
+- MUST NOT add new honeypot YAML files under `packs/`.
 
-## Naming
-- Recommended `honeypot_id` format: `cve-YYYY-NNNN` or `cve-YYYY-NNNN_YYYY-NNNN`.
-- Examples:
-  - `cve-2021-41773_42013`
-  - `cve-2020-25213`
+## Compatibility invocation styles
+- `hoho run honeypot-platform/honeypots/high/<id>`
+- `hoho run honeypot-platform/honeypots/high/<id>/honeypot.yaml`
+- `hoho run honeypot-platform/packs/high/<old>.yaml` (supported with deprecation warning)
 
 ## Overwrite warning
-Simple Layout v1 has **no run isolation**. Operators must not run two copies of the same honeypot concurrently. Starting a new run for a honeypot overwrites prior artifacts and compose output for that `honeypot_id`.
-
-Operational guidance:
-- Stop existing compose project first.
-- Clear `run/artifacts/<honeypot_id>/` before new runs.
-- Use per-honeypot reset scripts for consistent restart behavior.
-
-## Examples
-
-Low interaction:
-- Pack: `honeypot-platform/packs/low/cve-2020-25213.yaml`
-- README: `honeypot-platform/honeypots/low/cve-2020-25213/README.md`
-- Artifacts: `honeypot-platform/run/artifacts/cve-2020-25213/`
-
-High interaction:
-- Pack: `honeypot-platform/packs/high/cve-2021-41773_42013.yaml`
-- README: `honeypot-platform/honeypots/high/cve-2021-41773_42013/README.md`
-- Compose: `honeypot-platform/deploy/compose/cve-2021-41773_42013/docker-compose.yml`
-- Artifacts: `honeypot-platform/run/artifacts/cve-2021-41773_42013/`
+Simple layout has no run isolation. Running the same `honeypot_id` again overwrites `deploy/compose/<honeypot_id>/` and `run/artifacts/<honeypot_id>/`.
