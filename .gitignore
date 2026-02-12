@@ -221,3 +221,5 @@ honeypot-platform/deploy/compose/**/runtime/ca/**
 honeypot-platform/.env
 honeypot-platform/.env.*
 !honeypot-platform/.env.example
+honeypot-platform/hub/webui/node_modules/
+honeypot-platform/hub/webui/dist/
