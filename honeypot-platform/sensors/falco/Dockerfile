@@ -1,5 +1,5 @@
 # sensors/falco/Dockerfile
-FROM falcosecurity/falco:0.39.1
+FROM falcosecurity/falco:0.43.0-debian
 
 USER root
 

@@ -405,15 +405,35 @@ exit 0
             rules_all = [*default_rules, *custom_rules]
             sensor_service["environment"]["FALCO_RULES"] = ",".join(rules_all)
 
+            tracefs_host = Path("/sys/kernel/tracing")
+            if not tracefs_host.exists():
+                tracefs_host = Path("/sys/kernel/debug/tracing")
+            
+            if engine in {"kmod", "ebpf"}:
+                sensor_service["volumes"].extend([
+                    "/dev:/host/dev",
+                    "/boot:/host/boot:ro",
+                    "/lib/modules:/host/lib/modules:ro",
+                    "/usr:/host/usr:ro",
+                ])
+
             sensor_service["volumes"].extend(
                 [
                     f"{falco_runtime_dir.resolve()}:/runtime/falco:ro",
-                    "/sys/kernel/tracing:/sys/kernel/tracing:ro",
+                    f"{tracefs_host}:/sys/kernel/tracing:ro",
                     "/proc:/host/proc:ro",
                     "/etc:/host/etc:ro",
                     "/var/run/docker.sock:/host/var/run/docker.sock",
                 ]
             )
+
+            sensor_service.setdefault("security_opt", [])
+            if "apparmor:unconfined" not in sensor_service["security_opt"]:
+                sensor_service["security_opt"].append("apparmor:unconfined")
+
+            # Critical for modern eBPF: allow mlocking BPF maps
+            sensor_service.setdefault("ulimits", {})
+            sensor_service["ulimits"]["memlock"] = {"soft": -1, "hard": -1}
 
             if mode == "privileged":
                 sensor_service["privileged"] = True

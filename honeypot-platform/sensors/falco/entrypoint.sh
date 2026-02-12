@@ -7,15 +7,17 @@ ENGINE="${FALCO_ENGINE:-modern_ebpf}"
 APPEND_FIELDS="${HOHO_FALCO_APPEND_FIELDS:-}"
 
 set -- falco --unbuffered \
+  -o "log_level=${FALCO_LOG_LEVEL:-info}" \
   -o json_output=true \
-  -o "priority=${PRIORITY_MIN}" \
+  -o "priority=${FALCO_PRIORITY_MIN:-Warning}" \
   -o program_output.enabled=true \
   -o program_output.keep_alive=true \
-  -o "program_output.program=python3 /app/forwarder.py"
+  -o "program_output.program=python3 /app/forwarder.py" \
+  -o "engine.kind=${ENGINE}"
 
-if [ "$ENGINE" = "modern_ebpf" ]; then
-  set -- "$@" -o engine.kind=modern_ebpf
-fi
+# if [ "$ENGINE" = "modern_ebpf" ]; then
+#   set -- "$@" -o engine.kind=modern_ebpf
+# fi
 
 if [ -n "$APPEND_FIELDS" ]; then
   APPEND_JSON="$(python3 - <<'PY'
