@@ -91,15 +91,22 @@ def _as_bool(value, default: bool = False) -> bool:
     return bool(value)
 
 
-def _storage_env(pack_id: str) -> dict:
+def _storage_env(honeypot_id: str, session_id: str | None = None, agent_id: str | None = None, telemetry: dict | None = None) -> dict:
+    telemetry = telemetry or {}
+    filters = telemetry.get("filters", {}) if isinstance(telemetry, dict) else {}
     return {
-        "HOHO_PACK_ID": pack_id,
+        "HOHO_PACK_ID": honeypot_id,
+        "HOHO_HONEYPOT_ID": honeypot_id,
         "HOHO_STORAGE_BACKEND": "filesystem",
         "HOHO_STORAGE_ROOT": "/artifacts",
+        "HOHO_SESSION_ID": session_id or "unknown-session",
+        "HOHO_AGENT_ID": agent_id or "unknown-agent",
+        "HOHO_EMIT_FILTERS_JSON": yaml.safe_dump(filters.get("emit", []), default_flow_style=True).strip() if filters.get("emit") is not None else "[]",
+        "HOHO_FORWARD_FILTERS_JSON": yaml.safe_dump(filters.get("forward", []), default_flow_style=True).strip() if filters.get("forward") is not None else "[]",
     }
 
 
-def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Path) -> dict:
+def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Path, session_id: str | None = None, agent_id: str | None = None) -> dict:
     listen = _as_list(pack.get("listen", []))
     ports = []
     for entry in listen:
@@ -113,7 +120,7 @@ def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Pa
     return {
         "image": "hoho/low-runtime:latest",
         "environment": {
-            **_storage_env(pack["metadata"]["id"]),
+            **_storage_env(pack["metadata"]["id"], session_id=session_id, agent_id=agent_id, telemetry=pack.get("telemetry", {})),
             "HOHO_PACK_PATH": "/honeypot/honeypot.yaml",
         },
         "volumes": [
@@ -155,6 +162,8 @@ def render_compose(
     out_dir: str | None = None,
     artifacts_root: str | None = None,
     honeypot_dir: str | Path | None = None,
+    session_id: str | None = None,
+    agent_id: str | None = None,
 ) -> Path:
     pack_id = pack["metadata"]["id"]
     interaction = pack.get("metadata", {}).get("interaction")
@@ -222,9 +231,19 @@ exit 0
     if interaction == "low":
         if honeypot_dir is None:
             raise ValueError("low interaction compose rendering requires honeypot_dir")
-        services = {"honeypot": _low_runtime_service(pack, artifacts_bind_mount, Path(honeypot_dir))}
+        services = {"honeypot": _low_runtime_service(pack, artifacts_bind_mount, Path(honeypot_dir), session_id=session_id, agent_id=agent_id)}
     else:
         services = deepcopy(pack.get("stack", {}).get("services", {}))
+
+
+    telemetry = pack.get("telemetry", {}) if isinstance(pack.get("telemetry", {}), dict) else {}
+    for service in services.values():
+        env = service.setdefault("environment", {})
+        env.setdefault("HOHO_HONEYPOT_ID", pack_id)
+        env.setdefault("HOHO_SESSION_ID", session_id or "unknown-session")
+        env.setdefault("HOHO_AGENT_ID", agent_id or "unknown-agent")
+        env.setdefault("HOHO_EMIT_FILTERS_JSON", yaml.safe_dump(telemetry.get("filters", {}).get("emit", []), default_flow_style=True).strip())
+        env.setdefault("HOHO_FORWARD_FILTERS_JSON", yaml.safe_dump(telemetry.get("filters", {}).get("forward", []), default_flow_style=True).strip())
 
     valid_attach_services = set(services.keys())
     networks_used: set[str] = set()
@@ -241,7 +260,7 @@ exit 0
 
         sensor_service = {
             "image": SENSOR_IMAGES.get(stype, "busybox:latest"),
-            "environment": _storage_env(pack_id),
+            "environment": _storage_env(pack_id, session_id=session_id, agent_id=agent_id, telemetry=pack.get("telemetry", {})),
             "volumes": [artifacts_bind_mount],
         }
 
@@ -515,6 +534,22 @@ exit 0
                     services[attach_service_name]["networks"] = ["hp_internal"]
 
         services[sname] = sensor_service
+
+
+    forwarding = telemetry.get("forwarding", {}) if isinstance(telemetry, dict) else {}
+    if _as_bool(forwarding.get("enabled"), default=False):
+        token_env = forwarding.get("token_env", "HOHO_HUB_TOKEN")
+        hub_url = forwarding.get("hub_url", "")
+        fwd_env = _storage_env(pack_id, session_id=session_id, agent_id=agent_id, telemetry=telemetry)
+        fwd_env.update({
+            "HOHO_HUB_URL": hub_url,
+            "HOHO_HUB_TOKEN": f"${{{token_env}}}",
+        })
+        services["telemetry-forwarder"] = {
+            "image": "hoho/telemetry-forwarder:latest",
+            "environment": fwd_env,
+            "volumes": [artifacts_bind_mount],
+        }
 
     compose = {"services": services}
 

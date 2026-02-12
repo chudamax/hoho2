@@ -52,6 +52,14 @@ def validate_pack(pack: dict) -> list[str]:
     if interaction == "high" and "stack" not in pack:
         out.append("semantic error: high interaction pack requires stack")
 
+
+    telemetry = pack.get("telemetry", {}) if isinstance(pack.get("telemetry", {}), dict) else {}
+    forwarding = telemetry.get("forwarding", {}) if isinstance(telemetry.get("forwarding", {}), dict) else {}
+    if forwarding.get("enabled") and not forwarding.get("hub_url"):
+        out.append("semantic error: telemetry.forwarding.enabled requires telemetry.forwarding.hub_url")
+    if forwarding.get("enabled") and not forwarding.get("token_env"):
+        out.append("semantic error: telemetry.forwarding.enabled requires telemetry.forwarding.token_env")
+
     services = pack.get("stack", {}).get("services", {})
     service_names = set(services.keys()) if isinstance(services, dict) else set()
     if interaction == "low":

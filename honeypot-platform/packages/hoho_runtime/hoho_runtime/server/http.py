@@ -1,4 +1,5 @@
 import json
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from hoho_core.dsl.engine import evaluate_rules
@@ -23,7 +24,14 @@ class LowInteractionHandler(BaseHTTPRequestHandler):
             "body": body,
             "content_type": self.headers.get("Content-Type", ""),
         }
-        event = build_base_event(self.pack["metadata"]["id"], "low", "runtime.http", "http")
+        event = build_base_event(
+            honeypot_id=self.pack["metadata"]["id"],
+            component="runtime.http",
+            proto="http",
+            session_id=os.getenv("HOHO_SESSION_ID", "unknown-session"),
+            agent_id=os.getenv("HOHO_AGENT_ID", "unknown-agent"),
+            event_name="http.request",
+        )
         event["src"]["ip"] = self.client_address[0]
         event["src"]["port"] = self.client_address[1]
         event["src"]["user_agent"] = self.headers.get("User-Agent")

@@ -1,8 +1,13 @@
 import argparse
 import json
+import os
 import re
 import shutil
+import socket
+import uuid
 from pathlib import Path
+
+from datetime import datetime, timezone
 
 from hoho_core.schema.validate import load_pack, validate_pack
 from hoho_runtime.config import DEFAULT_STORAGE_ROOT
@@ -129,6 +134,26 @@ def _prepare_artifacts_root(storage_root: Path, honeypot_id: str) -> Path:
 
 
 
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _session_metadata(honeypot_id: str) -> dict:
+    return {
+        "honeypot_id": honeypot_id,
+        "session_id": str(uuid.uuid4()),
+        "agent_id": os.getenv("HOHO_AGENT_ID", socket.gethostname()),
+        "started_ts": _utc_now(),
+    }
+
+
+def _write_session_metadata(artifacts_dir: Path, session: dict) -> None:
+    index_dir = artifacts_dir / "index"
+    index_dir.mkdir(parents=True, exist_ok=True)
+    (index_dir / "session.json").write_text(json.dumps(session, indent=2), encoding="utf-8")
+
 def _find_egress_proxy_sensor(pack: dict) -> dict | None:
     for sensor in pack.get("sensors", []):
         if sensor.get("type") == "egress_proxy":
@@ -179,7 +204,15 @@ def cmd_render_compose(args):
     _warn_if_run_id_used(args.run_id)
     out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
-    out = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root), honeypot_dir=pack_path.parent)
+    session = _session_metadata(honeypot_id)
+    out = render_compose(
+        pack,
+        out_dir=out_dir,
+        artifacts_root=str(storage_root),
+        honeypot_dir=pack_path.parent,
+        session_id=session["session_id"],
+        agent_id=session["agent_id"],
+    )
     print(out)
 
 
@@ -208,7 +241,16 @@ def cmd_run(args):
     out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
 
     artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id)
-    compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root), honeypot_dir=pack_path.parent)
+    session = _session_metadata(honeypot_id)
+    _write_session_metadata(artifacts_host_path, session)
+    compose_file = render_compose(
+        pack,
+        out_dir=out_dir,
+        artifacts_root=str(storage_root),
+        honeypot_dir=pack_path.parent,
+        session_id=session["session_id"],
+        agent_id=session["agent_id"],
+    )
     compose_root = compose_file.parent
     runtime_ca_dir = compose_root / "runtime" / "ca"
     egress_sensor = _find_egress_proxy_sensor(pack)
@@ -227,6 +269,8 @@ def cmd_run(args):
                 "compose_file": str(compose_file.resolve()),
                 "project_name": project_name,
                 "mode": args.mode,
+                "session_id": session["session_id"],
+                "agent_id": session["agent_id"],
             }
         )
     )
@@ -234,7 +278,14 @@ def cmd_run(args):
     if args.no_up:
         print(compose_file)
     else:
-        raise SystemExit(run_compose(compose_file, project_name=project_name, pack=pack, artifacts_root=storage_root))
+        raise SystemExit(run_compose(
+            compose_file,
+            project_name=project_name,
+            pack=pack,
+            artifacts_root=storage_root,
+            session_id=session["session_id"],
+            agent_id=session["agent_id"],
+        ))
 
 
 def cmd_explain(args):

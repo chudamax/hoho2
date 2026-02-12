@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+from hoho_core.model.event import build_base_event
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -58,26 +60,27 @@ def ensure_pack_eventlog(artifacts_pack_root: Path) -> Path:
 def _emit_ca_install_event(
     *,
     storage_pack_root: Path,
-    pack_id: str,
+    honeypot_id: str,
     service_name: str,
-    kind: str,
+    event_name: str,
+    session_id: str,
+    agent_id: str,
     exit_code: int | None = None,
     stderr_snippet: str | None = None,
 ) -> None:
-    event = {
-        "schema_version": 1,
-        "event_id": f"ca-install-{service_name}-{int(time.time() * 1000)}",
-        "ts": _now_iso(),
-        "pack_id": pack_id,
-        "interaction": "high",
-        "component": "runtime.compose",
-        "kind": kind,
-        "service": service_name,
-    }
+    event = build_base_event(
+        honeypot_id=honeypot_id,
+        component="runtime.compose",
+        proto="runtime",
+        session_id=session_id,
+        agent_id=agent_id,
+        event_name=event_name,
+    )
+    event["runtime"] = {"service": service_name}
     if exit_code is not None:
-        event["exit_code"] = exit_code
+        event["runtime"]["exit_code"] = exit_code
     if stderr_snippet:
-        event["stderr_snippet"] = stderr_snippet
+        event["runtime"]["stderr_snippet"] = stderr_snippet
     try:
         _append_event(storage_pack_root, event)
     except OSError as exc:
@@ -101,7 +104,9 @@ def _run_ca_install(
     project_name: str | None,
     service_name: str,
     storage_pack_root: Path,
-    pack_id: str,
+    honeypot_id: str,
+    session_id: str,
+    agent_id: str,
 ) -> None:
     cmd = ["docker", "compose"]
     if project_name:
@@ -111,18 +116,22 @@ def _run_ca_install(
     if proc.returncode == 0:
         _emit_ca_install_event(
             storage_pack_root=storage_pack_root,
-            pack_id=pack_id,
+            honeypot_id=honeypot_id,
             service_name=service_name,
-            kind="system.ca_install.succeeded",
+            event_name="runtime.ca_install",
+            session_id=session_id,
+            agent_id=agent_id,
         )
         return
 
     stderr = (proc.stderr or "").strip()
     _emit_ca_install_event(
         storage_pack_root=storage_pack_root,
-        pack_id=pack_id,
+        honeypot_id=honeypot_id,
         service_name=service_name,
-        kind="system.ca_install.failed",
+        event_name="runtime.ca_install",
+        session_id=session_id,
+        agent_id=agent_id,
         exit_code=proc.returncode,
         stderr_snippet=stderr[:500],
     )
@@ -144,10 +153,12 @@ def run_compose(
     log_services: Iterable[str] | None = None,  # None => all services
     log_tail: int | str = "all",                  # e.g. 0, 200, "all"
     log_no_color: bool = True,
+    session_id: str = "unknown-session",
+    agent_id: str = "unknown-agent",
 ) -> int:
     if pack and artifacts_root:
-        pack_id = pack.get("metadata", {}).get("id", "unknown-pack")
-        storage_pack_root = artifacts_root / pack_id
+        honeypot_id = pack.get("metadata", {}).get("id", "unknown-pack")
+        storage_pack_root = artifacts_root / honeypot_id
         storage_pack_root.mkdir(parents=True, exist_ok=True)
         (storage_pack_root / "ca").mkdir(parents=True, exist_ok=True)
         ensure_pack_eventlog(storage_pack_root)
@@ -161,8 +172,8 @@ def run_compose(
 
     # 2) Post-start installs (CA, etc.)
     if pack and artifacts_root:
-        pack_id = pack.get("metadata", {}).get("id", "unknown-pack")
-        storage_pack_root = artifacts_root / pack_id
+        honeypot_id = pack.get("metadata", {}).get("id", "unknown-pack")
+        storage_pack_root = artifacts_root / honeypot_id
 
         for sensor in pack.get("sensors", []):
             if sensor.get("type") != "egress_proxy":
@@ -176,7 +187,9 @@ def run_compose(
                     project_name=project_name,
                     service_name=service,
                     storage_pack_root=storage_pack_root,
-                    pack_id=pack_id,
+                    honeypot_id=honeypot_id,
+                    session_id=session_id,
+                    agent_id=agent_id,
                 )
 
     # 3) Attach back to logs AFTER everything is installed.

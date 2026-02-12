@@ -1,0 +1,10 @@
+services:
+  hub:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HOHO_HUB_DATA=/data
+      - HOHO_HUB_TOKEN=changeme
+    volumes:
+      - ./data:/data

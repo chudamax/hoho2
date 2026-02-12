@@ -1,23 +1,16 @@
-import hashlib
-import json
 import os
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
-PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+from hoho_core.model.event import build_base_event
+from hoho_core.storage.fs import FilesystemArtifactStore
+from hoho_core.utils.redact import redact_headers
+
+HONEYPOT_ID = os.getenv("HOHO_HONEYPOT_ID", os.getenv("HOHO_PACK_ID", "unknown-pack"))
+SESSION_ID = os.getenv("HOHO_SESSION_ID", "unknown-session")
+AGENT_ID = os.getenv("HOHO_AGENT_ID", "unknown-agent")
 ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
-
-
-def _now():
-    return datetime.now(timezone.utc).isoformat()
-
-
-def _append_event(ev: dict):
-    p = ROOT / PACK_ID / "index" / "events.jsonl"
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with p.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(ev) + "\n")
+STORE = FilesystemArtifactStore(str(ROOT), HONEYPOT_ID)
 
 
 def _log_error(message: str):
@@ -46,71 +39,43 @@ def response(flow):
         req = flow.request
         resp = flow.response
         body = req.raw_content or b""
-        digest = hashlib.sha256(body).hexdigest() if body else None
-
-        if body:
-            bp = ROOT / PACK_ID / "blobs" / digest[:2] / digest
-            bp.parent.mkdir(parents=True, exist_ok=True)
-            if not bp.exists():
-                bp.write_bytes(body)
 
         peername = _peername(flow)
         src_ip = peername[0] if peername else None
         src_port = peername[1] if peername else None
 
-        ev = {
-            "schema_version": 1,
-            "event_id": flow.id,
-            "ts": _now(),
-            "pack_id": PACK_ID,
-            "interaction": "high",
-            "component": "sensor.http_proxy",
-            "src": {
-                "ip": src_ip,
-                "port": src_port,
-                "forwarded_for": _forwarded_for_values(req),
-                "user_agent": req.headers.get("User-Agent"),
-            },
-            "proto": "http",
-            "http": {"host": req.headers.get("Host")},
-            "request": {
-                "method": req.method,
-                "path": req.path,
-                "query": dict(req.query),
-                "headers_redacted": {
-                    k: ("<redacted>" if k.lower() in ["authorization", "cookie"] else v)
-                    for k, v in req.headers.items()
-                },
-                "content_type": req.headers.get("Content-Type"),
-                "content_length": len(body),
-            },
-            "response": {
-                "status_code": resp.status_code if resp else None,
-                "bytes_sent": len(resp.raw_content or b"") if resp else 0,
-                "profile": None,
-            },
-            "classification": {"verdict": "unknown", "tags": [], "indicators": []},
-            "decision": {
-                "truncated": False,
-                "oversized": False,
-                "rate_limited": False,
-                "dropped": False,
-            },
-            "artifacts": (
-                [
-                    {
-                        "kind": "request_body",
-                        "sha256": digest,
-                        "size": len(body),
-                        "mime": req.headers.get("Content-Type", "application/octet-stream"),
-                        "storage_ref": f"blobs/{digest[:2]}/{digest}",
-                        "meta": {},
-                    }
-                ]
-                if body
-                else []
-            ),
+        ev = build_base_event(
+            honeypot_id=HONEYPOT_ID,
+            component="sensor.http_proxy",
+            proto="http",
+            session_id=SESSION_ID,
+            agent_id=AGENT_ID,
+            event_name="http.request",
+        )
+        ev["event_id"] = flow.id
+        ev["src"] = {
+            "ip": src_ip,
+            "port": src_port,
+            "forwarded_for": _forwarded_for_values(req),
+            "user_agent": req.headers.get("User-Agent"),
         }
-        _append_event(ev)
+        ev["http"] = {"host": req.headers.get("Host")}
+        ev["request"] = {
+            "method": req.method,
+            "path": req.path,
+            "query": dict(req.query),
+            "headers_redacted": redact_headers(dict(req.headers.items(multi=True))),
+            "content_type": req.headers.get("Content-Type"),
+            "content_length": len(body),
+        }
+        ev["response"] = {
+            "status_code": resp.status_code if resp else None,
+            "bytes_sent": len(resp.raw_content or b"") if resp else 0,
+            "profile": None,
+        }
+        if body:
+            blob = STORE.put_blob(body, mime=req.headers.get("Content-Type", "application/octet-stream"))
+            ev["artifacts"] = [{"kind": "request_body", **blob, "meta": {}}]
+        STORE.append_event(HONEYPOT_ID, ev)
     except Exception as exc:  # noqa: BLE001
         _log_error(str(exc))
