@@ -11,6 +11,20 @@
    - `run/artifacts/<honeypot_id>/index/events.jsonl`
    - `run/artifacts/<honeypot_id>/blobs/`
 
+## Global .env for telemetry forwarding
+- Global environment file path: `honeypot-platform/.env`
+- Recommended bootstrap:
+  - `cp honeypot-platform/.env.example honeypot-platform/.env`
+- Variables:
+  - `HOHO_HUB_URL`
+  - `HOHO_HUB_TOKEN`
+
+`hoho` auto-loads `honeypot-platform/.env` by default and also passes it to Docker Compose with `--env-file` so `${HOHO_HUB_URL}` and `${HOHO_HUB_TOKEN}` interpolate consistently.
+
+Override examples:
+- `hoho --env-file /path/to/custom.env run honeypots/high/<honeypot_id>/honeypot.yaml`
+- `hoho --no-env run honeypots/high/<honeypot_id>/honeypot.yaml`
+
 ## Low interaction runtime mode
 - `hoho run` defaults to `--mode container` for both low and high interaction honeypots.
 - For low-interaction debugging only, host mode is still available:

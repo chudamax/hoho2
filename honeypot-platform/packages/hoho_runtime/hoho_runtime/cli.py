@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 
 from hoho_core.schema.validate import load_pack, validate_pack
 from hoho_runtime.config import DEFAULT_STORAGE_ROOT
+from hoho_runtime.env import loadenv
 from hoho_runtime.orchestration.compose_down_all import down_all
 from hoho_runtime.orchestration.compose_render import render_compose
 from hoho_runtime.orchestration.compose_run import run_compose
@@ -140,6 +141,57 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+
+
+def _resolve_env_file_arg(env_file_arg: str | None, cwd: Path) -> Path | None:
+    if not env_file_arg:
+        return None
+    env_file = Path(env_file_arg).expanduser()
+    if not env_file.is_absolute():
+        env_file = (cwd / env_file).resolve()
+    return env_file
+
+
+def _load_global_env(args: argparse.Namespace, repo_root: Path) -> Path | None:
+    if getattr(args, "no_env", False):
+        return None
+
+    env_file = _resolve_env_file_arg(getattr(args, "env_file", None), Path.cwd())
+    if env_file is None:
+        env_file = repo_root / ".env"
+
+    if env_file.is_file():
+        loadenv(env_file, override=getattr(args, "env_override", False))
+
+    return env_file
+
+
+def _require_forwarding_env(pack: dict) -> None:
+    telemetry = pack.get("telemetry", {})
+    forwarding = telemetry.get("forwarding", {}) if isinstance(telemetry, dict) else {}
+    if not _bool_enabled(forwarding.get("enabled"), default=False):
+        return
+
+    token_env = str(forwarding.get("token_env", "")).strip()
+    hub_url = str(forwarding.get("hub_url", "")).strip()
+
+    missing: list[str] = []
+    if hub_url.startswith("${") and hub_url.endswith("}"):
+        hub_url_env = hub_url[2:-1]
+        if hub_url_env and not os.environ.get(hub_url_env):
+            missing.append(hub_url_env)
+    elif not hub_url:
+        missing.append("telemetry.forwarding.hub_url")
+
+    if token_env and not os.environ.get(token_env):
+        missing.append(token_env)
+
+    if missing:
+        raise SystemExit(
+            "ERROR: telemetry forwarding is enabled but required environment values are missing: "
+            + ", ".join(missing)
+        )
+
 def _session_metadata(honeypot_id: str) -> dict:
     return {
         "honeypot_id": honeypot_id,
@@ -203,6 +255,7 @@ def cmd_render_compose(args):
     honeypot_id = pack["metadata"]["id"]
     _warn_if_run_id_used(args.run_id)
     out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
+    _require_forwarding_env(pack)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
     session = _session_metadata(honeypot_id)
     out = render_compose(
@@ -226,6 +279,7 @@ def cmd_run(args):
             print(f"ERROR: {e}")
         raise SystemExit(1)
 
+    _require_forwarding_env(pack)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
     interaction = pack["metadata"]["interaction"]
 
@@ -285,6 +339,7 @@ def cmd_run(args):
             artifacts_root=storage_root,
             session_id=session["session_id"],
             agent_id=session["agent_id"],
+            env_file=getattr(args, "_resolved_env_file", None),
         ))
 
 
@@ -325,6 +380,9 @@ def cmd_down_all(args):
 
 def main():
     parser = argparse.ArgumentParser(prog="hoho")
+    parser.add_argument("--env-file", default=None)
+    parser.add_argument("--no-env", action="store_true")
+    parser.add_argument("--env-override", action="store_true")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_val = sub.add_parser("validate")
@@ -358,6 +416,8 @@ def main():
     p_down_all.set_defaults(func=cmd_down_all)
 
     args = parser.parse_args()
+    repo_root = _resolve_repo_root(Path.cwd())
+    args._resolved_env_file = _load_global_env(args, repo_root)
     args.func(args)
 
 

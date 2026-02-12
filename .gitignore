@@ -217,3 +217,7 @@ honeypot-platform/deploy/compose/*
 honeypot-platform/run/artifacts/**
 
 honeypot-platform/deploy/compose/**/runtime/ca/**
+
+honeypot-platform/.env
+honeypot-platform/.env.*
+!honeypot-platform/.env.example

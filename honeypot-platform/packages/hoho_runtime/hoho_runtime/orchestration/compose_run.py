@@ -102,16 +102,15 @@ def _run_ca_install(
     *,
     compose_file: Path,
     project_name: str | None,
+    env_file: Path | None,
     service_name: str,
     storage_pack_root: Path,
     honeypot_id: str,
     session_id: str,
     agent_id: str,
 ) -> None:
-    cmd = ["docker", "compose"]
-    if project_name:
-        cmd.extend(["-p", project_name])
-    cmd.extend(["-f", str(compose_file), "exec", "-T", service_name, "sh", "/hoho/ca/install-ca.sh", "/hoho/ca/egress-ca.crt"])
+    cmd = _compose_base_cmd(compose_file, project_name, env_file=env_file)
+    cmd.extend(["exec", "-T", service_name, "sh", "/hoho/ca/install-ca.sh", "/hoho/ca/egress-ca.crt"])
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode == 0:
         _emit_ca_install_event(
@@ -136,8 +135,10 @@ def _run_ca_install(
         stderr_snippet=stderr[:500],
     )
 
-def _compose_base_cmd(compose_file: Path, project_name: str | None) -> list[str]:
+def _compose_base_cmd(compose_file: Path, project_name: str | None, env_file: Path | None = None) -> list[str]:
     cmd = ["docker", "compose"]
+    if env_file is not None:
+        cmd.extend(["--env-file", str(env_file)])
     if project_name:
         cmd.extend(["-p", project_name])
     cmd.extend(["-f", str(compose_file)])
@@ -153,6 +154,7 @@ def run_compose(
     log_services: Iterable[str] | None = None,  # None => all services
     log_tail: int | str = "all",                  # e.g. 0, 200, "all"
     log_no_color: bool = True,
+    env_file: Path | None = None,
     session_id: str = "unknown-session",
     agent_id: str = "unknown-agent",
 ) -> int:
@@ -163,7 +165,7 @@ def run_compose(
         (storage_pack_root / "ca").mkdir(parents=True, exist_ok=True)
         ensure_pack_eventlog(storage_pack_root)
 
-    base = _compose_base_cmd(compose_file, project_name)
+    base = _compose_base_cmd(compose_file, project_name, env_file=env_file)
 
     # 1) Start detached so post-start steps can run.
     rc = subprocess.call([*base, "up", "-d"])
@@ -185,6 +187,7 @@ def run_compose(
                 _run_ca_install(
                     compose_file=compose_file,
                     project_name=project_name,
+                    env_file=env_file,
                     service_name=service,
                     storage_pack_root=storage_pack_root,
                     honeypot_id=honeypot_id,
