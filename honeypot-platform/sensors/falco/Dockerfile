@@ -25,9 +25,11 @@ COPY forwarder.py /app/forwarder.py
 COPY entrypoint.sh /app/entrypoint.sh
 COPY rules/*.yaml /app/rules/
 
+COPY packages/hoho_core /src/hoho_core
+
 # If your forwarder talks to docker.sock, you likely want the docker SDK
 RUN set -eux; \
-    python3 -m pip install --no-cache-dir --break-system-packages docker requests; \
+    python3 -m pip install --no-cache-dir --break-system-packages /src/hoho_core docker requests; \
     chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]

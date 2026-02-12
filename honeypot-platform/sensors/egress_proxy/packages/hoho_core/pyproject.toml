@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hoho-core"
+version = "0.1.0"
+dependencies = [
+  "PyYAML",
+  "jsonschema"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hoho_core*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+hoho_core = ["schema/*.json"]

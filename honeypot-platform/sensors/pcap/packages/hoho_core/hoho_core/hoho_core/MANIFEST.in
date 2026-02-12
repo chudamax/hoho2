@@ -1,0 +1,1 @@
+recursive-include hoho_core/schema *.json

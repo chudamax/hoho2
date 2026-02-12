@@ -3,5 +3,9 @@ WORKDIR /app
 COPY fsmon/fsmon.py /app/fsmon.py
 COPY fsmon/rules.schema.json /app/rules.schema.json
 COPY entrypoint.sh /entrypoint.sh
-RUN pip install --no-cache-dir watchdog && chmod +x /entrypoint.sh
+
+COPY packages/hoho_core /src/hoho_core
+
+
+RUN pip install --no-cache-dir /src/hoho_core watchdog && chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

@@ -1,0 +1,603 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "hoho.dev/v1"
+    },
+    "kind": {
+      "const": "HoneypotPack"
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "interaction",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interaction": {
+          "enum": [
+            "low",
+            "high"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "storage": {
+      "type": "object"
+    },
+    "limits": {
+      "type": "object"
+    },
+    "telemetry": {
+      "type": "object",
+      "properties": {
+        "emit_events": {
+          "type": "boolean"
+        },
+        "redact_headers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "emit": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/filter_rule"
+              }
+            },
+            "forward": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/filter_rule"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "forwarding": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "hub_url": {
+              "type": "string",
+              "minLength": 1
+            },
+            "token_env": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    },
+    "listen": {
+      "type": "array"
+    },
+    "responses": {
+      "type": "object"
+    },
+    "behaviors": {
+      "type": "array"
+    },
+    "stack": {
+      "type": "object",
+      "properties": {
+        "runtime": {
+          "type": "string"
+        },
+        "services": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "volumes": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object"
+                    }
+                  ]
+                }
+              },
+              "networks": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ports": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "sensors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "attach"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "fsmon",
+              "proxy",
+              "pcap",
+              "egress_proxy",
+              "falco"
+            ]
+          },
+          "attach": {
+            "type": "object",
+            "properties": {
+              "service": {
+                "type": "string",
+                "minLength": 1
+              },
+              "network": {
+                "type": "string",
+                "minLength": 1
+              },
+              "services": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "config": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "watch"
+                ],
+                "properties": {
+                  "watch": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "allow_globs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "deny_globs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "max_bytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "upstream"
+                ],
+                "properties": {
+                  "upstream": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "listen_port": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "interface": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "rotate_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "rotate_count": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "listen_host": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "listen_port": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "force_egress_via_proxy": {
+                    "type": "boolean"
+                  },
+                  "tls_mitm": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "install_trust": {
+                        "type": "object",
+                        "properties": {
+                          "also_set_env_bundles": {
+                            "type": "boolean"
+                          },
+                          "extra_commands": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "capture": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "bodies": {
+                        "enum": [
+                          "*",
+                          "none"
+                        ]
+                      },
+                      "max_bytes": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "store_ok_only": {
+                        "type": "boolean"
+                      },
+                      "min_bytes": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "redact_headers": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "enum": [
+                      "privileged",
+                      "least_privileged"
+                    ]
+                  },
+                  "engine": {
+                    "enum": [
+                      "modern_ebpf",
+                      "kmod",
+                      "ebpf"
+                    ]
+                  },
+                  "priority_min": {
+                    "enum": [
+                      "Debug",
+                      "Informational",
+                      "Notice",
+                      "Warning",
+                      "Error",
+                      "Critical",
+                      "Emergency"
+                    ]
+                  },
+                  "rules": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "append_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "any_exec": {
+                    "type": "boolean"
+                  },
+                  "enforce": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "match_priorities": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "match_rules": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "action": {
+                        "enum": [
+                          "stop_container",
+                          "stop_service",
+                          "stop_stack"
+                        ]
+                      },
+                      "cooldown_seconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "fsmon"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "config"
+              ],
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "watch"
+                  ]
+                },
+                "attach": {
+                  "type": "object",
+                  "required": [
+                    "service"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "proxy"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "config"
+              ],
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "upstream"
+                  ]
+                },
+                "attach": {
+                  "type": "object",
+                  "required": [
+                    "service"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "egress_proxy"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "config"
+              ],
+              "properties": {
+                "attach": {
+                  "type": "object",
+                  "required": [
+                    "services"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "falco"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "config"
+              ]
+            }
+          }
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "filter_condition": {
+      "type": "object",
+      "properties": {
+        "all": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filter_condition"
+          }
+        },
+        "any": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filter_condition"
+          }
+        },
+        "field": {
+          "type": "string"
+        },
+        "eq": {},
+        "neq": {},
+        "in": {
+          "type": "array"
+        },
+        "contains": {
+          "type": "string"
+        },
+        "regex": {
+          "type": "string"
+        },
+        "gte": {},
+        "lte": {},
+        "exists": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "filter_rule": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "when": {
+          "$ref": "#/$defs/filter_condition"
+        },
+        "action": {
+          "enum": [
+            "keep",
+            "drop"
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

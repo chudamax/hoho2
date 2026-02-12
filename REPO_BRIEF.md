@@ -1,23 +1,23 @@
 # Repository Brief: hoho2
 
-_Generated 2026-02-12 10:11 UTC_
+_Generated 2026-02-12 13:24 UTC_
 
 ## Quick Facts
 - **Branch:** main
-- **Commit:** 6f711d7 (2026-02-12 10:50:43 +0100)
-- **Total commits:** 57
-- **Files scanned:** 101
-- **Text files embedded (after filters):** 101
+- **Commit:** 735b926 (2026-02-12 14:16:27 +0100)
+- **Total commits:** 63
+- **Files scanned:** 123
+- **Text files embedded (after filters):** 122
 
 ## Language & LOC Overview (approx.)
-- **python** — files: 41 (40.6%), LOC: 2677
-- **md** — files: 29 (28.7%), LOC: 6585
-- **bash** — files: 11 (10.9%), LOC: 265
-- **other** — files: 8 (7.9%), LOC: 286
-- **yaml** — files: 7 (6.9%), LOC: 627
-- **json** — files: 2 (2.0%), LOC: 505
-- **toml** — files: 2 (2.0%), LOC: 36
-- **html** — files: 1 (1.0%), LOC: 12
+- **python** — files: 48 (39.3%), LOC: 3047
+- **md** — files: 32 (26.2%), LOC: 7427
+- **yaml** — files: 11 (9.0%), LOC: 755
+- **bash** — files: 11 (9.0%), LOC: 295
+- **other** — files: 9 (7.4%), LOC: 292
+- **html** — files: 5 (4.1%), LOC: 19
+- **json** — files: 3 (2.5%), LOC: 681
+- **toml** — files: 3 (2.5%), LOC: 48
 
 ## Directory Tree (depth ≤ 10)
 
@@ -32,11 +32,17 @@ _Generated 2026-02-12 10:11 UTC_
     - DIRECTORY_LAYOUT.md
     - DSL_REFERENCE.md
     - EVENT_SCHEMA.md
+    - HUB.md
     - PACK_SPEC.md
     - README.md
     - SECURITY.md
     - SENSORS.md
     - STORAGE_LAYOUT.md
+    - TELEMETRY_FILTERS.md
+    - TELEMETRY_FORWARDING.md
+  - hub
+    - Dockerfile
+    - docker-compose.yml
   - scripts
     - build_sensors.sh
     - check_docs.sh
@@ -49,9 +55,13 @@ _Generated 2026-02-12 10:11 UTC_
     - runbooks
       - high-interaction-honeypot-from-cve.md
       - low-interaction-honeypot-from-cve.md
+    - app
+      - db.py
+      - main.py
   - packages
     - hoho_core
       - pyproject.toml
+    - hoho_forwarder
     - hoho_runtime
   - runtimes
     - low_runtime
@@ -77,20 +87,32 @@ _Generated 2026-02-12 10:11 UTC_
       - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
       - example-upload-sink
       - example-web
+      - templates
+        - event.html
+        - events.html
+        - index.html
+        - sessions.html
       - hoho_core
         - MANIFEST.in
         - __init__.py
         - version.py
+      - hoho_forwarder
+        - main.py
       - hoho_runtime
         - cli.py
         - config.py
       - proxy
         - egress_capture_addon.py
         - gen_ca.py
+      - rules
+        - hoho_any_exec.yaml
+        - hoho_rules.yaml
       - fsmon
         - fsmon.py
         - rules.schema.json
         - capture_addon.py
+        - falco
+          - custom_rules.yaml
         - dsl
           - __init__.py
           - actions.py
@@ -101,11 +123,15 @@ _Generated 2026-02-12 10:11 UTC_
           - artifact.py
           - event.py
         - schema
+          - event_v2.json
           - pack_v1.json
           - validate.py
+          - validate_event.py
         - storage
           - base.py
           - fs.py
+        - telemetry
+          - filters.py
         - utils
           - filenames.py
           - hashing.py
@@ -130,16 +156,16 @@ _Generated 2026-02-12 10:11 UTC_
 ```
 
 ## Recent Commits
+- 735b926 | 2026-02-12 | Merge pull request #20 from chudamax/codex/implement-telemetry-v2-with-event-contracts
+- 7658593 | 2026-02-12 | Implement telemetry v2 contracts, filtering, forwarder, and hub scaffolding
+- 4a43fb9 | 2026-02-12 | falcon is working
+- dd60f89 | 2026-02-12 | Merge pull request #19 from chudamax/codex/move-falco-rules-to-yaml-and-fix-startup-errors
+- 1925c7a | 2026-02-12 | Move Falco defaults into image rules and fix startup args
+- 982f536 | 2026-02-12 | up
 - 6f711d7 | 2026-02-12 | Merge pull request #18 from chudamax/codex/add-falco-sensor-for-runtime-telemetry
 - 1a4e5dd | 2026-02-12 | Add falco sensor integration with compose rendering and docs
 - 4d26738 | 2026-02-12 | up
 - 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
-- d005368 | 2026-02-12 | Containerize low interaction runtime and enable sensors via compose
-- 748828b | 2026-02-12 | up
-- 65e9f6f | 2026-02-11 | Merge pull request #16 from chudamax/codex/restructure-honeypots-directory-layout
-- 86afe46 | 2026-02-11 | Unify honeypot layout under honeypots/{high,low}/{id}
-- 3577957 | 2026-02-11 | up
-- c250dd7 | 2026-02-11 | Merge pull request #15 from chudamax/codex/add-high-level-interaction-honeypot-for-solr-cve-2017-12629
 
 ## Files (embedded, trimmed)
 > Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
@@ -438,27 +464,27 @@ Low-interaction:
   `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml down -v`
 ```
 
-### `REPO_BRIEF.md`  _(~177.4 KB; showing ≤800 lines)_
+### `REPO_BRIEF.md`  _(~205.2 KB; showing ≤800 lines)_
 ```md
 # Repository Brief: hoho2
 
-_Generated 2026-02-12 09:39 UTC_
+_Generated 2026-02-12 12:38 UTC_
 
 ## Quick Facts
 - **Branch:** main
-- **Commit:** 4d26738 (2026-02-12 09:38:48 +0000)
-- **Total commits:** 55
-- **Files scanned:** 97
-- **Text files embedded (after filters):** 97
+- **Commit:** 4a43fb9 (2026-02-12 12:37:54 +0000)
+- **Total commits:** 61
+- **Files scanned:** 104
+- **Text files embedded (after filters):** 104
 
 ## Language & LOC Overview (approx.)
-- **python** — files: 40 (41.2%), LOC: 2296
-- **md** — files: 28 (28.9%), LOC: 6532
-- **bash** — files: 10 (10.3%), LOC: 230
-- **other** — files: 7 (7.2%), LOC: 254
-- **yaml** — files: 7 (7.2%), LOC: 610
-- **json** — files: 2 (2.1%), LOC: 406
-- **toml** — files: 2 (2.1%), LOC: 36
+- **python** — files: 41 (39.4%), LOC: 2638
+- **md** — files: 29 (27.9%), LOC: 7222
+- **bash** — files: 11 (10.6%), LOC: 292
+- **yaml** — files: 10 (9.6%), LOC: 745
+- **other** — files: 8 (7.7%), LOC: 287
+- **json** — files: 2 (1.9%), LOC: 505
+- **toml** — files: 2 (1.9%), LOC: 36
 - **html** — files: 1 (1.0%), LOC: 12
 
 ## Directory Tree (depth ≤ 10)
@@ -501,6 +527,8 @@ _Generated 2026-02-12 09:39 UTC_
   - sensors
     - egress_proxy
       - entrypoint.sh
+    - falco
+      - forwarder.py
     - fsmon
     - http_proxy
     - pcap
@@ -527,10 +555,15 @@ _Generated 2026-02-12 09:39 UTC_
       - proxy
         - egress_capture_addon.py
         - gen_ca.py
+      - rules
+        - hoho_any_exec.yaml
+        - hoho_rules.yaml
       - fsmon
         - fsmon.py
         - rules.schema.json
         - capture_addon.py
+        - falco
+          - custom_rules.yaml
         - dsl
           - __init__.py
           - actions.py
@@ -570,16 +603,16 @@ _Generated 2026-02-12 09:39 UTC_
 ```
 
 ## Recent Commits
+- 4a43fb9 | 2026-02-12 | falcon is working
+- dd60f89 | 2026-02-12 | Merge pull request #19 from chudamax/codex/move-falco-rules-to-yaml-and-fix-startup-errors
+- 1925c7a | 2026-02-12 | Move Falco defaults into image rules and fix startup args
+- 982f536 | 2026-02-12 | up
+- 6f711d7 | 2026-02-12 | Merge pull request #18 from chudamax/codex/add-falco-sensor-for-runtime-telemetry
+- 1a4e5dd | 2026-02-12 | Add falco sensor integration with compose rendering and docs
 - 4d26738 | 2026-02-12 | up
 - 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
 - d005368 | 2026-02-12 | Containerize low interaction runtime and enable sensors via compose
 - 748828b | 2026-02-12 | up
-- 65e9f6f | 2026-02-11 | Merge pull request #16 from chudamax/codex/restructure-honeypots-directory-layout
-- 86afe46 | 2026-02-11 | Unify honeypot layout under honeypots/{high,low}/{id}
-- 3577957 | 2026-02-11 | up
-- c250dd7 | 2026-02-11 | Merge pull request #15 from chudamax/codex/add-high-level-interaction-honeypot-for-solr-cve-2017-12629
-- e9d0423 | 2026-02-11 | Add high-interaction Solr CVE-2017-12629 honeypot pack
-- 65edc5b | 2026-02-11 | updates
 
 ## Files (embedded, trimmed)
 [REDACTED]
@@ -878,27 +911,27 @@ Low-interaction:
   `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml down -v`
 ```
 
-### `REPO_BRIEF.md`  _(~177.1 KB; showing ≤800 lines)_
+### `REPO_BRIEF.md`  _(~200.8 KB; showing ≤800 lines)_
 ```md
 # Repository Brief: hoho2
 
-_Generated 2026-02-12 09:27 UTC_
+_Generated 2026-02-12 10:11 UTC_
 
 ## Quick Facts
 - **Branch:** main
-- **Commit:** 1fdd0df (2026-02-12 10:23:40 +0100)
-- **Total commits:** 54
-- **Files scanned:** 96
-- **Text files embedded (after filters):** 96
+- **Commit:** 6f711d7 (2026-02-12 10:50:43 +0100)
+- **Total commits:** 57
+- **Files scanned:** 101
+- **Text files embedded (after filters):** 101
 
 ## Language & LOC Overview (approx.)
-- **python** — files: 40 (41.7%), LOC: 2296
-- **md** — files: 28 (29.2%), LOC: 6361
-- **bash** — files: 10 (10.4%), LOC: 230
-- **yaml** — files: 7 (7.3%), LOC: 610
-- **other** — files: 6 (6.2%), LOC: 253
-- **json** — files: 2 (2.1%), LOC: 406
-- **toml** — files: 2 (2.1%), LOC: 30
+- **python** — files: 41 (40.6%), LOC: 2677
+- **md** — files: 29 (28.7%), LOC: 6585
+- **bash** — files: 11 (10.9%), LOC: 265
+- **other** — files: 8 (7.9%), LOC: 286
+- **yaml** — files: 7 (6.9%), LOC: 627
+- **json** — files: 2 (2.0%), LOC: 505
+- **toml** — files: 2 (2.0%), LOC: 36
 - **html** — files: 1 (1.0%), LOC: 12
 
 ## Directory Tree (depth ≤ 10)
@@ -941,6 +974,8 @@ _Generated 2026-02-12 09:27 UTC_
   - sensors
     - egress_proxy
       - entrypoint.sh
+    - falco
+      - forwarder.py
     - fsmon
     - http_proxy
     - pcap
@@ -958,6 +993,7 @@ _Generated 2026-02-12 09:27 UTC_
       - example-upload-sink
       - example-web
       - hoho_core
+        - MANIFEST.in
         - __init__.py
         - version.py
       - hoho_runtime
@@ -1009,6 +1045,9 @@ _Generated 2026-02-12 09:27 UTC_
 ```
 
 ## Recent Commits
+- 6f711d7 | 2026-02-12 | Merge pull request #18 from chudamax/codex/add-falco-sensor-for-runtime-telemetry
+- 1a4e5dd | 2026-02-12 | Add falco sensor integration with compose rendering and docs
+- 4d26738 | 2026-02-12 | up
 - 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
 - d005368 | 2026-02-12 | Containerize low interaction runtime and enable sensors via compose
 - 748828b | 2026-02-12 | up
@@ -1016,9 +1055,6 @@ _Generated 2026-02-12 09:27 UTC_
 - 86afe46 | 2026-02-11 | Unify honeypot layout under honeypots/{high,low}/{id}
 - 3577957 | 2026-02-11 | up
 - c250dd7 | 2026-02-11 | Merge pull request #15 from chudamax/codex/add-high-level-interaction-honeypot-for-solr-cve-2017-12629
-- e9d0423 | 2026-02-11 | Add high-interaction Solr CVE-2017-12629 honeypot pack
-- 65edc5b | 2026-02-11 | updates
-- 594d3cd | 2026-02-11 | updates
 
 ## Files (embedded, trimmed)
 [REDACTED]
@@ -1230,16 +1266,6 @@ cython_debug/
 #  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
-.cursorindexingignore
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
-
-# Generated compose/runtime outputs
-honeypot-platform/deploy/compose/*
-!honeypot-platform/deploy/compose/README.md
 ```
 <!-- trimmed: file exceeded per-file limits -->
 
@@ -1403,48 +1429,71 @@ Responses support `status`, `headers`, `body`, and `bodyFile`. Template syntax i
 The DSL never runs user-provided code. Size limits and truncation decisions should be recorded in `decision` flags whenever request or artifact size guards are crossed.
 ```
 
-### `honeypot-platform/docs/EVENT_SCHEMA.md`  _(~1.5 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/EVENT_SCHEMA.md`  _(~1.6 KB; showing ≤800 lines)_
 ```md
-# Event Schema v1
+# Event Schema v2
 
-## Required Core Fields
-Every event includes:
-- identity: `schema_version`, `event_id`, `ts`, `pack_id`
-- mode: `interaction`, `component`, `proto`
-- source: `src` (`ip`, `port`, `forwarded_for`, `user_agent`)
-- request/response objects when applicable
-- classification (`verdict`, `tags`, `indicators`)
-- decision flags (`truncated`, `oversized`, `rate_limited`, `dropped`)
-- artifact list with `kind`, hash, size, mime, and `storage_ref`
+All telemetry producers emit schema version `2`.
 
-## Example: Low HTTP Upload
+## Required envelope
+- `schema_version: 2`
+- `event_id`, `ts`
+- `honeypot_id`, `session_id`, `agent_id`
+- `event_name` (lowercase dotted)
+- `component`
+- `classification`, `decision`, `artifacts`
+
+`pack_id` may still appear from transitional emitters but should be normalized to `honeypot_id` by downstream consumers.
+
+## Event examples
+
+### `http.request`
 ```json
-{"schema_version":1,"pack_id":"example-upload-sink","component":"runtime.http","classification":{"verdict":"upload","tags":["multipart"],"indicators":["file-upload"]}}
+{"schema_version":2,"event_name":"http.request","component":"sensor.http_proxy","honeypot_id":"example","session_id":"...","agent_id":"host","request":{"path":"/"}}
 ```
 
-## Example: Proxy Flow
+### `egress.response`
 ```json
-{"schema_version":1,"pack_id":"example-wp-stack","component":"sensor.http_proxy","proto":"http","response":{"status_code":200}}
+{"schema_version":2,"event_name":"egress.response","component":"sensor.egress_proxy","response":{"status_code":200},"artifacts":[{"kind":"egress.response_body","sha256":"...","size":123,"mime":"application/octet-stream","storage_ref":"blobs/ab/...","meta":{"url":"https://example.com/payload"}}]}
 ```
 
-## Example: Filesystem Change
+### `fs.write`
 ```json
-{"schema_version":1,"component":"sensor.fsmon","classification":{"verdict":"postex","tags":["fs_change"],"indicators":["/var/www/html/index.php"]}}
+{"schema_version":2,"event_name":"fs.write","component":"sensor.fsmon","classification":{"verdict":"postex","tags":["fs_change"],"indicators":["/var/www/html/shell.php"]}}
 ```
 
-## Example: PCAP Rotation
+### `pcap.segment`
 ```json
-{"schema_version":1,"component":"sensor.pcap","artifacts":[{"kind":"pcap_segment","storage_ref":"blobs/ab/abcdef..."}]}
+{"schema_version":2,"event_name":"pcap.segment","component":"sensor.pcap","artifacts":[{"kind":"pcap_segment","storage_ref":"blobs/ab/..."}]}
 ```
 
-
-## Example: Falco Alert
+### `falco.alert`
 ```json
-{"schema_version":1,"component":"sensor.falco","proto":"runtime","classification":{"verdict":"alert","tags":["falco","priority:Error","rule:Hoho Shell Spawned in Container"]},"falco":{"rule":"Hoho Shell Spawned in Container","priority":"Error","output_fields":{"proc.cmdline":"/bin/sh","container.id":"abcd1234"}}}
+{"schema_version":2,"event_name":"falco.alert","component":"sensor.falco","classification":{"verdict":"alert","tags":["falco"]},"falco":{"rule":"..."}}
+```
+
+### `runtime.ca_install`
+```json
+{"schema_version":2,"event_name":"runtime.ca_install","component":"runtime.compose","runtime":{"service":"web","exit_code":0}}
 ```
 ```
 
-### `honeypot-platform/docs/PACK_SPEC.md`  _(~1.9 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/HUB.md`  _(~0.3 KB; showing ≤800 lines)_
+```md
+# HOHO Hub
+
+Hub lives under `honeypot-platform/hub/` and provides:
+- ingest APIs for events/blobs
+- lightweight HTML pages for browsing honeypots/sessions/events
+- blob downloads by sha256
+
+Run with:
+```bash
+docker compose -f honeypot-platform/hub/docker-compose.yml up --build
+```
+```
+
+### `honeypot-platform/docs/PACK_SPEC.md`  _(~2.1 KB; showing ≤800 lines)_
 ```md
 # Honeypot Specification (v1)
 
@@ -1495,6 +1544,10 @@ Existing env naming is retained for compatibility:
 
 ## Falco sensor config (high only)
 Supported keys under `sensors[].config` for `type: falco` include: `mode`, `engine`, `priority_min`, `rules`, `append_fields`, `any_exec`, and `enforce` (`enabled`, `match_priorities`, `match_rules`, `action`, `cooldown_seconds`).
+
+Default rules are bundled in the Falco sensor image and always loaded first from `/app/rules/hoho_rules.yaml`.
+Setting `any_exec: true` also loads `/app/rules/hoho_any_exec.yaml`.
+Use `rules` to add custom rule files/overrides that load after these defaults.
 ```
 
 ### `honeypot-platform/docs/README.md`  _(~0.2 KB; showing ≤800 lines)_
@@ -1543,7 +1596,7 @@ Captured payloads are treated as opaque bytes. The platform never executes, impo
 - Treat Falco + Docker API access as high trust: do not co-locate with production workloads or analyst desktops.
 ```
 
-### `honeypot-platform/docs/SENSORS.md`  _(~3.9 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/SENSORS.md`  _(~4.5 KB; showing ≤800 lines)_
 ```md
 # Sensors
 
@@ -1631,11 +1684,19 @@ Disk usage can grow quickly from uploads and pcap segments. Use external rotatio
 ## Falco Sensor
 - High-interaction runtime behavior telemetry via Falco (process execution, shells, downloaders, network tools, interpreters).
 - Renderer starts `falco-sensor` as privileged (MVP) with Modern eBPF engine by default.
+- Default Hoho Falco rules are shipped in the image under `/app/rules/hoho_rules.yaml`.
+- `any_exec: true` appends an additional noisy default rules file from `/app/rules/hoho_any_exec.yaml`.
 - Falco writes one-line JSON alerts to a long-running forwarder via `program_output`.
 - Forwarder emits `sensor.falco` canonical events to `<storage.root>/<honeypot_id>/index/events.jsonl`.
 - Alerts are scoped to this compose stack by checking Docker labels (`com.docker.compose.project == hoho-<honeypot_id>`), with optional `attach.services` filtering.
+- `sensors[].config.rules` adds extra rule files/overrides loaded after image defaults.
 - Optional enforcement can stop offending container/service/stack and emit a corresponding enforcement event.
 - Required mounts include `/sys/kernel/tracing`, `/proc`, `/etc`, and docker socket (`/var/run/docker.sock`) from host.
+
+## Telemetry v2 additions
+- All sensors emit `schema_version: 2` with `honeypot_id`, `session_id`, `agent_id`, and `event_name`.
+- Runtime injects `HOHO_SESSION_ID`, `HOHO_AGENT_ID`, `HOHO_EMIT_FILTERS_JSON`, and `HOHO_FORWARD_FILTERS_JSON` into services/sensors.
+[REDACTED]
 ```
 
 ### `honeypot-platform/docs/STORAGE_LAYOUT.md`  _(~0.5 KB; showing ≤800 lines)_
@@ -1658,6 +1719,59 @@ There is no run-isolated `runs/` subtree. A new run for the same honeypot overwr
 ## Operational warning
 - Do not run two copies of the same honeypot concurrently.
 - Clear `<root>/<honeypot_id>/` before starting a new run when you need a clean capture session.
+```
+
+### `honeypot-platform/docs/TELEMETRY_FILTERS.md`  _(~0.8 KB; showing ≤800 lines)_
+```md
+# Telemetry Filters
+
+Rules are ordered and first-match wins. If no rule matches, the default action is `keep`.
+
+Supported operators: `eq`, `neq`, `in`, `contains`, `regex`, `gte`, `lte`, `exists`.
+
+Example:
+```yaml
+telemetry:
+  filters:
+    emit:
+      - name: drop_noise
+        when:
+          all:
+            - field: event_name
+              eq: http.request
+            - field: request.path
+              in: ["/favicon.ico", "/robots.txt"]
+        action: drop
+    forward:
+      - name: keep_interesting
+        when:
+          any:
+            - field: classification.verdict
+              in: ["exploit", "postex", "alert", "enforcement"]
+            - field: response.status_code
+              gte: 400
+        action: keep
+      - name: drop_rest
+        action: drop
+```
+```
+
+### `honeypot-platform/docs/TELEMETRY_FORWARDING.md`  _(~0.4 KB; showing ≤800 lines)_
+```md
+# Telemetry Forwarding
+
+When `telemetry.forwarding.enabled: true`, compose adds `telemetry-forwarder`.
+
+The forwarder:
+- tails `run/artifacts/<honeypot_id>/index/events.jsonl`
+- uploads missing blobs (`HEAD` then `PUT /api/v1/blobs/{sha}`)
+- posts events to `POST /api/v1/events`
+- persists cursor at `index/forwarder.cursor`
+
+Environment:
+- `HOHO_HUB_URL`
+- `HOHO_HUB_TOKEN`
+- `HOHO_FORWARD_FILTERS_JSON`
 ```
 
 ### `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`  _(~1.5 KB; showing ≤800 lines)_
@@ -1895,7 +2009,7 @@ echo "artifacts=run/artifacts/${HONEYPOT_ID}/"
 Migrated honeypot. Document setup, run steps, and reset procedures here.
 ```
 
-### `honeypot-platform/honeypots/high/cve-2020-25213_wp_file_upload/honeypot.yaml`  _(~2.4 KB; showing ≤800 lines)_
+### `honeypot-platform/honeypots/high/cve-2020-25213_wp_file_upload/honeypot.yaml`  _(~3.6 KB; showing ≤800 lines)_
 ```yaml
 apiVersion: hoho.dev/v1
 kind: HoneypotPack
@@ -1973,7 +2087,7 @@ sensors:
       rotate_seconds: 60
       rotate_count: 10
     attach:
-      service: proxy-sensor
+      service: web
   - name: egress
     type: egress_proxy
     attach:
@@ -1997,6 +2111,41 @@ sensors:
         store_ok_only: true        # default true (2xx/3xx)
         min_bytes: 1               # default 1 (set higher if you want to reduce noise)
         redact_headers: [REDACTED]
+  - name: falco-sensor
+    type: falco
+    attach:
+      services: ["web"]          # stack service(s) to scope on (optional but recommended)
+    config:
+      # Falco runtime mode (renderer supports "privileged"; runs with host net + mounts)
+      mode: privileged
+
+      # Falco engine (default is modern_ebpf)
+      engine: modern_ebpf
+
+      # Minimum Falco priority to emit
+      priority_min: Warning
+
+      # If true, default rules become more "any exec" noisy (good for RCE labs)
+      any_exec: true
+
+      # Extra fields appended into emitted events (comma-joined list)
+      append_fields:
+        - honeypot_id=cve-2021-41773_42013_apache_rce
+        - sensor=falco
+
+      # Optional: add your own rules files.
+      # Defaults are always loaded from /app/rules/hoho_rules.yaml in the Falco image,
+      # then custom files from this honeypot are appended after defaults.
+      rules:
+        - ./falco/custom_rules.yaml
+
+      # Optional enforcement (OFF by default)
+      enforce:
+        enabled: false
+        match_priorities: ["Critical", "Error"]
+        match_rules: []
+        action: stop_container       # stop_container | stop_service | stop_stack
+        cooldown_seconds: 60
 ```
 
 ### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/README.md`  _(~0.9 KB; showing ≤800 lines)_
@@ -2067,7 +2216,15 @@ echo "ok"
 </html>
 ```
 
-### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`  _(~3.1 KB; showing ≤800 lines)_
+### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/falco/custom_rules.yaml`  _(~0.2 KB; showing ≤800 lines)_
+```yaml
+# Optional per-honeypot Falco overrides loaded after image defaults.
+# Example disabled rule override:
+# - rule: Hoho Any Exec in Container
+#   enabled: false
+```
+
+### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`  _(~3.4 KB; showing ≤800 lines)_
 ```yaml
 apiVersion: hoho.dev/v1
 kind: HoneypotPack
@@ -2133,7 +2290,7 @@ sensors:
       rotate_seconds: 60
       rotate_count: 20
     attach:
-      service: proxy-sensor
+      service: apache
   - name: egress
     type: egress_proxy
     attach:
@@ -2160,20 +2317,38 @@ sensors:
   - name: falco-sensor
     type: falco
     attach:
-      services: ["apache"]          # scope alerts to this compose project + these services (recommended)
+      services: ["apache"]          # stack service(s) to scope on (optional but recommended)
     config:
-      priority_min: Warning         # Notice|Warning|Error|Critical
+      # Falco runtime mode (renderer supports "privileged"; runs with host net + mounts)
+      mode: privileged
+
+      # Falco engine (default is modern_ebpf)
+      engine: modern_ebpf
+
+      # Minimum Falco priority to emit
+      priority_min: Warning
+
+      # If true, default rules become more "any exec" noisy (good for RCE labs)
+      any_exec: true
+
+      # Extra fields appended into emitted events (comma-joined list)
+      append_fields:
+        - honeypot_id=cve-2021-41773_42013_apache_rce
+        - sensor=falco
+
+      # Optional: add your own rules files.
+      # Defaults are always loaded from /app/rules/hoho_rules.yaml in the Falco image,
+      # then custom files from this honeypot are appended after defaults.
       rules:
-        - runtime/falco/hoho_rules.yaml   # generated default rules file by renderer
-        # - ./falco/custom_rules.yaml     # optional: your own rules file next to the pack
-      json: true                    # emit JSON alerts
+        - ./falco/custom_rules.yaml
+
+      # Optional enforcement (OFF by default)
       enforce:
-        enabled: false              # set true if you want auto-action
+        enabled: false
         match_priorities: ["Critical", "Error"]
-        match_rules: []             # optional explicit allowlist of rule names
-        action: stop_container      # stop_container|stop_service|stop_stack
-        delay_seconds: 60           # “schedule kill” after N seconds
-        cooldown_seconds: 120       # don’t repeatedly stop on every alert
+        match_rules: []
+        action: stop_container       # stop_container | stop_service | stop_stack
+        cooldown_seconds: 60
 ```
 
 ### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/reset.sh`  _(~0.8 KB; showing ≤800 lines)_
@@ -2656,6 +2831,215 @@ sensors:
       service: honeypot
 ```
 
+### `honeypot-platform/hub/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_
+```
+FROM python:3.11-slim
+WORKDIR /app
+COPY app /app/app
+RUN pip install --no-cache-dir fastapi uvicorn jinja2
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### `honeypot-platform/hub/app/db.py`  _(~2.2 KB; showing ≤800 lines)_
+```python
+import json
+import sqlite3
+from pathlib import Path
+
+
+class HubDB:
+    def __init__(self, path: Path):
+        self.path = path
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.conn = sqlite3.connect(str(path), check_same_thread=False)
+        self.conn.execute(
+            """
+            create table if not exists events(
+              event_id text primary key,
+              honeypot_id text,
+              session_id text,
+              ts text,
+              event_name text,
+              component text,
+              verdict text,
+              tags text,
+              raw_json text
+            )
+            """
+        )
+        self.conn.execute(
+            """
+            create table if not exists sessions(
+              honeypot_id text,
+              session_id text,
+              agent_id text,
+              started_ts text,
+              last_seen_ts text,
+              primary key(honeypot_id, session_id)
+            )
+            """
+        )
+        self.conn.commit()
+
+    def insert_event(self, event: dict):
+        tags = event.get("classification", {}).get("tags", [])
+        self.conn.execute(
+            "insert or replace into events(event_id,honeypot_id,session_id,ts,event_name,component,verdict,tags,raw_json) values(?,?,?,?,?,?,?,?,?)",
+            (
+                event.get("event_id"),
+                event.get("honeypot_id") or event.get("pack_id"),
+                event.get("session_id"),
+                event.get("ts"),
+                event.get("event_name"),
+                event.get("component"),
+                event.get("classification", {}).get("verdict"),
+                json.dumps(tags),
+                json.dumps(event),
+            ),
+        )
+        self.conn.execute(
+            "insert into sessions(honeypot_id,session_id,agent_id,started_ts,last_seen_ts) values(?,?,?,?,?) "
+            "on conflict(honeypot_id,session_id) do update set last_seen_ts=excluded.last_seen_ts",
+            (
+                event.get("honeypot_id") or event.get("pack_id"),
+                event.get("session_id"),
+                event.get("agent_id"),
+                event.get("ts"),
+                event.get("ts"),
+            ),
+        )
+        self.conn.commit()
+```
+
+### `honeypot-platform/hub/app/main.py`  _(~3.4 KB; showing ≤800 lines)_
+```python
+import hashlib
+import json
+import os
+from pathlib import Path
+
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+from .db import HubDB
+
+DATA = Path(os.getenv("HOHO_HUB_DATA", "./data"))
+BLOBS = DATA / "blobs"
+TOKEN =[REDACTED]
+DB = HubDB(DATA / "hub.db")
+app = FastAPI()
+templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
+
+
+def _auth(authorization: [REDACTED]
+    if not TOKEN: [REDACTED]
+        return
+    bearer =[REDACTED]
+    if bearer !=[REDACTED]
+        raise HTTPException(status_code=401, detail="unauthorized")
+
+
+@app.put("/api/v1/blobs/{sha}")
+async def put_blob(sha: str, request: Request, authorization: str | None =[REDACTED]
+[REDACTED]
+    data = await request.body()
+    if hashlib.sha256(data).hexdigest() != sha:
+        raise HTTPException(status_code=400, detail="sha mismatch")
+    p = BLOBS / sha[:2] / sha
+    p.parent.mkdir(parents=True, exist_ok=True)
+    if not p.exists():
+        p.write_bytes(data)
+    return {"ok": True}
+
+
+@app.head("/api/v1/blobs/{sha}")
+def head_blob(sha: str):
+    p = BLOBS / sha[:2] / sha
+    if not p.exists():
+        raise HTTPException(status_code=404)
+    return {}
+
+
+@app.post("/api/v1/events")
+def post_event(event: dict, authorization: str | None =[REDACTED]
+[REDACTED]
+    if "honeypot_id" not in event and "pack_id" in event:
+        event["honeypot_id"] = event["pack_id"]
+    DB.insert_event(event)
+    return {"ok": True}
+
+
+@app.get("/", response_class=HTMLResponse)
+def index(request: Request):
+    rows = DB.conn.execute("select distinct honeypot_id from events order by honeypot_id").fetchall()
+    return templates.TemplateResponse("index.html", {"request": request, "rows": rows})
+
+
+@app.get("/honeypots/{honeypot_id}", response_class=HTMLResponse)
+def sessions(request: Request, honeypot_id: str):
+    rows = DB.conn.execute("select session_id, agent_id, started_ts, last_seen_ts from sessions where honeypot_id=? order by last_seen_ts desc", (honeypot_id,)).fetchall()
+    return templates.TemplateResponse("sessions.html", {"request": request, "honeypot_id": honeypot_id, "rows": rows})
+
+
+@app.get("/honeypots/{honeypot_id}/sessions/{session_id}", response_class=HTMLResponse)
+def events(request: Request, honeypot_id: str, session_id: str):
+    rows = DB.conn.execute("select event_id, ts, event_name, component, verdict from events where honeypot_id=? and session_id=? order by ts desc", (honeypot_id, session_id)).fetchall()
+    return templates.TemplateResponse("events.html", {"request": request, "honeypot_id": honeypot_id, "session_id": session_id, "rows": rows})
+
+
+@app.get("/events/{event_id}", response_class=HTMLResponse)
+def event_detail(request: Request, event_id: str):
+    row = DB.conn.execute("select raw_json from events where event_id=?", (event_id,)).fetchone()
+    event = json.loads(row[0]) if row else {}
+    return templates.TemplateResponse("event.html", {"request": request, "event": event})
+
+
+@app.get("/blobs/{sha}")
+def download_blob(sha: str):
+    p = BLOBS / sha[:2] / sha
+    if not p.exists():
+        raise HTTPException(status_code=404)
+    return FileResponse(str(p), filename=sha)
+```
+
+### `honeypot-platform/hub/app/templates/event.html`  _(~0.0 KB; showing ≤800 lines)_
+```html
+<h1>Event</h1><pre>{{event}}</pre>
+```
+
+### `honeypot-platform/hub/app/templates/events.html`  _(~0.2 KB; showing ≤800 lines)_
+```html
+<h1>Events {{honeypot_id}}/{{session_id}}</h1>
+<ul>{% for r in rows %}<li><a href="/events/{{r[0]}}">{{r[1]}} {{r[2]}} {{r[3]}} {{r[4]}}</a></li>{% endfor %}</ul>
+```
+
+### `honeypot-platform/hub/app/templates/index.html`  _(~0.1 KB; showing ≤800 lines)_
+```html
+<h1>Honeypots</h1>
+<ul>{% for row in rows %}<li><a href="/honeypots/{{row[0]}}">{{row[0]}}</a></li>{% endfor %}</ul>
+```
+
+### `honeypot-platform/hub/app/templates/sessions.html`  _(~0.2 KB; showing ≤800 lines)_
+```html
+<h1>{{honeypot_id}} sessions</h1>
+<ul>{% for r in rows %}<li><a href="/honeypots/{{honeypot_id}}/sessions/{{r[0]}}">{{r[0]}}</a> ({{r[1]}})</li>{% endfor %}</ul>
+```
+
+### `honeypot-platform/hub/docker-compose.yml`  _(~0.2 KB; showing ≤800 lines)_
+```yaml
+services:
+  hub:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HOHO_HUB_DATA=/data
+      - HOHO_HUB_TOKEN=changeme
+    volumes:
+      - ./data:/data
+```
+
 ### `honeypot-platform/packages/hoho_core/README.md`  _(~0.1 KB; showing ≤800 lines)_
 ```md
 # hoho_core
@@ -2839,19 +3223,28 @@ class ArtifactRef:
         }
 ```
 
-### `honeypot-platform/packages/hoho_core/hoho_core/model/event.py`  _(~0.8 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/hoho_core/model/event.py`  _(~0.9 KB; showing ≤800 lines)_
 ```python
 import uuid
 from hoho_core.utils.time import utc_iso
 
 
-def build_base_event(pack_id: str, interaction: str, component: str, proto: str) -> dict:
+def build_base_event(
+    honeypot_id: str,
+    component: str,
+    proto: str,
+    session_id: str,
+    agent_id: str,
+    event_name: str,
+) -> dict:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "event_id": str(uuid.uuid4()),
         "ts": utc_iso(),
-        "pack_id": pack_id,
-        "interaction": interaction,
+        "honeypot_id": honeypot_id,
+        "session_id": session_id,
+        "agent_id": agent_id,
+        "event_name": event_name,
         "component": component,
         "src": {"ip": None, "port": None, "forwarded_for": [], "user_agent": None},
         "proto": proto,
@@ -2865,12 +3258,86 @@ def build_base_event(pack_id: str, interaction: str, component: str, proto: str)
 
 ### `honeypot-platform/packages/hoho_core/hoho_core/schema/__init__.py`  _(~0.1 KB; showing ≤800 lines)_
 ```python
-from .validate import validate_pack
+from .validate import load_pack, validate_pack
+from .validate_event import validate_event
 
-__all__ = ["validate_pack"]
+__all__ = ["load_pack", "validate_pack", "validate_event"]
 ```
 
-### `honeypot-platform/packages/hoho_core/hoho_core/schema/pack_v1.json`  _(~12.8 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/hoho_core/schema/event_v2.json`  _(~2.1 KB; showing ≤800 lines)_
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "event_id",
+    "ts",
+    "honeypot_id",
+    "session_id",
+    "agent_id",
+    "event_name",
+    "component",
+    "classification",
+    "decision",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": 2},
+    "event_id": {"type": "string", "minLength": 1},
+    "ts": {"type": "string", "minLength": 1},
+    "honeypot_id": {"type": "string", "minLength": 1},
+    "session_id": {"type": "string", "minLength": 1},
+    "agent_id": {"type": "string", "minLength": 1},
+    "event_name": {"type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)+$"},
+    "component": {"type": "string", "minLength": 1},
+    "proto": {"type": "string"},
+    "src": {"type": "object"},
+    "request": {"type": "object"},
+    "response": {"type": "object"},
+    "classification": {
+      "type": "object",
+      "required": ["verdict", "tags", "indicators"],
+      "properties": {
+        "verdict": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "indicators": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "decision": {
+      "type": "object",
+      "required": ["truncated", "oversized", "rate_limited", "dropped"],
+      "properties": {
+        "truncated": {"type": "boolean"},
+        "oversized": {"type": "boolean"},
+        "rate_limited": {"type": "boolean"},
+        "dropped": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "sha256", "size", "mime", "storage_ref", "meta"],
+        "properties": {
+          "kind": {"type": "string"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64},
+          "size": {"type": "integer", "minimum": 0},
+          "mime": {"type": "string"},
+          "storage_ref": {"type": "string", "minLength": 1},
+          "meta": {"type": "object"}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
+```
+
+### `honeypot-platform/packages/hoho_core/hoho_core/schema/pack_v1.json`  _(~15.0 KB; showing ≤800 lines)_
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2930,7 +3397,54 @@ __all__ = ["validate_pack"]
       "type": "object"
     },
     "telemetry": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "emit_events": {
+          "type": "boolean"
+        },
+        "redact_headers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "emit": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/filter_rule"
+              }
+            },
+            "forward": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/filter_rule"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "forwarding": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "hub_url": {
+              "type": "string",
+              "minLength": 1
+            },
+            "token_env": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
     },
     "listen": {
       "type": "array"
@@ -3366,11 +3880,71 @@ __all__ = ["validate_pack"]
       }
     }
   },
-  "additionalProperties": true
+  "additionalProperties": true,
+  "$defs": {
+    "filter_condition": {
+      "type": "object",
+      "properties": {
+        "all": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filter_condition"
+          }
+        },
+        "any": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filter_condition"
+          }
+        },
+        "field": {
+          "type": "string"
+        },
+        "eq": {},
+        "neq": {},
+        "in": {
+          "type": "array"
+        },
+        "contains": {
+          "type": "string"
+        },
+        "regex": {
+          "type": "string"
+        },
+        "gte": {},
+        "lte": {},
+        "exists": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "filter_rule": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "when": {
+          "$ref": "#/$defs/filter_condition"
+        },
+        "action": {
+          "enum": [
+            "keep",
+            "drop"
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    }
+  }
 }
 ```
 
-### `honeypot-platform/packages/hoho_core/hoho_core/schema/validate.py`  _(~3.3 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/hoho_core/schema/validate.py`  _(~3.8 KB; showing ≤800 lines)_
 ```python
 import json
 from pathlib import Path
@@ -3426,6 +4000,14 @@ def validate_pack(pack: dict) -> list[str]:
     if interaction == "high" and "stack" not in pack:
         out.append("semantic error: high interaction pack requires stack")
 
+
+    telemetry = pack.get("telemetry", {}) if isinstance(pack.get("telemetry", {}), dict) else {}
+    forwarding = telemetry.get("forwarding", {}) if isinstance(telemetry.get("forwarding", {}), dict) else {}
+    if forwarding.get("enabled") and not forwarding.get("hub_url"):
+        out.append("semantic error: telemetry.forwarding.enabled requires telemetry.forwarding.hub_url")
+    if forwarding.get("enabled") and not forwarding.get("token_env"):
+        out.append("semantic error: telemetry.forwarding.enabled requires telemetry.forwarding.token_env")
+
     services = pack.get("stack", {}).get("services", {})
     service_names = set(services.keys()) if isinstance(services, dict) else set()
     if interaction == "low":
@@ -3464,6 +4046,34 @@ def validate_pack(pack: dict) -> list[str]:
     return out
 ```
 
+### `honeypot-platform/packages/hoho_core/hoho_core/schema/validate_event.py`  _(~0.7 KB; showing ≤800 lines)_
+```python
+import json
+from pathlib import Path
+
+from jsonschema import ValidationError, validate
+
+
+_EVENT_SCHEMA_V2: dict | None = None
+
+
+def _load_event_schema() -> dict:
+    global _EVENT_SCHEMA_V2
+    if _EVENT_SCHEMA_V2 is None:
+        schema_path = Path(__file__).with_name("event_v2.json")
+        _EVENT_SCHEMA_V2 = json.loads(schema_path.read_text(encoding="utf-8"))
+    return _EVENT_SCHEMA_V2
+
+
+def validate_event(event: dict) -> list[str]:
+    try:
+        validate(instance=event, schema=_load_event_schema())
+    except ValidationError as exc:
+        path = ".".join(str(p) for p in exc.path)
+        return [f"schema error at {path}: {exc.message}" if path else f"schema error: {exc.message}"]
+    return []
+```
+
 ### `honeypot-platform/packages/hoho_core/hoho_core/storage/__init__.py`  _(~0.1 KB; showing ≤800 lines)_
 ```python
 from .base import ArtifactStore
@@ -3487,19 +4097,24 @@ class ArtifactStore(ABC):
         raise NotImplementedError
 ```
 
-### `honeypot-platform/packages/hoho_core/hoho_core/storage/fs.py`  _(~1.0 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/hoho_core/storage/fs.py`  _(~1.6 KB; showing ≤800 lines)_
 ```python
+import os
 from pathlib import Path
+
 from hoho_core.storage.base import ArtifactStore
+from hoho_core.telemetry.filters import load_rules_from_env, should_keep
 from hoho_core.utils.hashing import sha256_bytes
 from hoho_core.utils.jsonl import append_jsonl
 
 
 class FilesystemArtifactStore(ArtifactStore):
-    def __init__(self, root: str, pack_id: str):
+    def __init__(self, root: str, honeypot_id: str):
         self.root = Path(root)
-        self.pack_id = pack_id
-        self.pack_root = self.root / pack_id
+        self.honeypot_id = honeypot_id
+        self.pack_root = self.root / honeypot_id
+        self._emit_rules = load_rules_from_env("HOHO_EMIT_FILTERS_JSON")
+        self._debug_drops = os.getenv("HOHO_EMIT_FILTERS_DEBUG", "false").lower() in {"1", "true", "yes", "on"}
 
     def put_blob(self, data: bytes, mime: str = "application/octet-stream") -> dict:
         digest = sha256_bytes(data)
@@ -3515,8 +4130,118 @@ class FilesystemArtifactStore(ArtifactStore):
             "storage_ref": str(blob_path.relative_to(self.pack_root)),
         }
 
-    def append_event(self, pack_id: str, event: dict) -> None:
-        append_jsonl(self.root / pack_id / "index" / "events.jsonl", event)
+    def append_event(self, honeypot_id: str, event: dict) -> None:
+        keep, rule = should_keep(event, self._emit_rules)
+        if not keep:
+            if self._debug_drops:
+                append_jsonl(
+                    self.root / honeypot_id / "index" / "events.jsonl",
+                    {"event_name": "telemetry.drop", "reason": rule, "ts": event.get("ts")},
+                )
+            return
+        append_jsonl(self.root / honeypot_id / "index" / "events.jsonl", event)
+```
+
+### `honeypot-platform/packages/hoho_core/hoho_core/telemetry/__init__.py`  _(~0.1 KB; showing ≤800 lines)_
+```python
+from .filters import load_rules_from_env, parse_filter_config, should_keep
+
+__all__ = ["load_rules_from_env", "parse_filter_config", "should_keep"]
+```
+
+### `honeypot-platform/packages/hoho_core/hoho_core/telemetry/filters.py`  _(~2.5 KB; showing ≤800 lines)_
+```python
+import json
+import re
+from typing import Any
+
+
+def _iter_values(obj: Any, parts: list[str]) -> list[Any]:
+    if not parts:
+        return [obj]
+    if isinstance(obj, list):
+        out: list[Any] = []
+        for item in obj:
+            out.extend(_iter_values(item, parts))
+        return out
+    if not isinstance(obj, dict):
+        return []
+    key = parts[0]
+    if key not in obj:
+        return []
+    return _iter_values(obj[key], parts[1:])
+
+
+def _match_condition(event: dict, cond: dict) -> bool:
+    if "all" in cond:
+        return all(_match_condition(event, c) for c in cond.get("all", []))
+    if "any" in cond:
+        return any(_match_condition(event, c) for c in cond.get("any", []))
+
+    field = cond.get("field")
+    if not field:
+        return False
+    values = _iter_values(event, str(field).split("."))
+
+    if "exists" in cond:
+        return bool(values) is bool(cond["exists"])
+    if not values:
+        return False
+
+    for value in values:
+        if "eq" in cond and value == cond["eq"]:
+            return True
+        if "neq" in cond and value != cond["neq"]:
+            return True
+        if "in" in cond and value in cond["in"]:
+            return True
+        if "contains" in cond and str(cond["contains"]) in str(value):
+            return True
+        if "regex" in cond and re.search(str(cond["regex"]), str(value)):
+            return True
+        if "gte" in cond:
+            try:
+                if value >= cond["gte"]:
+                    return True
+            except TypeError:
+                pass
+        if "lte" in cond:
+            try:
+                if value <= cond["lte"]:
+                    return True
+            except TypeError:
+                pass
+    return False
+
+
+def parse_filter_config(config: dict | None) -> list[dict]:
+    if not config:
+        return []
+    if isinstance(config, list):
+        return config
+    return []
+
+
+def load_rules_from_env(env_key: str) -> list[dict]:
+    raw = __import__("os").getenv(env_key, "")
+    if not raw.strip():
+        return []
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return []
+    return parse_filter_config(parsed)
+
+
+def should_keep(event: dict, rules: list[dict]) -> tuple[bool, str | None]:
+    for rule in rules:
+        when = rule.get("when")
+        matched = True if when is None else _match_condition(event, when)
+        if not matched:
+            continue
+        action = str(rule.get("action", "keep")).lower()
+        return action != "drop", rule.get("name")
+    return True, None
 ```
 
 ### `honeypot-platform/packages/hoho_core/hoho_core/utils/__init__.py`  _(~0.0 KB; showing ≤800 lines)_
@@ -3608,6 +4333,93 @@ include-package-data = true
 hoho_core = ["schema/*.json"]
 ```
 
+### `honeypot-platform/packages/hoho_forwarder/hoho_forwarder/__init__.py`  _(~0.0 KB; showing ≤800 lines)_
+```python
+
+```
+
+### `honeypot-platform/packages/hoho_forwarder/hoho_forwarder/main.py`  _(~2.4 KB; showing ≤800 lines)_
+```python
+import json
+import os
+import time
+from pathlib import Path
+
+import requests
+
+from hoho_core.telemetry.filters import load_rules_from_env, should_keep
+
+
+def _iter_artifact_shas(event: dict) -> list[str]:
+    return [a.get("sha256") for a in event.get("artifacts", []) if isinstance(a, dict) and a.get("sha256")]
+
+
+def main() -> int:
+    root = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
+    honeypot_id = os.getenv("HOHO_HONEYPOT_ID", os.getenv("HOHO_PACK_ID", "unknown-pack"))
+    hub_url = os.getenv("HOHO_HUB_URL", "").rstrip("/")
+    token =[REDACTED]
+    if not hub_url:
+        print("[forwarder] HOHO_HUB_URL missing; exiting")
+        return 0
+
+    events_path = root / honeypot_id / "index" / "events.jsonl"
+    cursor_path = root / honeypot_id / "index" / "forwarder.cursor"
+    rules = load_rules_from_env("HOHO_FORWARD_FILTERS_JSON")
+    headers =[REDACTED]
+
+    offset = int(cursor_path.read_text().strip() or "0") if cursor_path.exists() else 0
+    while True:
+        events_path.parent.mkdir(parents=True, exist_ok=True)
+        events_path.touch(exist_ok=True)
+        with events_path.open("r", encoding="utf-8") as f:
+            f.seek(offset)
+            for line in f:
+                offset = f.tell()
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                keep, _ = should_keep(event, rules)
+                if not keep:
+                    continue
+
+                for sha in _iter_artifact_shas(event):
+                    head = requests.head(f"{hub_url}/api/v1/blobs/{sha}", headers=headers, timeout=5)
+                    if head.status_code == 404:
+                        blob_path = root / honeypot_id / "blobs" / sha[:2] / sha
+                        if blob_path.exists():
+                            requests.put(
+                                f"{hub_url}/api/v1/blobs/{sha}",
+                                data=blob_path.read_bytes(),
+                                headers=headers,
+                                timeout=20,
+                            )
+                requests.post(f"{hub_url}/api/v1/events", json=event, headers=headers, timeout=5)
+                cursor_path.write_text(str(offset), encoding="utf-8")
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+### `honeypot-platform/packages/hoho_forwarder/pyproject.toml`  _(~0.2 KB; showing ≤800 lines)_
+```toml
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hoho-forwarder"
+version = "0.1.0"
+dependencies = ["requests"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hoho_forwarder*"]
+```
+
 ### `honeypot-platform/packages/hoho_runtime/README.md`  _(~0.3 KB; showing ≤800 lines)_
 ```md
 # hoho_runtime
@@ -3633,13 +4445,18 @@ hoho down-all --dry-run
 
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~10.5 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~11.8 KB; showing ≤800 lines)_
 ```python
 import argparse
 import json
+import os
 import re
 import shutil
+import socket
+import uuid
 from pathlib import Path
+
+from datetime import datetime, timezone
 
 from hoho_core.schema.validate import load_pack, validate_pack
 from hoho_runtime.config import DEFAULT_STORAGE_ROOT
@@ -3766,6 +4583,26 @@ def _prepare_artifacts_root(storage_root: Path, honeypot_id: str) -> Path:
 
 
 
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _session_metadata(honeypot_id: str) -> dict:
+    return {
+        "honeypot_id": honeypot_id,
+        "session_id": str(uuid.uuid4()),
+        "agent_id": os.getenv("HOHO_AGENT_ID", socket.gethostname()),
+        "started_ts": _utc_now(),
+    }
+
+
+def _write_session_metadata(artifacts_dir: Path, session: dict) -> None:
+    index_dir = artifacts_dir / "index"
+    index_dir.mkdir(parents=True, exist_ok=True)
+    (index_dir / "session.json").write_text(json.dumps(session, indent=2), encoding="utf-8")
+
 def _find_egress_proxy_sensor(pack: dict) -> dict | None:
     for sensor in pack.get("sensors", []):
         if sensor.get("type") == "egress_proxy":
@@ -3816,7 +4653,15 @@ def cmd_render_compose(args):
     _warn_if_run_id_used(args.run_id)
     out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
-    out = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root), honeypot_dir=pack_path.parent)
+    session = _session_metadata(honeypot_id)
+    out = render_compose(
+        pack,
+        out_dir=out_dir,
+        artifacts_root=str(storage_root),
+        honeypot_dir=pack_path.parent,
+        session_id=session["session_id"],
+        agent_id=session["agent_id"],
+    )
     print(out)
 
 
@@ -3845,7 +4690,16 @@ def cmd_run(args):
     out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
 
     artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id)
-    compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root), honeypot_dir=pack_path.parent)
+    session = _session_metadata(honeypot_id)
+    _write_session_metadata(artifacts_host_path, session)
+    compose_file = render_compose(
+        pack,
+        out_dir=out_dir,
+        artifacts_root=str(storage_root),
+        honeypot_dir=pack_path.parent,
+        session_id=session["session_id"],
+        agent_id=session["agent_id"],
+    )
     compose_root = compose_file.parent
     runtime_ca_dir = compose_root / "runtime" / "ca"
     egress_sensor = _find_egress_proxy_sensor(pack)
@@ -3864,6 +4718,8 @@ def cmd_run(args):
                 "compose_file": str(compose_file.resolve()),
                 "project_name": project_name,
                 "mode": args.mode,
+                "session_id": session["session_id"],
+                "agent_id": session["agent_id"],
             }
         )
     )
@@ -3871,7 +4727,14 @@ def cmd_run(args):
     if args.no_up:
         print(compose_file)
     else:
-        raise SystemExit(run_compose(compose_file, project_name=project_name, pack=pack, artifacts_root=storage_root))
+        raise SystemExit(run_compose(
+            compose_file,
+            project_name=project_name,
+            pack=pack,
+            artifacts_root=storage_root,
+            session_id=session["session_id"],
+            agent_id=session["agent_id"],
+        ))
 
 
 def cmd_explain(args):
@@ -4352,7 +5215,7 @@ def down_all(
     )
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~23.5 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~24.2 KB; showing ≤800 lines)_
 ```python
 from copy import deepcopy
 from pathlib import Path, PurePosixPath
@@ -4447,15 +5310,22 @@ def _as_bool(value, default: bool = False) -> bool:
     return bool(value)
 
 
-def _storage_env(pack_id: str) -> dict:
+def _storage_env(honeypot_id: str, session_id: str | None = None, agent_id: str | None = None, telemetry: dict | None = None) -> dict:
+    telemetry = telemetry or {}
+    filters = telemetry.get("filters", {}) if isinstance(telemetry, dict) else {}
     return {
-        "HOHO_PACK_ID": pack_id,
+        "HOHO_PACK_ID": honeypot_id,
+        "HOHO_HONEYPOT_ID": honeypot_id,
         "HOHO_STORAGE_BACKEND": "filesystem",
         "HOHO_STORAGE_ROOT": "/artifacts",
+        "HOHO_SESSION_ID": session_id or "unknown-session",
+        "HOHO_AGENT_ID": agent_id or "unknown-agent",
+        "HOHO_EMIT_FILTERS_JSON": yaml.safe_dump(filters.get("emit", []), default_flow_style=True).strip() if filters.get("emit") is not None else "[]",
+        "HOHO_FORWARD_FILTERS_JSON": yaml.safe_dump(filters.get("forward", []), default_flow_style=True).strip() if filters.get("forward") is not None else "[]",
     }
 
 
-def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Path) -> dict:
+def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Path, session_id: str | None = None, agent_id: str | None = None) -> dict:
     listen = _as_list(pack.get("listen", []))
     ports = []
     for entry in listen:
@@ -4469,7 +5339,7 @@ def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Pa
     return {
         "image": "hoho/low-runtime:latest",
         "environment": {
-            **_storage_env(pack["metadata"]["id"]),
+            **_storage_env(pack["metadata"]["id"], session_id=session_id, agent_id=agent_id, telemetry=pack.get("telemetry", {})),
             "HOHO_PACK_PATH": "/honeypot/honeypot.yaml",
         },
         "volumes": [
@@ -4486,74 +5356,6 @@ def _sanitize_name(value: str) -> str:
     sanitized = re.sub(r"[^a-z0-9_-]", "-", value.lower()).strip("-_")
     return sanitized or "hoho"
 
-
-def _default_falco_rules(any_exec: bool) -> str:
-    any_exec_rule = ""
-    if any_exec:
-        any_exec_rule = """
-- rule: Hoho Any Exec in Container
-  desc: Catch all process executions in containers (noisy; optional)
-  condition: container and container.id != host and evt.type = execve and proc.name exists
-  output: >
-    Hoho Any Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Notice
-  tags: [hoho, process, exec]
-"""
-
-    return f"""
-- macro: hoho_container
-  condition: container and container.id != host
-
-- list: hoho_shell_bins
-  items: [sh, bash, ash, dash, zsh, ksh]
-
-- list: hoho_download_bins
-  items: [curl, wget, aria2c, fetch]
-
-- list: hoho_network_bins
-  items: [nc, ncat, socat, nmap]
-
-- list: hoho_interpreter_bins
-  items: [python, python3, perl, php, ruby]
-
-- rule: Hoho Shell Spawned in Container
-  desc: Detect shell execution in container
-  condition: hoho_container and evt.type = execve and proc.name in (hoho_shell_bins)
-  output: >
-    Hoho Shell Spawned | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Error
-  tags: [hoho, process, shell]
-
-- rule: Hoho Downloader Executed in Container
-  desc: Detect downloader process execution in container
-  condition: hoho_container and evt.type = execve and proc.name in (hoho_download_bins)
-  output: >
-    Hoho Downloader Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Warning
-  tags: [hoho, process, downloader]
-
-- rule: Hoho Network Tool Executed in Container
-  desc: Detect network utility execution in container
-  condition: hoho_container and evt.type = execve and proc.name in (hoho_network_bins)
-  output: >
-    Hoho Network Tool Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Warning
-  tags: [hoho, process, network_tool]
-
-- rule: Hoho Interpreter Executed in Container
-  desc: Detect scripting interpreter execution in container
-  condition: hoho_container and evt.type = execve and proc.name in (hoho_interpreter_bins)
-  output: >
-    Hoho Interpreter Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Warning
-  tags: [hoho, process, interpreter]
-{any_exec_rule}
-""".strip() + "\n"
 
 def _inject_egress_proxy_env(service: dict, service_names: list[str], port: int, set_env_bundles: bool):
     env = service.setdefault("environment", {})
@@ -4579,6 +5381,8 @@ def render_compose(
     out_dir: str | None = None,
     artifacts_root: str | None = None,
     honeypot_dir: str | Path | None = None,
+    session_id: str | None = None,
+    agent_id: str | None = None,
 ) -> Path:
     pack_id = pack["metadata"]["id"]
     interaction = pack.get("metadata", {}).get("interaction")
@@ -4646,9 +5450,19 @@ exit 0
     if interaction == "low":
         if honeypot_dir is None:
             raise ValueError("low interaction compose rendering requires honeypot_dir")
-        services = {"honeypot": _low_runtime_service(pack, artifacts_bind_mount, Path(honeypot_dir))}
+        services = {"honeypot": _low_runtime_service(pack, artifacts_bind_mount, Path(honeypot_dir), session_id=session_id, agent_id=agent_id)}
     else:
         services = deepcopy(pack.get("stack", {}).get("services", {}))
+
+
+    telemetry = pack.get("telemetry", {}) if isinstance(pack.get("telemetry", {}), dict) else {}
+    for service in services.values():
+        env = service.setdefault("environment", {})
+        env.setdefault("HOHO_HONEYPOT_ID", pack_id)
+        env.setdefault("HOHO_SESSION_ID", session_id or "unknown-session")
+        env.setdefault("HOHO_AGENT_ID", agent_id or "unknown-agent")
+        env.setdefault("HOHO_EMIT_FILTERS_JSON", yaml.safe_dump(telemetry.get("filters", {}).get("emit", []), default_flow_style=True).strip())
+        env.setdefault("HOHO_FORWARD_FILTERS_JSON", yaml.safe_dump(telemetry.get("filters", {}).get("forward", []), default_flow_style=True).strip())
 
     valid_attach_services = set(services.keys())
     networks_used: set[str] = set()
@@ -4665,7 +5479,7 @@ exit 0
 
         sensor_service = {
             "image": SENSOR_IMAGES.get(stype, "busybox:latest"),
-            "environment": _storage_env(pack_id),
+            "environment": _storage_env(pack_id, session_id=session_id, agent_id=agent_id, telemetry=pack.get("telemetry", {})),
             "volumes": [artifacts_bind_mount],
         }
 
@@ -4789,14 +5603,15 @@ exit 0
                 if attach_service_name not in valid_attach_services:
                     raise ValueError(f"falco sensor '{sname}' attaches to unknown service '{attach_service_name}'")
 
-            rules_runtime_file = falco_runtime_dir / "hoho_rules.yaml"
-            rules_runtime_file.write_text(_default_falco_rules(any_exec=any_exec), encoding="utf-8")
+            default_rules = ["/app/rules/hoho_rules.yaml"]
+            if any_exec:
+                default_rules.append("/app/rules/hoho_any_exec.yaml")
 
             sensor_service["environment"].update(
                 {
                     "FALCO_PRIORITY_MIN": priority_min,
                     "FALCO_ENGINE": engine,
-                    "FALCO_RULES": "/runtime/falco/hoho_rules.yaml",
+                    "FALCO_RULES": ",".join(default_rules),
                     "HOHO_FALCO_PROJECT": project_name,
                     "HOHO_FALCO_ONLY_PROJECT": "true",
                     "HOHO_FALCO_APPEND_FIELDS": ",".join(str(f) for f in append_fields if f),
@@ -4825,18 +5640,38 @@ exit 0
                 else:
                     custom_rules.append(rule_path)
 
-            rules_all = ["/runtime/falco/hoho_rules.yaml", *custom_rules]
+            rules_all = [*default_rules, *custom_rules]
             sensor_service["environment"]["FALCO_RULES"] = ",".join(rules_all)
+
+            tracefs_host = Path("/sys/kernel/tracing")
+            if not tracefs_host.exists():
+                tracefs_host = Path("/sys/kernel/debug/tracing")
+            
+            if engine in {"kmod", "ebpf"}:
+                sensor_service["volumes"].extend([
+                    "/dev:/host/dev",
+                    "/boot:/host/boot:ro",
+                    "/lib/modules:/host/lib/modules:ro",
+                    "/usr:/host/usr:ro",
+                ])
 
             sensor_service["volumes"].extend(
                 [
                     f"{falco_runtime_dir.resolve()}:/runtime/falco:ro",
-                    "/sys/kernel/tracing:/sys/kernel/tracing:ro",
+                    f"{tracefs_host}:/sys/kernel/tracing:ro",
                     "/proc:/host/proc:ro",
                     "/etc:/host/etc:ro",
                     "/var/run/docker.sock:/host/var/run/docker.sock",
                 ]
             )
+
+            sensor_service.setdefault("security_opt", [])
+            if "apparmor:unconfined" not in sensor_service["security_opt"]:
+                sensor_service["security_opt"].append("apparmor:unconfined")
+
+            # Critical for modern eBPF: allow mlocking BPF maps
+            sensor_service.setdefault("ulimits", {})
+            sensor_service["ulimits"]["memlock"] = {"soft": -1, "hard": -1}
 
             if mode == "privileged":
                 sensor_service["privileged"] = True
@@ -4919,6 +5754,22 @@ exit 0
 
         services[sname] = sensor_service
 
+
+    forwarding = telemetry.get("forwarding", {}) if isinstance(telemetry, dict) else {}
+    if _as_bool(forwarding.get("enabled"), default=False):
+        token_env = forwarding.get("token_env", "HOHO_HUB_TOKEN")
+        hub_url = forwarding.get("hub_url", "")
+        fwd_env = _storage_env(pack_id, session_id=session_id, agent_id=agent_id, telemetry=telemetry)
+        fwd_env.update({
+            "HOHO_HUB_URL": hub_url,
+            "HOHO_HUB_TOKEN": f"${{{token_env}}}",
+        })
+        services["telemetry-forwarder"] = {
+            "image": "hoho/telemetry-forwarder:latest",
+            "environment": fwd_env,
+            "volumes": [artifacts_bind_mount],
+        }
+
     compose = {"services": services}
 
     named_volumes = sorted(_collect_named_volumes(services))
@@ -4933,7 +5784,7 @@ exit 0
     return out
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~6.1 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~6.5 KB; showing ≤800 lines)_
 ```python
 import json
 import os
@@ -4942,6 +5793,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
+
+from hoho_core.model.event import build_base_event
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -4995,26 +5848,27 @@ def ensure_pack_eventlog(artifacts_pack_root: Path) -> Path:
 def _emit_ca_install_event(
     *,
     storage_pack_root: Path,
-    pack_id: str,
+    honeypot_id: str,
     service_name: str,
-    kind: str,
+    event_name: str,
+    session_id: str,
+    agent_id: str,
     exit_code: int | None = None,
     stderr_snippet: str | None = None,
 ) -> None:
-    event = {
-        "schema_version": 1,
-        "event_id": f"ca-install-{service_name}-{int(time.time() * 1000)}",
-        "ts": _now_iso(),
-        "pack_id": pack_id,
-        "interaction": "high",
-        "component": "runtime.compose",
-        "kind": kind,
-        "service": service_name,
-    }
+    event = build_base_event(
+        honeypot_id=honeypot_id,
+        component="runtime.compose",
+        proto="runtime",
+        session_id=session_id,
+        agent_id=agent_id,
+        event_name=event_name,
+    )
+    event["runtime"] = {"service": service_name}
     if exit_code is not None:
-        event["exit_code"] = exit_code
+        event["runtime"]["exit_code"] = exit_code
     if stderr_snippet:
-        event["stderr_snippet"] = stderr_snippet
+        event["runtime"]["stderr_snippet"] = stderr_snippet
     try:
         _append_event(storage_pack_root, event)
     except OSError as exc:
@@ -5038,7 +5892,9 @@ def _run_ca_install(
     project_name: str | None,
     service_name: str,
     storage_pack_root: Path,
-    pack_id: str,
+    honeypot_id: str,
+    session_id: str,
+    agent_id: str,
 ) -> None:
     cmd = ["docker", "compose"]
     if project_name:
@@ -5048,18 +5904,22 @@ def _run_ca_install(
     if proc.returncode == 0:
         _emit_ca_install_event(
             storage_pack_root=storage_pack_root,
-            pack_id=pack_id,
+            honeypot_id=honeypot_id,
             service_name=service_name,
-            kind="system.ca_install.succeeded",
+            event_name="runtime.ca_install",
+            session_id=session_id,
+            agent_id=agent_id,
         )
         return
 
     stderr = (proc.stderr or "").strip()
     _emit_ca_install_event(
         storage_pack_root=storage_pack_root,
-        pack_id=pack_id,
+        honeypot_id=honeypot_id,
         service_name=service_name,
-        kind="system.ca_install.failed",
+        event_name="runtime.ca_install",
+        session_id=session_id,
+        agent_id=agent_id,
         exit_code=proc.returncode,
         stderr_snippet=stderr[:500],
     )
@@ -5081,10 +5941,12 @@ def run_compose(
     log_services: Iterable[str] | None = None,  # None => all services
     log_tail: int | str = "all",                  # e.g. 0, 200, "all"
     log_no_color: bool = True,
+    session_id: str = "unknown-session",
+    agent_id: str = "unknown-agent",
 ) -> int:
     if pack and artifacts_root:
-        pack_id = pack.get("metadata", {}).get("id", "unknown-pack")
-        storage_pack_root = artifacts_root / pack_id
+        honeypot_id = pack.get("metadata", {}).get("id", "unknown-pack")
+        storage_pack_root = artifacts_root / honeypot_id
         storage_pack_root.mkdir(parents=True, exist_ok=True)
         (storage_pack_root / "ca").mkdir(parents=True, exist_ok=True)
         ensure_pack_eventlog(storage_pack_root)
@@ -5098,8 +5960,8 @@ def run_compose(
 
     # 2) Post-start installs (CA, etc.)
     if pack and artifacts_root:
-        pack_id = pack.get("metadata", {}).get("id", "unknown-pack")
-        storage_pack_root = artifacts_root / pack_id
+        honeypot_id = pack.get("metadata", {}).get("id", "unknown-pack")
+        storage_pack_root = artifacts_root / honeypot_id
 
         for sensor in pack.get("sensors", []):
             if sensor.get("type") != "egress_proxy":
@@ -5113,7 +5975,9 @@ def run_compose(
                     project_name=project_name,
                     service_name=service,
                     storage_pack_root=storage_pack_root,
-                    pack_id=pack_id,
+                    honeypot_id=honeypot_id,
+                    session_id=session_id,
+                    agent_id=agent_id,
                 )
 
     # 3) Attach back to logs AFTER everything is installed.
@@ -5133,9 +5997,10 @@ def run_compose(
 
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/server/http.py`  _(~2.8 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/server/http.py`  _(~3.0 KB; showing ≤800 lines)_
 ```python
 import json
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from hoho_core.dsl.engine import evaluate_rules
@@ -5160,7 +6025,14 @@ class LowInteractionHandler(BaseHTTPRequestHandler):
             "body": body,
             "content_type": self.headers.get("Content-Type", ""),
         }
-        event = build_base_event(self.pack["metadata"]["id"], "low", "runtime.http", "http")
+        event = build_base_event(
+            honeypot_id=self.pack["metadata"]["id"],
+            component="runtime.http",
+            proto="http",
+            session_id=os.getenv("HOHO_SESSION_ID", "unknown-session"),
+            agent_id=os.getenv("HOHO_AGENT_ID", "unknown-agent"),
+            event_name="http.request",
+        )
         event["src"]["ip"] = self.client_address[0]
         event["src"]["port"] = self.client_address[1]
         event["src"]["user_agent"] = self.headers.get("User-Agent")
@@ -5626,45 +6498,27 @@ child=$!
 wait "$child"
 ```
 
-### `honeypot-platform/sensors/egress_proxy/proxy/egress_capture_addon.py`  _(~3.9 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/egress_proxy/proxy/egress_capture_addon.py`  _(~3.6 KB; showing ≤800 lines)_
 ```python
-import hashlib
-import json
 import os
-from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+from hoho_core.model.event import build_base_event
+from hoho_core.storage.fs import FilesystemArtifactStore
+from hoho_core.utils.redact import redact_headers
+
+HONEYPOT_ID = os.getenv("HOHO_HONEYPOT_ID", os.getenv("HOHO_PACK_ID", "unknown-pack"))
+SESSION_ID = os.getenv("HOHO_SESSION_ID", "unknown-session")
+AGENT_ID = os.getenv("HOHO_AGENT_ID", "unknown-agent")
 ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
+STORE = FilesystemArtifactStore(str(ROOT), HONEYPOT_ID)
 CAPTURE_ENABLED = os.getenv("PROXY_CAPTURE_ENABLED", "true").lower() in {"1", "true", "yes", "on"}
 CAPTURE_BODIES = os.getenv("PROXY_CAPTURE_BODIES", "*")
 CAPTURE_MAX_BYTES = int(os.getenv("PROXY_CAPTURE_MAX_BYTES", "52428800"))
 CAPTURE_STORE_OK_ONLY = os.getenv("PROXY_CAPTURE_STORE_OK_ONLY", "true").lower() in {"1", "true", "yes", "on"}
 CAPTURE_MIN_BYTES = int(os.getenv("PROXY_CAPTURE_MIN_BYTES", "1"))
 REDACT_HEADERS =[REDACTED]
-
-
-def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def _events_path() -> Path:
-    return ROOT / PACK_ID / "index" / "events.jsonl"
-
-
-def _append_event(ev: dict) -> None:
-    path = _events_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(ev) + "\n")
-
-
-def _redact(headers) -> dict:
-    out = {}
-    for k, v in headers.items(multi=True):
-        out[k] = "<redacted>" if k.lower() in REDACT_HEADERS else v
-    return out
 
 
 def _guess_filename(flow_id: str, url: str, headers, digest: str) -> str:
@@ -5694,57 +6548,52 @@ def response(flow):
         should_store = should_store and (200 <= resp.status_code <= 399)
     should_store = should_store and total_bytes >= CAPTURE_MIN_BYTES
 
-    artifacts = []
+    ev = build_base_event(
+        honeypot_id=HONEYPOT_ID,
+        component="sensor.egress_proxy",
+        proto="http",
+        session_id=SESSION_ID,
+        agent_id=AGENT_ID,
+        event_name="egress.response",
+    )
+    ev["event_id"] = event_id
+    ev["request"] = {
+        "method": req.method,
+        "url": req.pretty_url,
+        "headers_redacted": redact_headers(dict(req.headers.items(multi=True)), REDACT_HEADERS),
+    }
+    ev["response"] = {
+        "status_code": resp.status_code if resp else None,
+        "headers_redacted": redact_headers(dict(resp.headers.items(multi=True)), REDACT_HEADERS) if resp else {},
+        "bytes": total_bytes,
+    }
+    ev["egress"] = {"capture_enabled": CAPTURE_ENABLED}
+
     if should_store:
         stored = body[:CAPTURE_MAX_BYTES]
-        digest = hashlib.sha256(stored).hexdigest()
+        blob = STORE.put_blob(stored)
         truncated = len(stored) < total_bytes
-
-        blob_path = ROOT / PACK_ID / "blobs" / digest[:2] / digest
-        blob_path.parent.mkdir(parents=True, exist_ok=True)
-        if not blob_path.exists():
-            blob_path.write_bytes(stored)
-
-        filename = _guess_filename(event_id, req.pretty_url, resp.headers if resp else {}, digest)
-        obj_path = ROOT / PACK_ID / "objects" / event_id / "egress.response" / filename
+        filename = _guess_filename(event_id, req.pretty_url, resp.headers if resp else {}, blob["sha256"])
+        obj_path = ROOT / HONEYPOT_ID / "objects" / event_id / "egress.response" / filename
+        blob_path = ROOT / HONEYPOT_ID / blob["storage_ref"]
         obj_path.parent.mkdir(parents=True, exist_ok=True)
         if not obj_path.exists():
             obj_path.symlink_to(blob_path)
-
-        artifacts.append(
+        ev["artifacts"] = [
             {
                 "kind": "egress.response_body",
-                "sha256": digest,
-                "bytes_captured": len(stored),
-                "bytes_total": total_bytes,
-                "truncated": truncated,
-                "filename_guess": filename,
-                "url": req.pretty_url,
-                "storage_ref": f"blobs/{digest[:2]}/{digest}",
+                **blob,
+                "meta": {
+                    "bytes_total": total_bytes,
+                    "truncated": truncated,
+                    "filename_guess": filename,
+                    "url": req.pretty_url,
+                },
             }
-        )
+        ]
+        ev["decision"]["truncated"] = truncated
 
-    ev = {
-        "schema_version": 1,
-        "event_id": event_id,
-        "ts": _now(),
-        "pack_id": PACK_ID,
-        "interaction": "high",
-        "kind": "sensor.egress_proxy.http",
-        "component": "sensor.egress_proxy",
-        "request": {
-            "method": req.method,
-            "url": req.pretty_url,
-            "headers_redacted": _redact(req.headers),
-        },
-        "response": {
-            "status_code": resp.status_code if resp else None,
-            "headers_redacted": _redact(resp.headers) if resp else {},
-            "bytes": total_bytes,
-        },
-        "artifacts": artifacts,
-    }
-    _append_event(ev)
+    STORE.append_event(HONEYPOT_ID, ev)
 ```
 
 ### `honeypot-platform/sensors/egress_proxy/proxy/gen_ca.py`  _(~2.2 KB; showing ≤800 lines)_
@@ -5822,10 +6671,10 @@ if __name__ == "__main__":
     raise SystemExit(main())
 ```
 
-### `honeypot-platform/sensors/falco/Dockerfile`  _(~1.2 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/falco/Dockerfile`  _(~1.3 KB; showing ≤800 lines)_
 ```
 # sensors/falco/Dockerfile
-FROM falcosecurity/falco:0.39.1
+FROM falcosecurity/falco:0.43.0-debian
 
 USER root
 
@@ -5849,6 +6698,7 @@ WORKDIR /app
 # Forwarder that converts Falco JSON alerts -> hoho events.jsonl
 COPY forwarder.py /app/forwarder.py
 COPY entrypoint.sh /app/entrypoint.sh
+COPY rules/*.yaml /app/rules/
 
 # If your forwarder talks to docker.sock, you likely want the docker SDK
 RUN set -eux; \
@@ -5858,7 +6708,7 @@ RUN set -eux; \
 ENTRYPOINT ["/app/entrypoint.sh"]
 ```
 
-### `honeypot-platform/sensors/falco/README.md`  _(~0.4 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/falco/README.md`  _(~0.6 KB; showing ≤800 lines)_
 ```md
 # Falco Sensor
 
@@ -5874,47 +6724,80 @@ Falco sensor runs Falco with JSON + program output and forwards alerts into Hoho
 - `HOHO_FALCO_PROJECT`
 - `HOHO_FALCO_ONLY_SERVICES`
 - `HOHO_FALCO_ENFORCE_*`
+
+## Default image rules
+- `/app/rules/hoho_rules.yaml`
+- `/app/rules/hoho_any_exec.yaml` (enabled by renderer when `any_exec: true`)
+
+Additional `sensors[].config.rules` files are appended after defaults.
 ```
 
-### `honeypot-platform/sensors/falco/entrypoint.sh`  _(~0.9 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/falco/entrypoint.sh`  _(~1.5 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env sh
 set -eu
 
-RULES_CSV="${FALCO_RULES:-/runtime/falco/hoho_rules.yaml}"
+RULES_CSV="${FALCO_RULES:-/app/rules/hoho_rules.yaml}"
 PRIORITY_MIN="${FALCO_PRIORITY_MIN:-Warning}"
 ENGINE="${FALCO_ENGINE:-modern_ebpf}"
 APPEND_FIELDS="${HOHO_FALCO_APPEND_FIELDS:-}"
 
-FALCO_ARGS="--unbuffered -o json_output=true -o priority=${PRIORITY_MIN} -o program_output.enabled=true -o program_output.keep_alive=true -o program_output.program='python3 /app/forwarder.py'"
+set -- falco --unbuffered \
+  -o "log_level=${FALCO_LOG_LEVEL:-info}" \
+  -o json_output=true \
+  -o "priority=${FALCO_PRIORITY_MIN:-Warning}" \
+  -o program_output.enabled=true \
+  -o program_output.keep_alive=true \
+  -o "program_output.program=python3 /app/forwarder.py" \
+  -o "engine.kind=${ENGINE}"
 
-if [ "$ENGINE" = "modern_ebpf" ]; then
-  FALCO_ARGS="$FALCO_ARGS -o engine.kind=modern_ebpf"
-fi
+# if [ "$ENGINE" = "modern_ebpf" ]; then
+#   set -- "$@" -o engine.kind=modern_ebpf
+# fi
 
 if [ -n "$APPEND_FIELDS" ]; then
-  OLDIFS="$IFS"
-  IFS=','
-  for field in $APPEND_FIELDS; do
-    [ -n "$field" ] || continue
-    FALCO_ARGS="$FALCO_ARGS -o append_output[]=${field}"
-  done
-  IFS="$OLDIFS"
+  APPEND_JSON="$(python3 - <<'PY'
+import json
+import os
+
+csv = os.environ.get("HOHO_FALCO_APPEND_FIELDS", "")
+extra_fields = []
+for raw in csv.split(","):
+    item = raw.strip()
+    if not item:
+        continue
+    if "=" in item:
+        key, value = item.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if key:
+            extra_fields.append({key: value})
+    else:
+        extra_fields.append(item)
+
+if extra_fields:
+    print(json.dumps({"match": {"source": "syscall"}, "extra_fields": extra_fields}))
+PY
+)"
+  if [ -n "$APPEND_JSON" ]; then
+    set -- "$@" -o "append_output[]=${APPEND_JSON}"
+  fi
 fi
 
 OLDIFS="$IFS"
 IFS=','
 for rule_file in $RULES_CSV; do
-  [ -n "$rule_file" ] || continue
-  FALCO_ARGS="$FALCO_ARGS -r $rule_file"
+  trimmed="$(printf '%s' "$rule_file" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  [ -n "$trimmed" ] || continue
+  set -- "$@" -r "$trimmed"
 done
 IFS="$OLDIFS"
 
-# shellcheck disable=SC2086
-exec sh -c "falco $FALCO_ARGS"
+printf 'Starting Falco command: %s\n' "$*"
+exec "$@"
 ```
 
-### `honeypot-platform/sensors/falco/forwarder.py`  _(~7.4 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/falco/forwarder.py`  _(~7.8 KB; showing ≤800 lines)_
 ```python
 import json
 import os
@@ -5925,9 +6808,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib import request
 
-PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+HONEYPOT_ID = os.getenv("HOHO_HONEYPOT_ID", os.getenv("HOHO_PACK_ID", "unknown-pack"))
+SESSION_ID = os.getenv("HOHO_SESSION_ID", "unknown-session")
+AGENT_ID = os.getenv("HOHO_AGENT_ID", "unknown-agent")
 ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
-EVENTS_PATH = ROOT / PACK_ID / "index" / "events.jsonl"
+EVENTS_PATH = ROOT / HONEYPOT_ID / "index" / "events.jsonl"
 ONLY_PROJECT = os.getenv("HOHO_FALCO_ONLY_PROJECT", "true").strip().lower() in {"1", "true", "yes", "on"}
 PROJECT = os.getenv("HOHO_FALCO_PROJECT", "")
 ONLY_SERVICES = {s for s in os.getenv("HOHO_FALCO_ONLY_SERVICES", "").split(",") if s}
@@ -6065,16 +6950,15 @@ def make_base_event(alert: dict) -> dict:
     priority = str(alert.get("priority", "Notice"))
     tags = ["falco", f"priority:{priority}", f"rule:{rule}"] + [str(t) for t in (alert.get("tags") or [])]
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "event_id": f"falco-{uuid.uuid4().hex}",
         "ts": now_iso(),
-        "pack_id": PACK_ID,
-        "interaction": "high",
+        "honeypot_id": HONEYPOT_ID,
+        "session_id": SESSION_ID,
+        "agent_id": AGENT_ID,
+        "event_name": "falco.alert",
         "component": "sensor.falco",
-        "src": {"ip": None, "port": None, "forwarded_for": [], "user_agent": None},
         "proto": "runtime",
-        "request": {},
-        "response": {"status_code": None, "bytes_sent": 0, "profile": None},
         "classification": {"verdict": "alert", "tags": tags, "indicators": [rule]},
         "decision": {"truncated": False, "oversized": False, "rate_limited": False, "dropped": False},
         "artifacts": [],
@@ -6106,6 +6990,14 @@ def main() -> int:
             continue
 
         ev = make_base_event(alert)
+        # Stamp static context here (no Falco append_output needed)
+        ev["falco"]["output_fields"] = ev["falco"].get("output_fields", {}) or {}
+        ev["falco"]["output_fields"].update(
+            {
+                "honeypot_id": HONEYPOT_ID,
+                "sensor": "falco",
+            }
+        )
         ev["classification"]["tags"].extend([f"compose_project:{project}", f"compose_service:{service}"])
         append_event(ev)
 
@@ -6115,6 +7007,7 @@ def main() -> int:
                 {
                     **ev,
                     "event_id": f"falco-enforce-{uuid.uuid4().hex}",
+                    "event_name": "falco.enforcement",
                     "classification": {
                         "verdict": "enforcement",
                         "tags": ["falco", "enforcement", f"action:{ENFORCE_ACTION}"],
@@ -6133,6 +7026,75 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+```
+
+### `honeypot-platform/sensors/falco/rules/hoho_any_exec.yaml`  _(~0.5 KB; showing ≤800 lines)_
+```yaml
+- macro: hoho_container
+  condition: container.id != "host" and container.id != "" and container.id != "<NA>"
+
+- rule: Hoho Any Exec in Container
+  desc: Catch all process executions in containers (noisy; optional)
+  condition: hoho_container and evt.type=execve and proc.name exists
+  output: >
+    Hoho Any Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: NOTICE
+  tags: [hoho, process, exec]
+```
+
+### `honeypot-platform/sensors/falco/rules/hoho_rules.yaml`  _(~1.9 KB; showing ≤800 lines)_
+```yaml
+- macro: hoho_container
+  condition: container.id != "host" and container.id != "" and container.id != "<NA>"
+
+- list: hoho_shell_bins
+  items: [sh, bash, ash, dash, zsh, ksh]
+
+- list: hoho_download_bins
+  items: [curl, wget, aria2c, fetch]
+
+- list: hoho_network_bins
+  items: [nc, ncat, socat, nmap]
+
+- list: hoho_interpreter_bins
+  items: [python, python3, perl, php, ruby]
+
+- rule: Hoho Shell Spawned in Container
+  desc: Detect shell execution in container
+  condition: hoho_container and evt.type=execve and proc.name in (hoho_shell_bins)
+  output: >
+    Hoho Shell Spawned | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: ERROR
+  tags: [hoho, process, shell]
+
+- rule: Hoho Downloader Executed in Container
+  desc: Detect downloader process execution in container
+  condition: hoho_container and evt.type=execve and proc.name in (hoho_download_bins)
+  output: >
+    Hoho Downloader Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: WARNING
+  tags: [hoho, process, downloader]
+
+- rule: Hoho Network Tool Executed in Container
+  desc: Detect network utility execution in container
+  condition: hoho_container and evt.type=execve and proc.name in (hoho_network_bins)
+  output: >
+    Hoho Network Tool Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: WARNING
+  tags: [hoho, process, network_tool]
+
+- rule: Hoho Interpreter Executed in Container
+  desc: Detect scripting interpreter execution in container
+  condition: hoho_container and evt.type=execve and proc.name in (hoho_interpreter_bins)
+  output: >
+    Hoho Interpreter Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: WARNING
+  tags: [hoho, process, interpreter]
 ```
 
 ### `honeypot-platform/sensors/fsmon/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_
@@ -6160,40 +7122,33 @@ set -eu
 exec python /app/fsmon.py
 ```
 
-### `honeypot-platform/sensors/fsmon/fsmon/fsmon.py`  _(~2.8 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/fsmon/fsmon/fsmon.py`  _(~2.3 KB; showing ≤800 lines)_
 ```python
 import fnmatch
-import hashlib
-import json
 import os
-from datetime import datetime, timezone
 from pathlib import Path
+
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+from hoho_core.model.event import build_base_event
+from hoho_core.storage.fs import FilesystemArtifactStore
+
+HONEYPOT_ID = os.getenv("HOHO_HONEYPOT_ID", os.getenv("HOHO_PACK_ID", "unknown-pack"))
+SESSION_ID = os.getenv("HOHO_SESSION_ID", "unknown-session")
+AGENT_ID = os.getenv("HOHO_AGENT_ID", "unknown-agent")
 ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
 WATCH_DIRS = os.getenv("FSMON_WATCH", "/watched").split(",")
 MAX_BYTES = int(os.getenv("FSMON_MAX_BYTES", "262144"))
 ALLOW = [x for x in os.getenv("FSMON_ALLOW", "*").split(",") if x]
 DENY = [x for x in os.getenv("FSMON_DENY", "").split(",") if x]
-
-
-def now():
-    return datetime.now(timezone.utc).isoformat()
+STORE = FilesystemArtifactStore(str(ROOT), HONEYPOT_ID)
 
 
 def allow_path(path: str) -> bool:
     if any(fnmatch.fnmatch(path, pat) for pat in DENY):
         return False
     return any(fnmatch.fnmatch(path, pat) for pat in ALLOW)
-
-
-def append_event(event):
-    p = ROOT / PACK_ID / "index" / "events.jsonl"
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with p.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(event) + "\n")
 
 
 class Handler(FileSystemEventHandler):
@@ -6211,27 +7166,26 @@ class Handler(FileSystemEventHandler):
             data = path.read_bytes()[:MAX_BYTES]
         except Exception:
             return
-        digest = hashlib.sha256(data).hexdigest()
-        bp = ROOT / PACK_ID / "blobs" / digest[:2] / digest
-        bp.parent.mkdir(parents=True, exist_ok=True)
-        if not bp.exists():
-            bp.write_bytes(data)
-        ev = {
-            "schema_version": 1,
-            "event_id": f"fs-{int(datetime.now().timestamp()*1000)}",
-            "ts": now(),
-            "pack_id": PACK_ID,
-            "interaction": "high",
-            "component": "sensor.fsmon",
-            "src": {"ip": None, "port": None, "forwarded_for": [], "user_agent": None},
-            "proto": "tcp",
-            "request": {},
-            "response": {"status_code": None, "bytes_sent": 0, "profile": None},
-            "classification": {"verdict": "postex", "tags": ["fs_change"], "indicators": [str(path)]},
-            "decision": {"truncated": len(data) >= MAX_BYTES, "oversized": False, "rate_limited": False, "dropped": False},
-            "artifacts": [{"kind": "fs_write", "sha256": digest, "size": len(data), "mime": "application/octet-stream", "storage_ref": f"blobs/{digest[:2]}/{digest}", "meta": {"path": str(path), "preview": data[:128].decode('utf-8', errors='ignore')}}],
-        }
-        append_event(ev)
+
+        blob = STORE.put_blob(data)
+        ev = build_base_event(
+            honeypot_id=HONEYPOT_ID,
+            component="sensor.fsmon",
+            proto="fs",
+            session_id=SESSION_ID,
+            agent_id=AGENT_ID,
+            event_name="fs.write",
+        )
+        ev["classification"] = {"verdict": "postex", "tags": ["fs_change"], "indicators": [str(path)]}
+        ev["decision"]["truncated"] = len(data) >= MAX_BYTES
+        ev["artifacts"] = [
+            {
+                "kind": "fs_write",
+                **blob,
+                "meta": {"path": str(path), "preview": data[:128].decode("utf-8", errors="ignore")},
+            }
+        ]
+        STORE.append_event(HONEYPOT_ID, ev)
 
 
 if __name__ == "__main__":
@@ -6327,28 +7281,21 @@ fi
 exec mitmdump "$@"
 ```
 
-### `honeypot-platform/sensors/http_proxy/proxy/capture_addon.py`  _(~3.6 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/http_proxy/proxy/capture_addon.py`  _(~2.7 KB; showing ≤800 lines)_
 ```python
-import hashlib
-import json
 import os
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
-PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+from hoho_core.model.event import build_base_event
+from hoho_core.storage.fs import FilesystemArtifactStore
+from hoho_core.utils.redact import redact_headers
+
+HONEYPOT_ID = os.getenv("HOHO_HONEYPOT_ID", os.getenv("HOHO_PACK_ID", "unknown-pack"))
+SESSION_ID = os.getenv("HOHO_SESSION_ID", "unknown-session")
+AGENT_ID = os.getenv("HOHO_AGENT_ID", "unknown-agent")
 ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
-
-
-def _now():
-    return datetime.now(timezone.utc).isoformat()
-
-
-def _append_event(ev: dict):
-    p = ROOT / PACK_ID / "index" / "events.jsonl"
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with p.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(ev) + "\n")
+STORE = FilesystemArtifactStore(str(ROOT), HONEYPOT_ID)
 
 
 def _log_error(message: str):
@@ -6377,72 +7324,44 @@ def response(flow):
         req = flow.request
         resp = flow.response
         body = req.raw_content or b""
-        digest = hashlib.sha256(body).hexdigest() if body else None
-
-        if body:
-            bp = ROOT / PACK_ID / "blobs" / digest[:2] / digest
-            bp.parent.mkdir(parents=True, exist_ok=True)
-            if not bp.exists():
-                bp.write_bytes(body)
 
         peername = _peername(flow)
         src_ip = peername[0] if peername else None
         src_port = peername[1] if peername else None
 
-        ev = {
-            "schema_version": 1,
-            "event_id": flow.id,
-            "ts": _now(),
-            "pack_id": PACK_ID,
-            "interaction": "high",
-            "component": "sensor.http_proxy",
-            "src": {
-                "ip": src_ip,
-                "port": src_port,
-                "forwarded_for": _forwarded_for_values(req),
-                "user_agent": req.headers.get("User-Agent"),
-            },
-            "proto": "http",
-            "http": {"host": req.headers.get("Host")},
-            "request": {
-                "method": req.method,
-                "path": req.path,
-                "query": dict(req.query),
-                "headers_redacted": {
-                    k: [REDACTED]
-                    for k, v in req.headers.items()
-                },
-                "content_type": req.headers.get("Content-Type"),
-                "content_length": len(body),
-            },
-            "response": {
-                "status_code": resp.status_code if resp else None,
-                "bytes_sent": len(resp.raw_content or b"") if resp else 0,
-                "profile": None,
-            },
-            "classification": {"verdict": "unknown", "tags": [], "indicators": []},
-            "decision": {
-                "truncated": False,
-                "oversized": False,
-                "rate_limited": False,
-                "dropped": False,
-            },
-            "artifacts": (
-                [
-                    {
-                        "kind": "request_body",
-                        "sha256": digest,
-                        "size": len(body),
-                        "mime": req.headers.get("Content-Type", "application/octet-stream"),
-                        "storage_ref": f"blobs/{digest[:2]}/{digest}",
-                        "meta": {},
-                    }
-                ]
-                if body
-                else []
-            ),
+        ev = build_base_event(
+            honeypot_id=HONEYPOT_ID,
+            component="sensor.http_proxy",
+            proto="http",
+            session_id=SESSION_ID,
+            agent_id=AGENT_ID,
+            event_name="http.request",
+        )
+        ev["event_id"] = flow.id
+        ev["src"] = {
+            "ip": src_ip,
+            "port": src_port,
+            "forwarded_for": _forwarded_for_values(req),
+            "user_agent": req.headers.get("User-Agent"),
         }
-        _append_event(ev)
+        ev["http"] = {"host": req.headers.get("Host")}
+        ev["request"] = {
+            "method": req.method,
+            "path": req.path,
+            "query": dict(req.query),
+            "headers_redacted": redact_headers(dict(req.headers.items(multi=True))),
+            "content_type": req.headers.get("Content-Type"),
+            "content_length": len(body),
+        }
+        ev["response"] = {
+            "status_code": resp.status_code if resp else None,
+            "bytes_sent": len(resp.raw_content or b"") if resp else 0,
+            "profile": None,
+        }
+        if body:
+            blob = STORE.put_blob(body, mime=req.headers.get("Content-Type", "application/octet-stream"))
+            ev["artifacts"] = [{"kind": "request_body", **blob, "meta": {}}]
+        STORE.append_event(HONEYPOT_ID, ev)
     except Exception as exc:  # noqa: BLE001
         _log_error(str(exc))
 ```
@@ -6463,24 +7382,27 @@ ENTRYPOINT ["/entrypoint.sh"]
 Tcpdump wrapper with rotated capture files stored as blob artifacts plus pcap segment events.
 ```
 
-### `honeypot-platform/sensors/pcap/entrypoint.sh`  _(~1.3 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/pcap/entrypoint.sh`  _(~1.4 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
-PACK_ID="${HOHO_PACK_ID:-unknown-pack}"
+HONEYPOT_ID="${HOHO_HONEYPOT_ID:-${HOHO_PACK_ID:-unknown-pack}}"
+SESSION_ID="${HOHO_SESSION_ID:-unknown-session}"
+AGENT_ID="${HOHO_AGENT_ID:-unknown-agent}"
 ROOT="${HOHO_STORAGE_ROOT:-/artifacts}"
 ROTATE_SECONDS="${PCAP_ROTATE_SECONDS:-60}"
 ROTATE_COUNT="${PCAP_ROTATE_COUNT:-10}"
-OUT_DIR="${ROOT}/${PACK_ID}/pcap"
-mkdir -p "$OUT_DIR" "${ROOT}/${PACK_ID}/index"
+OUT_DIR="${ROOT}/${HONEYPOT_ID}/pcap"
+mkdir -p "$OUT_DIR" "${ROOT}/${HONEYPOT_ID}/index"
 
 tcpdump -i any -w "${OUT_DIR}/segment-%Y%m%d-%H%M%S.pcap" -G "$ROTATE_SECONDS" -W "$ROTATE_COUNT" || true
 for f in "$OUT_DIR"/*.pcap; do
   [ -f "$f" ] || continue
   sha=$(sha256sum "$f" | awk '{print $1}')
-  bdir="${ROOT}/${PACK_ID}/blobs/${sha:0:2}"
+  bdir="${ROOT}/${HONEYPOT_ID}/blobs/${sha:0:2}"
   mkdir -p "$bdir"
   cp "$f" "$bdir/$sha"
-  printf '{"schema_version":1,"event_id":"pcap-%s","ts":"%s","pack_id":"%s","interaction":"high","component":"sensor.pcap","src":{"ip":null,"port":null,"forwarded_for":[],"user_agent":null},"proto":"tcp","request":{},"response":{"status_code":null,"bytes_sent":0,"profile":null},"classification":{"verdict":"probe","tags":["pcap_segment"],"indicators":[]},"decision":{"truncated":false,"oversized":false,"rate_limited":false,"dropped":false},"artifacts":[{"kind":"pcap_segment","sha256":"%s","size":%s,"mime":"application/vnd.tcpdump.pcap","storage_ref":"blobs/%s/%s","meta":{"source":"%s"}}]}\n' "$(date +%s)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$PACK_ID" "$sha" "$(wc -c < "$f")" "${sha:0:2}" "$sha" "$f" >> "${ROOT}/${PACK_ID}/index/events.jsonl"
+  printf '{"schema_version":2,"event_id":"pcap-%s","ts":"%s","honeypot_id":"%s","session_id":"%s","agent_id":"%s","event_name":"pcap.segment","component":"sensor.pcap","proto":"tcp","classification":{"verdict":"probe","tags":["pcap_segment"],"indicators":[]},"decision":{"truncated":false,"oversized":false,"rate_limited":false,"dropped":false},"artifacts":[{"kind":"pcap_segment","sha256":"%s","size":%s,"mime":"application/vnd.tcpdump.pcap","storage_ref":"blobs/%s/%s","meta":{"source":"%s"}}]}
+' "$(date +%s)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$HONEYPOT_ID" "$SESSION_ID" "$AGENT_ID" "$sha" "$(wc -c < "$f")" "${sha:0:2}" "$sha" "$f" >> "${ROOT}/${HONEYPOT_ID}/index/events.jsonl"
 done
 ```

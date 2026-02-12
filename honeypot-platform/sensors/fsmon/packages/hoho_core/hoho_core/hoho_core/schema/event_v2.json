@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "event_id",
+    "ts",
+    "honeypot_id",
+    "session_id",
+    "agent_id",
+    "event_name",
+    "component",
+    "classification",
+    "decision",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": 2},
+    "event_id": {"type": "string", "minLength": 1},
+    "ts": {"type": "string", "minLength": 1},
+    "honeypot_id": {"type": "string", "minLength": 1},
+    "session_id": {"type": "string", "minLength": 1},
+    "agent_id": {"type": "string", "minLength": 1},
+    "event_name": {"type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)+$"},
+    "component": {"type": "string", "minLength": 1},
+    "proto": {"type": "string"},
+    "src": {"type": "object"},
+    "request": {"type": "object"},
+    "response": {"type": "object"},
+    "classification": {
+      "type": "object",
+      "required": ["verdict", "tags", "indicators"],
+      "properties": {
+        "verdict": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "indicators": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "decision": {
+      "type": "object",
+      "required": ["truncated", "oversized", "rate_limited", "dropped"],
+      "properties": {
+        "truncated": {"type": "boolean"},
+        "oversized": {"type": "boolean"},
+        "rate_limited": {"type": "boolean"},
+        "dropped": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "sha256", "size", "mime", "storage_ref", "meta"],
+        "properties": {
+          "kind": {"type": "string"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64},
+          "size": {"type": "integer", "minimum": 0},
+          "mime": {"type": "string"},
+          "storage_ref": {"type": "string", "minLength": 1},
+          "meta": {"type": "object"}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
