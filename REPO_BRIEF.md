@@ -1,22 +1,22 @@
 # Repository Brief: hoho2
 
-_Generated 2026-02-12 09:27 UTC_
+_Generated 2026-02-12 10:11 UTC_
 
 ## Quick Facts
 - **Branch:** main
-- **Commit:** 1fdd0df (2026-02-12 10:23:40 +0100)
-- **Total commits:** 54
-- **Files scanned:** 96
-- **Text files embedded (after filters):** 96
+- **Commit:** 6f711d7 (2026-02-12 10:50:43 +0100)
+- **Total commits:** 57
+- **Files scanned:** 101
+- **Text files embedded (after filters):** 101
 
 ## Language & LOC Overview (approx.)
-- **python** — files: 40 (41.7%), LOC: 2296
-- **md** — files: 28 (29.2%), LOC: 6361
-- **bash** — files: 10 (10.4%), LOC: 230
-- **yaml** — files: 7 (7.3%), LOC: 610
-- **other** — files: 6 (6.2%), LOC: 253
-- **json** — files: 2 (2.1%), LOC: 406
-- **toml** — files: 2 (2.1%), LOC: 30
+- **python** — files: 41 (40.6%), LOC: 2677
+- **md** — files: 29 (28.7%), LOC: 6585
+- **bash** — files: 11 (10.9%), LOC: 265
+- **other** — files: 8 (7.9%), LOC: 286
+- **yaml** — files: 7 (6.9%), LOC: 627
+- **json** — files: 2 (2.0%), LOC: 505
+- **toml** — files: 2 (2.0%), LOC: 36
 - **html** — files: 1 (1.0%), LOC: 12
 
 ## Directory Tree (depth ≤ 10)
@@ -59,6 +59,8 @@ _Generated 2026-02-12 09:27 UTC_
   - sensors
     - egress_proxy
       - entrypoint.sh
+    - falco
+      - forwarder.py
     - fsmon
     - http_proxy
     - pcap
@@ -76,6 +78,7 @@ _Generated 2026-02-12 09:27 UTC_
       - example-upload-sink
       - example-web
       - hoho_core
+        - MANIFEST.in
         - __init__.py
         - version.py
       - hoho_runtime
@@ -127,6 +130,9 @@ _Generated 2026-02-12 09:27 UTC_
 ```
 
 ## Recent Commits
+- 6f711d7 | 2026-02-12 | Merge pull request #18 from chudamax/codex/add-falco-sensor-for-runtime-telemetry
+- 1a4e5dd | 2026-02-12 | Add falco sensor integration with compose rendering and docs
+- 4d26738 | 2026-02-12 | up
 - 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
 - d005368 | 2026-02-12 | Containerize low interaction runtime and enable sensors via compose
 - 748828b | 2026-02-12 | up
@@ -134,9 +140,6 @@ _Generated 2026-02-12 09:27 UTC_
 - 86afe46 | 2026-02-11 | Unify honeypot layout under honeypots/{high,low}/{id}
 - 3577957 | 2026-02-11 | up
 - c250dd7 | 2026-02-11 | Merge pull request #15 from chudamax/codex/add-high-level-interaction-honeypot-for-solr-cve-2017-12629
-- e9d0423 | 2026-02-11 | Add high-interaction Solr CVE-2017-12629 honeypot pack
-- 65edc5b | 2026-02-11 | updates
-- 594d3cd | 2026-02-11 | updates
 
 ## Files (embedded, trimmed)
 > Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
@@ -435,28 +438,28 @@ Low-interaction:
   `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml down -v`
 ```
 
-### `REPO_BRIEF.md`  _(~172.8 KB; showing ≤800 lines)_
+### `REPO_BRIEF.md`  _(~177.4 KB; showing ≤800 lines)_
 ```md
 # Repository Brief: hoho2
 
-_Generated 2026-02-11 15:09 UTC_
+_Generated 2026-02-12 09:39 UTC_
 
 ## Quick Facts
 - **Branch:** main
-- **Commit:** 65e9f6f (2026-02-11 15:38:48 +0100)
-- **Total commits:** 51
-- **Files scanned:** 102
-- **Text files embedded (after filters):** 92
+- **Commit:** 4d26738 (2026-02-12 09:38:48 +0000)
+- **Total commits:** 55
+- **Files scanned:** 97
+- **Text files embedded (after filters):** 97
 
 ## Language & LOC Overview (approx.)
-- **python** — files: 38 (41.3%), LOC: 2207
-- **md** — files: 27 (29.3%), LOC: 6153
-- **bash** — files: 10 (10.9%), LOC: 227
-- **yaml** — files: 7 (7.6%), LOC: 593
-- **other** — files: 5 (5.4%), LOC: 243
-- **json** — files: 2 (2.2%), LOC: 406
-- **toml** — files: 2 (2.2%), LOC: 30
-- **html** — files: 1 (1.1%), LOC: 12
+- **python** — files: 40 (41.2%), LOC: 2296
+- **md** — files: 28 (28.9%), LOC: 6532
+- **bash** — files: 10 (10.3%), LOC: 230
+- **other** — files: 7 (7.2%), LOC: 254
+- **yaml** — files: 7 (7.2%), LOC: 610
+- **json** — files: 2 (2.1%), LOC: 406
+- **toml** — files: 2 (2.1%), LOC: 36
+- **html** — files: 1 (1.0%), LOC: 12
 
 ## Directory Tree (depth ≤ 10)
 
@@ -492,9 +495,11 @@ _Generated 2026-02-11 15:09 UTC_
     - hoho_core
       - pyproject.toml
     - hoho_runtime
+  - runtimes
+    - low_runtime
+      - Dockerfile
   - sensors
     - egress_proxy
-      - Dockerfile
       - entrypoint.sh
     - fsmon
     - http_proxy
@@ -513,6 +518,7 @@ _Generated 2026-02-11 15:09 UTC_
       - example-upload-sink
       - example-web
       - hoho_core
+        - MANIFEST.in
         - __init__.py
         - version.py
       - hoho_runtime
@@ -546,6 +552,8 @@ _Generated 2026-02-11 15:09 UTC_
           - jsonl.py
           - redact.py
           - time.py
+        - container
+          - low_runtime.py
         - orchestration
           - ca_pregen.py
           - compose_down_all.py
@@ -562,16 +570,16 @@ _Generated 2026-02-11 15:09 UTC_
 ```
 
 ## Recent Commits
+- 4d26738 | 2026-02-12 | up
+- 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
+- d005368 | 2026-02-12 | Containerize low interaction runtime and enable sensors via compose
+- 748828b | 2026-02-12 | up
 - 65e9f6f | 2026-02-11 | Merge pull request #16 from chudamax/codex/restructure-honeypots-directory-layout
 - 86afe46 | 2026-02-11 | Unify honeypot layout under honeypots/{high,low}/{id}
 - 3577957 | 2026-02-11 | up
 - c250dd7 | 2026-02-11 | Merge pull request #15 from chudamax/codex/add-high-level-interaction-honeypot-for-solr-cve-2017-12629
 - e9d0423 | 2026-02-11 | Add high-interaction Solr CVE-2017-12629 honeypot pack
 - 65edc5b | 2026-02-11 | updates
-- 594d3cd | 2026-02-11 | updates
-- 824665b | 2026-02-10 | updates
-- 401ce97 | 2026-02-10 | Merge pull request #14 from chudamax/codex/simplify-egress-proxy-tls-mitm-certificates
-- 11bbc2a | 2026-02-10 | Simplify egress TLS MITM cert handling to automatic runtime CA
 
 ## Files (embedded, trimmed)
 [REDACTED]
@@ -870,28 +878,28 @@ Low-interaction:
   `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml down -v`
 ```
 
-### `REPO_BRIEF.md`  _(~166.6 KB; showing ≤800 lines)_
+### `REPO_BRIEF.md`  _(~177.1 KB; showing ≤800 lines)_
 ```md
 # Repository Brief: hoho2
 
-_Generated 2026-02-11 14:08 UTC_
+_Generated 2026-02-12 09:27 UTC_
 
 ## Quick Facts
 - **Branch:** main
-- **Commit:** c250dd7 (2026-02-11 14:35:33 +0100)
-- **Total commits:** 48
-- **Files scanned:** 86
-- **Text files embedded (after filters):** 86
+- **Commit:** 1fdd0df (2026-02-12 10:23:40 +0100)
+- **Total commits:** 54
+- **Files scanned:** 96
+- **Text files embedded (after filters):** 96
 
 ## Language & LOC Overview (approx.)
-- **python** — files: 36 (41.9%), LOC: 1935
-- **md** — files: 23 (26.7%), LOC: 6079
-- **bash** — files: 10 (11.6%), LOC: 233
-- **yaml** — files: 7 (8.1%), LOC: 591
-- **other** — files: 5 (5.8%), LOC: 243
-- **json** — files: 2 (2.3%), LOC: 406
-- **toml** — files: 2 (2.3%), LOC: 30
-- **html** — files: 1 (1.2%), LOC: 12
+- **python** — files: 40 (41.7%), LOC: 2296
+- **md** — files: 28 (29.2%), LOC: 6361
+- **bash** — files: 10 (10.4%), LOC: 230
+- **yaml** — files: 7 (7.3%), LOC: 610
+- **other** — files: 6 (6.2%), LOC: 253
+- **json** — files: 2 (2.1%), LOC: 406
+- **toml** — files: 2 (2.1%), LOC: 30
+- **html** — files: 1 (1.0%), LOC: 12
 
 ## Directory Tree (depth ≤ 10)
 
@@ -915,6 +923,8 @@ _Generated 2026-02-11 14:08 UTC_
     - build_sensors.sh
     - check_docs.sh
     - check_layout.sh
+    - migrate_honeypots_layout.py
+    - validate_honeypots_layout.py
   - deploy
     - compose
       - README.md
@@ -925,29 +935,28 @@ _Generated 2026-02-11 14:08 UTC_
     - hoho_core
       - pyproject.toml
     - hoho_runtime
-  - packs
-    - high
-      - cve-2017-12629_solr_rce.yaml
-      - cve-2020-25213_wp_file_upload.yaml
-      - cve-2021-41773_42013_apache_rce.yaml
-      - example_wp_stack.yaml
-    - low
-      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce.yaml
-      - example_upload_sink.yaml
-      - example_web.yaml
+  - runtimes
+    - low_runtime
+      - Dockerfile
   - sensors
     - egress_proxy
-      - Dockerfile
       - entrypoint.sh
     - fsmon
     - http_proxy
     - pcap
   - honeypots
+    - high
       - cve-2017-12629_solr_rce
         - README.md
+        - honeypot.yaml
         - reset.sh
-      - cve-2021-41773_42013
+      - cve-2020-25213_wp_file_upload
+      - cve-2021-41773_42013_apache_rce
+      - example-wp-stack
+    - low
       - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
+      - example-upload-sink
+      - example-web
       - hoho_core
         - __init__.py
         - version.py
@@ -982,6 +991,8 @@ _Generated 2026-02-11 14:08 UTC_
           - jsonl.py
           - redact.py
           - time.py
+        - container
+          - low_runtime.py
         - orchestration
           - ca_pregen.py
           - compose_down_all.py
@@ -990,23 +1001,24 @@ _Generated 2026-02-11 14:08 UTC_
         - server
           - http.py
           - tcp.py
-        - cgi-bin
-          - health.sh
-        - htdocs
-          - index.html
+        - cve-2021-41773_42013
+          - cgi-bin
+            - health.sh
+          - htdocs
+            - index.html
 ```
 
 ## Recent Commits
+- 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
+- d005368 | 2026-02-12 | Containerize low interaction runtime and enable sensors via compose
+- 748828b | 2026-02-12 | up
+- 65e9f6f | 2026-02-11 | Merge pull request #16 from chudamax/codex/restructure-honeypots-directory-layout
+- 86afe46 | 2026-02-11 | Unify honeypot layout under honeypots/{high,low}/{id}
+- 3577957 | 2026-02-11 | up
 - c250dd7 | 2026-02-11 | Merge pull request #15 from chudamax/codex/add-high-level-interaction-honeypot-for-solr-cve-2017-12629
 - e9d0423 | 2026-02-11 | Add high-interaction Solr CVE-2017-12629 honeypot pack
 - 65edc5b | 2026-02-11 | updates
 - 594d3cd | 2026-02-11 | updates
-- 824665b | 2026-02-10 | updates
-- 401ce97 | 2026-02-10 | Merge pull request #14 from chudamax/codex/simplify-egress-proxy-tls-mitm-certificates
-- 11bbc2a | 2026-02-10 | Simplify egress TLS MITM cert handling to automatic runtime CA
-- 3ceb032 | 2026-02-10 | up
-- 8407a4c | 2026-02-10 | Merge branch 'main' of github.com:chudamax/hoho2
-- 3130cb2 | 2026-02-10 | updates
 
 ## Files (embedded, trimmed)
 [REDACTED]
@@ -1228,14 +1240,6 @@ __marimo__/
 # Generated compose/runtime outputs
 honeypot-platform/deploy/compose/*
 !honeypot-platform/deploy/compose/README.md
-honeypot-platform/run/artifacts/**
-
-honeypot-platform/deploy/compose/**/runtime/ca/**
-```
-
-### `AGENTS.md`  _(~3.1 KB; showing ≤800 lines)_
-```md
-# AGENTS.md (repo root)
 ```
 <!-- trimmed: file exceeded per-file limits -->
 
@@ -1399,7 +1403,7 @@ Responses support `status`, `headers`, `body`, and `bodyFile`. Template syntax i
 The DSL never runs user-provided code. Size limits and truncation decisions should be recorded in `decision` flags whenever request or artifact size guards are crossed.
 ```
 
-### `honeypot-platform/docs/EVENT_SCHEMA.md`  _(~1.2 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/EVENT_SCHEMA.md`  _(~1.5 KB; showing ≤800 lines)_
 ```md
 # Event Schema v1
 
@@ -1432,9 +1436,15 @@ Every event includes:
 ```json
 {"schema_version":1,"component":"sensor.pcap","artifacts":[{"kind":"pcap_segment","storage_ref":"blobs/ab/abcdef..."}]}
 ```
+
+
+## Example: Falco Alert
+```json
+{"schema_version":1,"component":"sensor.falco","proto":"runtime","classification":{"verdict":"alert","tags":["falco","priority:Error","rule:Hoho Shell Spawned in Container"]},"falco":{"rule":"Hoho Shell Spawned in Container","priority":"Error","output_fields":{"proc.cmdline":"/bin/sh","container.id":"abcd1234"}}}
+```
 ```
 
-### `honeypot-platform/docs/PACK_SPEC.md`  _(~1.5 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/PACK_SPEC.md`  _(~1.9 KB; showing ≤800 lines)_
 ```md
 # Honeypot Specification (v1)
 
@@ -1468,6 +1478,7 @@ Every event includes:
 - `stack.runtime`
 - `stack.services`
 - optional `sensors`
+  - includes high-interaction sensor type `falco` for runtime process telemetry and optional enforcement
 
 ## Validation rules
 Schema validation runs first, then semantic checks:
@@ -1480,6 +1491,10 @@ Schema validation runs first, then semantic checks:
 ## Env compatibility note
 Existing env naming is retained for compatibility:
 - `HOHO_PACK_ID == honeypot_id`
+
+
+## Falco sensor config (high only)
+Supported keys under `sensors[].config` for `type: falco` include: `mode`, `engine`, `priority_min`, `rules`, `append_fields`, `any_exec`, and `enforce` (`enabled`, `match_priorities`, `match_rules`, `action`, `cooldown_seconds`).
 ```
 
 ### `honeypot-platform/docs/README.md`  _(~0.2 KB; showing ≤800 lines)_
@@ -1491,7 +1506,7 @@ This directory contains architecture, honeypot specification, sensor, storage, d
 Primary layout reference: `docs/DIRECTORY_LAYOUT.md`.
 ```
 
-### `honeypot-platform/docs/SECURITY.md`  _(~1.1 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/SECURITY.md`  _(~1.5 KB; showing ≤800 lines)_
 ```md
 # Security
 
@@ -1520,9 +1535,15 @@ Captured payloads are treated as opaque bytes. The platform never executes, impo
 - Captured response bodies (including binaries) are untrusted and must be handled as malware-grade content.
 - The generated MITM CA is honeypot-only; never reuse it in production or on analyst workstations.
 [REDACTED]
+
+
+## Falco sensor privilege model
+- `falco` sensor currently uses privileged container mode and host mounts (including Docker socket) for runtime visibility and optional enforcement.
+- Deploy this mode only on isolated honeypot hosts/VPCs dedicated to deception workloads.
+- Treat Falco + Docker API access as high trust: do not co-locate with production workloads or analyst desktops.
 ```
 
-### `honeypot-platform/docs/SENSORS.md`  _(~3.1 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/SENSORS.md`  _(~3.9 KB; showing ≤800 lines)_
 ```md
 # Sensors
 
@@ -1605,6 +1626,16 @@ Runtime env used by renderer:
 
 ## Operational Notes
 Disk usage can grow quickly from uploads and pcap segments. Use external rotation, retention cleanup, and dedicated storage volumes.
+
+
+## Falco Sensor
+- High-interaction runtime behavior telemetry via Falco (process execution, shells, downloaders, network tools, interpreters).
+- Renderer starts `falco-sensor` as privileged (MVP) with Modern eBPF engine by default.
+- Falco writes one-line JSON alerts to a long-running forwarder via `program_output`.
+- Forwarder emits `sensor.falco` canonical events to `<storage.root>/<honeypot_id>/index/events.jsonl`.
+- Alerts are scoped to this compose stack by checking Docker labels (`com.docker.compose.project == hoho-<honeypot_id>`), with optional `attach.services` filtering.
+- Optional enforcement can stop offending container/service/stack and emit a corresponding enforcement event.
+- Required mounts include `/sys/kernel/tracing`, `/proc`, `/etc`, and docker socket (`/var/run/docker.sock`) from host.
 ```
 
 ### `honeypot-platform/docs/STORAGE_LAYOUT.md`  _(~0.5 KB; showing ≤800 lines)_
@@ -2036,7 +2067,7 @@ echo "ok"
 </html>
 ```
 
-### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`  _(~2.2 KB; showing ≤800 lines)_
+### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`  _(~3.1 KB; showing ≤800 lines)_
 ```yaml
 apiVersion: hoho.dev/v1
 kind: HoneypotPack
@@ -2126,6 +2157,23 @@ sensors:
         store_ok_only: true        # default true (2xx/3xx)
         min_bytes: 1               # default 1 (set higher if you want to reduce noise)
         redact_headers: [REDACTED]
+  - name: falco-sensor
+    type: falco
+    attach:
+      services: ["apache"]          # scope alerts to this compose project + these services (recommended)
+    config:
+      priority_min: Warning         # Notice|Warning|Error|Critical
+      rules:
+        - runtime/falco/hoho_rules.yaml   # generated default rules file by renderer
+        # - ./falco/custom_rules.yaml     # optional: your own rules file next to the pack
+      json: true                    # emit JSON alerts
+      enforce:
+        enabled: false              # set true if you want auto-action
+        match_priorities: ["Critical", "Error"]
+        match_rules: []             # optional explicit allowlist of rule names
+        action: stop_container      # stop_container|stop_service|stop_stack
+        delay_seconds: 60           # “schedule kill” after N seconds
+        cooldown_seconds: 120       # don’t repeatedly stop on every alert
 ```
 
 ### `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/reset.sh`  _(~0.8 KB; showing ≤800 lines)_
@@ -2615,6 +2663,11 @@ sensors:
 Shared core primitives for pack validation, event modeling, DSL evaluation, and filesystem artifact storage.
 ```
 
+### `honeypot-platform/packages/hoho_core/hoho_core/MANIFEST.in`  _(~0.0 KB; showing ≤800 lines)_
+```
+recursive-include hoho_core/schema *.json
+```
+
 ### `honeypot-platform/packages/hoho_core/hoho_core/__init__.py`  _(~0.1 KB; showing ≤800 lines)_
 ```python
 from .version import __version__
@@ -2817,7 +2870,7 @@ from .validate import validate_pack
 __all__ = ["validate_pack"]
 ```
 
-### `honeypot-platform/packages/hoho_core/hoho_core/schema/pack_v1.json`  _(~9.9 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/hoho_core/schema/pack_v1.json`  _(~12.8 KB; showing ≤800 lines)_
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2950,7 +3003,8 @@ __all__ = ["validate_pack"]
               "fsmon",
               "proxy",
               "pcap",
-              "egress_proxy"
+              "egress_proxy",
+              "falco"
             ]
           },
           "attach": {
@@ -3117,6 +3171,87 @@ __all__ = ["validate_pack"]
                   }
                 },
                 "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "enum": [
+                      "privileged",
+                      "least_privileged"
+                    ]
+                  },
+                  "engine": {
+                    "enum": [
+                      "modern_ebpf",
+                      "kmod",
+                      "ebpf"
+                    ]
+                  },
+                  "priority_min": {
+                    "enum": [
+                      "Debug",
+                      "Informational",
+                      "Notice",
+                      "Warning",
+                      "Error",
+                      "Critical",
+                      "Emergency"
+                    ]
+                  },
+                  "rules": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "append_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "any_exec": {
+                    "type": "boolean"
+                  },
+                  "enforce": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "match_priorities": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "match_rules": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "action": {
+                        "enum": [
+                          "stop_container",
+                          "stop_service",
+                          "stop_stack"
+                        ]
+                      },
+                      "cooldown_seconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
               }
             ]
           }
@@ -3208,6 +3343,23 @@ __all__ = ["validate_pack"]
                 }
               }
             }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "falco"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "config"
+              ]
+            }
           }
         ],
         "additionalProperties": true
@@ -3218,7 +3370,7 @@ __all__ = ["validate_pack"]
 }
 ```
 
-### `honeypot-platform/packages/hoho_core/hoho_core/schema/validate.py`  _(~2.8 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/hoho_core/schema/validate.py`  _(~3.3 KB; showing ≤800 lines)_
 ```python
 import json
 from pathlib import Path
@@ -3290,6 +3442,16 @@ def validate_pack(pack: dict) -> list[str]:
                 out.append(
                     f"semantic error: {sensor_type} sensor '{sensor_name}' attaches to unknown service '{target_service}'"
                 )
+
+        if sensor_type == "falco":
+            if interaction != "high":
+                out.append(f"semantic error: falco sensor '{sensor_name}' requires metadata.interaction=high")
+            attached_services = attach.get("services", [])
+            for service_name in attached_services:
+                if service_name not in service_names:
+                    out.append(
+                        f"semantic error: falco sensor '{sensor_name}' attaches to unknown service '{service_name}'"
+                    )
 
         if sensor_type == "egress_proxy":
             attached_services = attach.get("services", [])
@@ -3421,7 +3583,7 @@ def utc_iso() -> str:
 __version__ = "0.1.0"
 ```
 
-### `honeypot-platform/packages/hoho_core/pyproject.toml`  _(~0.3 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_core/pyproject.toml`  _(~0.4 KB; showing ≤800 lines)_
 ```toml
 [build-system]
 requires = ["setuptools>=68", "wheel"]
@@ -3438,6 +3600,12 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["hoho_core*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+hoho_core = ["schema/*.json"]
 ```
 
 ### `honeypot-platform/packages/hoho_runtime/README.md`  _(~0.3 KB; showing ≤800 lines)_
@@ -4184,10 +4352,11 @@ def down_all(
     )
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~16.9 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_render.py`  _(~23.5 KB; showing ≤800 lines)_
 ```python
 from copy import deepcopy
 from pathlib import Path, PurePosixPath
+import re
 import shutil
 
 import yaml
@@ -4200,6 +4369,7 @@ SENSOR_IMAGES = {
     "fsmon": "hoho/sensor-fsmon:latest",
     "pcap": "hoho/sensor-pcap:latest",
     "egress_proxy": "hoho/sensor-egress-proxy:latest",
+    "falco": "hoho/sensor-falco:latest",
 }
 
 
@@ -4310,6 +4480,81 @@ def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Pa
     }
 
 
+
+
+def _sanitize_name(value: str) -> str:
+    sanitized = re.sub(r"[^a-z0-9_-]", "-", value.lower()).strip("-_")
+    return sanitized or "hoho"
+
+
+def _default_falco_rules(any_exec: bool) -> str:
+    any_exec_rule = ""
+    if any_exec:
+        any_exec_rule = """
+- rule: Hoho Any Exec in Container
+  desc: Catch all process executions in containers (noisy; optional)
+  condition: container and container.id != host and evt.type = execve and proc.name exists
+  output: >
+    Hoho Any Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Notice
+  tags: [hoho, process, exec]
+"""
+
+    return f"""
+- macro: hoho_container
+  condition: container and container.id != host
+
+- list: hoho_shell_bins
+  items: [sh, bash, ash, dash, zsh, ksh]
+
+- list: hoho_download_bins
+  items: [curl, wget, aria2c, fetch]
+
+- list: hoho_network_bins
+  items: [nc, ncat, socat, nmap]
+
+- list: hoho_interpreter_bins
+  items: [python, python3, perl, php, ruby]
+
+- rule: Hoho Shell Spawned in Container
+  desc: Detect shell execution in container
+  condition: hoho_container and evt.type = execve and proc.name in (hoho_shell_bins)
+  output: >
+    Hoho Shell Spawned | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Error
+  tags: [hoho, process, shell]
+
+- rule: Hoho Downloader Executed in Container
+  desc: Detect downloader process execution in container
+  condition: hoho_container and evt.type = execve and proc.name in (hoho_download_bins)
+  output: >
+    Hoho Downloader Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Warning
+  tags: [hoho, process, downloader]
+
+- rule: Hoho Network Tool Executed in Container
+  desc: Detect network utility execution in container
+  condition: hoho_container and evt.type = execve and proc.name in (hoho_network_bins)
+  output: >
+    Hoho Network Tool Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Warning
+  tags: [hoho, process, network_tool]
+
+- rule: Hoho Interpreter Executed in Container
+  desc: Detect scripting interpreter execution in container
+  condition: hoho_container and evt.type = execve and proc.name in (hoho_interpreter_bins)
+  output: >
+    Hoho Interpreter Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Warning
+  tags: [hoho, process, interpreter]
+{any_exec_rule}
+""".strip() + "\n"
+
 def _inject_egress_proxy_env(service: dict, service_names: list[str], port: int, set_env_bundles: bool):
     env = service.setdefault("environment", {})
     proxy_url = f"http://egress:{port}"
@@ -4341,8 +4586,11 @@ def render_compose(
     shutil.rmtree(root, ignore_errors=True)
     root.mkdir(parents=True, exist_ok=True)
 
-    runtime_dir = root / "runtime" / "ca"
+    runtime_root = root / "runtime"
+    runtime_dir = runtime_root / "ca"
     runtime_dir.mkdir(parents=True, exist_ok=True)
+    falco_runtime_dir = runtime_root / "falco"
+    falco_runtime_dir.mkdir(parents=True, exist_ok=True)
     install_script = runtime_dir / "install-ca.sh"
     install_script.write_text(
         """#!/usr/bin/env sh
@@ -4519,6 +4767,80 @@ exit 0
             if config.get("interface") is not None:
                 sensor_service["environment"]["PCAP_INTERFACE"] = str(config["interface"])
 
+        elif stype == "falco":
+            if interaction != "high":
+                raise ValueError("falco sensor is only supported for high interaction honeypots")
+
+            mode = str(config.get("mode", "privileged"))
+            engine = str(config.get("engine", "modern_ebpf"))
+            priority_min = str(config.get("priority_min", "Warning"))
+            append_fields = _as_list(config.get("append_fields", []))
+            any_exec = _as_bool(config.get("any_exec"), default=False)
+            enforce = config.get("enforce", {})
+            enforce_enabled = _as_bool(enforce.get("enabled"), default=False)
+            enforce_priorities = _as_list(enforce.get("match_priorities", ["Critical", "Error"]))
+            enforce_rules = _as_list(enforce.get("match_rules", []))
+            enforce_action = str(enforce.get("action", "stop_container"))
+            cooldown_seconds = int(enforce.get("cooldown_seconds", 60))
+
+            project_name = _sanitize_name(f"hoho-{pack_id}")
+            attach_services = _as_list(attach.get("services", []))
+            for attach_service_name in attach_services:
+                if attach_service_name not in valid_attach_services:
+                    raise ValueError(f"falco sensor '{sname}' attaches to unknown service '{attach_service_name}'")
+
+            rules_runtime_file = falco_runtime_dir / "hoho_rules.yaml"
+            rules_runtime_file.write_text(_default_falco_rules(any_exec=any_exec), encoding="utf-8")
+
+            sensor_service["environment"].update(
+                {
+                    "FALCO_PRIORITY_MIN": priority_min,
+                    "FALCO_ENGINE": engine,
+                    "FALCO_RULES": "/runtime/falco/hoho_rules.yaml",
+                    "HOHO_FALCO_PROJECT": project_name,
+                    "HOHO_FALCO_ONLY_PROJECT": "true",
+                    "HOHO_FALCO_APPEND_FIELDS": ",".join(str(f) for f in append_fields if f),
+                    "HOHO_FALCO_ENFORCE_ENABLED": "true" if enforce_enabled else "false",
+                    "HOHO_FALCO_ENFORCE_MATCH_PRIORITIES": ",".join(str(x) for x in enforce_priorities),
+                    "HOHO_FALCO_ENFORCE_MATCH_RULES": ",".join(str(x) for x in enforce_rules),
+                    "HOHO_FALCO_ENFORCE_ACTION": enforce_action,
+                    "HOHO_FALCO_ENFORCE_COOLDOWN_SECONDS": str(cooldown_seconds),
+                }
+            )
+            if attach_services:
+                sensor_service["environment"]["HOHO_FALCO_ONLY_SERVICES"] = ",".join(attach_services)
+
+            custom_rules = []
+            for rule_path in _as_list(config.get("rules", [])):
+                if not isinstance(rule_path, str) or not rule_path:
+                    continue
+                if rule_path.startswith("runtime/falco/"):
+                    continue
+                if rule_path.startswith("./"):
+                    rule_src = (Path(honeypot_dir) / rule_path).resolve() if honeypot_dir else None
+                    if rule_src and rule_src.is_file():
+                        dst = falco_runtime_dir / rule_src.name
+                        shutil.copy2(rule_src, dst)
+                        custom_rules.append(f"/runtime/falco/{dst.name}")
+                else:
+                    custom_rules.append(rule_path)
+
+            rules_all = ["/runtime/falco/hoho_rules.yaml", *custom_rules]
+            sensor_service["environment"]["FALCO_RULES"] = ",".join(rules_all)
+
+            sensor_service["volumes"].extend(
+                [
+                    f"{falco_runtime_dir.resolve()}:/runtime/falco:ro",
+                    "/sys/kernel/tracing:/sys/kernel/tracing:ro",
+                    "/proc:/host/proc:ro",
+                    "/etc:/host/etc:ro",
+                    "/var/run/docker.sock:/host/var/run/docker.sock",
+                ]
+            )
+
+            if mode == "privileged":
+                sensor_service["privileged"] = True
+            sensor_service["network_mode"] = "host"
         elif stype == "egress_proxy":
             attach_services = _as_list(attach.get("services", []))
             for attach_service_name in attach_services:
@@ -4943,7 +5265,7 @@ docker build -t hoho/low-runtime:latest -f runtimes/low_runtime/Dockerfile .
 ```
 ```
 
-### `honeypot-platform/scripts/build_sensors.sh`  _(~0.4 KB; showing ≤800 lines)_
+### `honeypot-platform/scripts/build_sensors.sh`  _(~0.5 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -4953,6 +5275,7 @@ docker build -t hoho/sensor-fsmon:latest sensors/fsmon
 docker build -t hoho/sensor-http-proxy:latest sensors/http_proxy
 docker build -t hoho/sensor-pcap:latest sensors/pcap
 docker build -t hoho/sensor-egress-proxy:latest sensors/egress_proxy
+docker build -t hoho/sensor-falco:latest sensors/falco
 
 # low interaction runtime
 docker build -t hoho/low-runtime:latest -f runtimes/low_runtime/Dockerfile .
@@ -5492,6 +5815,319 @@ def main() -> int:
 
     (conf_dir / "mitmproxy-ca.pem").write_bytes(key_pem + cert_pem)
     (conf_dir / "mitmproxy-ca-cert.pem").write_bytes(cert_pem)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+### `honeypot-platform/sensors/falco/Dockerfile`  _(~1.2 KB; showing ≤800 lines)_
+```
+# sensors/falco/Dockerfile
+FROM falcosecurity/falco:0.39.1
+
+USER root
+
+RUN set -eux; \
+    if command -v apt-get >/dev/null 2>&1; then \
+        # Falco image adds download.falco.org repo but may not ship the GPG key -> apt update fails.
+        # We don't need that repo for installing python.
+        rm -f /etc/apt/sources.list.d/*falco* /etc/apt/sources.list.d/*falcosecurity* || true; \
+        # Also remove any list that references download.falco.org, just in case
+        grep -Rls "download.falco.org" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null | xargs -r rm -f || true; \
+        apt-get update; \
+        apt-get install -y --no-install-recommends python3 python3-pip ca-certificates; \
+        rm -rf /var/lib/apt/lists/*; \
+    else \
+        echo "Expected apt-get in Falco base image, but not found"; \
+        exit 1; \
+    fi
+
+WORKDIR /app
+
+# Forwarder that converts Falco JSON alerts -> hoho events.jsonl
+COPY forwarder.py /app/forwarder.py
+COPY entrypoint.sh /app/entrypoint.sh
+
+# If your forwarder talks to docker.sock, you likely want the docker SDK
+RUN set -eux; \
+    python3 -m pip install --no-cache-dir --break-system-packages docker requests; \
+    chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+```
+
+### `honeypot-platform/sensors/falco/README.md`  _(~0.4 KB; showing ≤800 lines)_
+```md
+# Falco Sensor
+
+Falco sensor runs Falco with JSON + program output and forwards alerts into Hoho canonical events under `index/events.jsonl`.
+
+## Environment
+- `HOHO_PACK_ID`
+- `HOHO_STORAGE_BACKEND=filesystem`
+- `HOHO_STORAGE_ROOT=/artifacts`
+- `FALCO_PRIORITY_MIN`
+- `FALCO_RULES`
+- `HOHO_FALCO_ONLY_PROJECT`
+- `HOHO_FALCO_PROJECT`
+- `HOHO_FALCO_ONLY_SERVICES`
+- `HOHO_FALCO_ENFORCE_*`
+```
+
+### `honeypot-platform/sensors/falco/entrypoint.sh`  _(~0.9 KB; showing ≤800 lines)_
+```bash
+#!/usr/bin/env sh
+set -eu
+
+RULES_CSV="${FALCO_RULES:-/runtime/falco/hoho_rules.yaml}"
+PRIORITY_MIN="${FALCO_PRIORITY_MIN:-Warning}"
+ENGINE="${FALCO_ENGINE:-modern_ebpf}"
+APPEND_FIELDS="${HOHO_FALCO_APPEND_FIELDS:-}"
+
+FALCO_ARGS="--unbuffered -o json_output=true -o priority=${PRIORITY_MIN} -o program_output.enabled=true -o program_output.keep_alive=true -o program_output.program='python3 /app/forwarder.py'"
+
+if [ "$ENGINE" = "modern_ebpf" ]; then
+  FALCO_ARGS="$FALCO_ARGS -o engine.kind=modern_ebpf"
+fi
+
+if [ -n "$APPEND_FIELDS" ]; then
+  OLDIFS="$IFS"
+  IFS=','
+  for field in $APPEND_FIELDS; do
+    [ -n "$field" ] || continue
+    FALCO_ARGS="$FALCO_ARGS -o append_output[]=${field}"
+  done
+  IFS="$OLDIFS"
+fi
+
+OLDIFS="$IFS"
+IFS=','
+for rule_file in $RULES_CSV; do
+  [ -n "$rule_file" ] || continue
+  FALCO_ARGS="$FALCO_ARGS -r $rule_file"
+done
+IFS="$OLDIFS"
+
+# shellcheck disable=SC2086
+exec sh -c "falco $FALCO_ARGS"
+```
+
+### `honeypot-platform/sensors/falco/forwarder.py`  _(~7.4 KB; showing ≤800 lines)_
+```python
+import json
+import os
+import sys
+import time
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib import request
+
+PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
+EVENTS_PATH = ROOT / PACK_ID / "index" / "events.jsonl"
+ONLY_PROJECT = os.getenv("HOHO_FALCO_ONLY_PROJECT", "true").strip().lower() in {"1", "true", "yes", "on"}
+PROJECT = os.getenv("HOHO_FALCO_PROJECT", "")
+ONLY_SERVICES = {s for s in os.getenv("HOHO_FALCO_ONLY_SERVICES", "").split(",") if s}
+ENFORCE_ENABLED = os.getenv("HOHO_FALCO_ENFORCE_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
+ENFORCE_PRIORITIES = {x for x in os.getenv("HOHO_FALCO_ENFORCE_MATCH_PRIORITIES", "Critical,Error").split(",") if x}
+ENFORCE_RULES = {x for x in os.getenv("HOHO_FALCO_ENFORCE_MATCH_RULES", "").split(",") if x}
+ENFORCE_ACTION = os.getenv("HOHO_FALCO_ENFORCE_ACTION", "stop_container")
+ENFORCE_COOLDOWN_SECONDS = int(os.getenv("HOHO_FALCO_ENFORCE_COOLDOWN_SECONDS", "60"))
+DOCKER_SOCK = "/host/var/run/docker.sock"
+_last_enforce = {}
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def append_event(event: dict) -> None:
+    EVENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with EVENTS_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(event) + "\n")
+
+
+def docker_api(path: str, method: str = "GET"):
+    opener = request.build_opener(request.ProxyHandler({}))
+    opener.add_handler(request.HTTPHandler())
+    url = f"http://localhost{path}"
+    req = request.Request(url, method=method)
+    req.add_header("Host", "docker")
+    return opener.open(req, timeout=3)
+
+
+def docker_request(path: str, method: str = "GET"):
+    import http.client
+
+    conn = http.client.HTTPConnection("localhost")
+    conn.sock = __import__("socket").socket(__import__("socket").AF_UNIX, __import__("socket").SOCK_STREAM)
+    conn.sock.connect(DOCKER_SOCK)
+    conn.request(method, path)
+    resp = conn.getresponse()
+    data = resp.read()
+    conn.close()
+    return resp.status, data
+
+
+def inspect_container(container_id: str) -> dict:
+    status, body = docker_request(f"/containers/{container_id}/json")
+    if status >= 400:
+        return {}
+    try:
+        return json.loads(body.decode("utf-8"))
+    except Exception:
+        return {}
+
+
+def stop_container(container_id: str) -> bool:
+    status, _ = docker_request(f"/containers/{container_id}/stop?t=5", method="POST")
+    return status < 400
+
+
+def list_project_containers(project: str) -> list[str]:
+    status, body = docker_request("/containers/json")
+    if status >= 400:
+        return []
+    items = json.loads(body.decode("utf-8"))
+    out = []
+    for item in items:
+        labels = item.get("Labels", {})
+        if labels.get("com.docker.compose.project") == project:
+            out.append(item.get("Id", ""))
+    return [x for x in out if x]
+
+
+def extract_container_id(alert: dict) -> str:
+    fields = alert.get("output_fields", {}) or {}
+    container_id = fields.get("container.id")
+    if not container_id or container_id == "<NA>":
+        return ""
+    return str(container_id)
+
+
+def should_keep(alert: dict):
+    container_id = extract_container_id(alert)
+    if not container_id:
+        return False, "", ""
+    inspect = inspect_container(container_id)
+    labels = inspect.get("Config", {}).get("Labels", {}) if inspect else {}
+    project = labels.get("com.docker.compose.project", "")
+    service = labels.get("com.docker.compose.service", "")
+    if ONLY_PROJECT and PROJECT and project != PROJECT:
+        return False, project, service
+    if ONLY_SERVICES and service not in ONLY_SERVICES:
+        return False, project, service
+    return True, project, service
+
+
+def should_enforce(alert: dict) -> bool:
+    if not ENFORCE_ENABLED:
+        return False
+    rule = str(alert.get("rule", ""))
+    priority = str(alert.get("priority", ""))
+    if ENFORCE_RULES and rule in ENFORCE_RULES:
+        return True
+    if priority in ENFORCE_PRIORITIES:
+        return True
+    return False
+
+
+def maybe_enforce(alert: dict, project: str, service: str) -> dict | None:
+    if not should_enforce(alert):
+        return None
+    container_id = extract_container_id(alert)
+    if not container_id:
+        return None
+
+    key = (ENFORCE_ACTION, container_id, project)
+    now = time.time()
+    last = _last_enforce.get(key, 0)
+    if now - last < ENFORCE_COOLDOWN_SECONDS:
+        return None
+    _last_enforce[key] = now
+
+    result = {"ok": False, "targets": []}
+    if ENFORCE_ACTION in {"stop_container", "stop_service"}:
+        result["targets"] = [container_id]
+        result["ok"] = stop_container(container_id)
+    elif ENFORCE_ACTION == "stop_stack" and project:
+        targets = list_project_containers(project)
+        result["targets"] = targets
+        result["ok"] = all(stop_container(cid) for cid in targets) if targets else False
+    return result
+
+
+def make_base_event(alert: dict) -> dict:
+    rule = str(alert.get("rule", "unknown"))
+    priority = str(alert.get("priority", "Notice"))
+    tags = ["falco", f"priority:{priority}", f"rule:{rule}"] + [str(t) for t in (alert.get("tags") or [])]
+    return {
+        "schema_version": 1,
+        "event_id": f"falco-{uuid.uuid4().hex}",
+        "ts": now_iso(),
+        "pack_id": PACK_ID,
+        "interaction": "high",
+        "component": "sensor.falco",
+        "src": {"ip": None, "port": None, "forwarded_for": [], "user_agent": None},
+        "proto": "runtime",
+        "request": {},
+        "response": {"status_code": None, "bytes_sent": 0, "profile": None},
+        "classification": {"verdict": "alert", "tags": tags, "indicators": [rule]},
+        "decision": {"truncated": False, "oversized": False, "rate_limited": False, "dropped": False},
+        "artifacts": [],
+        "falco": {
+            "time": alert.get("time"),
+            "rule": rule,
+            "priority": priority,
+            "source": alert.get("source"),
+            "output": alert.get("output"),
+            "output_fields": alert.get("output_fields", {}),
+            "tags": alert.get("tags", []),
+        },
+    }
+
+
+def main() -> int:
+    for raw in sys.stdin:
+        line = raw.strip()
+        if not line:
+            continue
+        try:
+            alert = json.loads(line)
+        except Exception:
+            print(f"[falco-forwarder] failed to parse alert line: {line[:300]}", file=sys.stderr)
+            continue
+
+        keep, project, service = should_keep(alert)
+        if not keep:
+            continue
+
+        ev = make_base_event(alert)
+        ev["classification"]["tags"].extend([f"compose_project:{project}", f"compose_service:{service}"])
+        append_event(ev)
+
+        enforce_result = maybe_enforce(alert, project=project, service=service)
+        if enforce_result is not None:
+            append_event(
+                {
+                    **ev,
+                    "event_id": f"falco-enforce-{uuid.uuid4().hex}",
+                    "classification": {
+                        "verdict": "enforcement",
+                        "tags": ["falco", "enforcement", f"action:{ENFORCE_ACTION}"],
+                        "indicators": ev["classification"]["indicators"],
+                    },
+                    "falco_enforcement": {
+                        "action": ENFORCE_ACTION,
+                        "ok": enforce_result.get("ok", False),
+                        "targets": enforce_result.get("targets", []),
+                    },
+                }
+            )
+
     return 0
 
 

@@ -188,6 +188,14 @@ def main() -> int:
             continue
 
         ev = make_base_event(alert)
+        # Stamp static context here (no Falco append_output needed)
+        ev["falco"]["output_fields"] = ev["falco"].get("output_fields", {}) or {}
+        ev["falco"]["output_fields"].update(
+            {
+                "honeypot_id": PACK_ID,
+                "sensor": "falco",
+            }
+        )
         ev["classification"]["tags"].extend([f"compose_project:{project}", f"compose_service:{service}"])
         append_event(ev)
 
