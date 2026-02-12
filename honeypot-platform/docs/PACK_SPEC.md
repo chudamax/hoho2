@@ -47,3 +47,7 @@ Existing env naming is retained for compatibility:
 
 ## Falco sensor config (high only)
 Supported keys under `sensors[].config` for `type: falco` include: `mode`, `engine`, `priority_min`, `rules`, `append_fields`, `any_exec`, and `enforce` (`enabled`, `match_priorities`, `match_rules`, `action`, `cooldown_seconds`).
+
+Default rules are bundled in the Falco sensor image and always loaded first from `/app/rules/hoho_rules.yaml`.
+Setting `any_exec: true` also loads `/app/rules/hoho_any_exec.yaml`.
+Use `rules` to add custom rule files/overrides that load after these defaults.

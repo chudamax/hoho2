@@ -1,12 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-RULES_CSV="${FALCO_RULES:-/runtime/falco/hoho_rules.yaml}"
+RULES_CSV="${FALCO_RULES:-/app/rules/hoho_rules.yaml}"
 PRIORITY_MIN="${FALCO_PRIORITY_MIN:-Warning}"
 ENGINE="${FALCO_ENGINE:-modern_ebpf}"
 APPEND_FIELDS="${HOHO_FALCO_APPEND_FIELDS:-}"
 
-# Build args safely (no string concatenation)
 set -- falco --unbuffered \
   -o json_output=true \
   -o "priority=${PRIORITY_MIN}" \
@@ -18,31 +17,28 @@ if [ "$ENGINE" = "modern_ebpf" ]; then
   set -- "$@" -o engine.kind=modern_ebpf
 fi
 
-# Convert HOHO_FALCO_APPEND_FIELDS (CSV) into a single append_output[] JSON object:
-# - "evt.hostname" stays a string field
-# - "k=v" becomes {"k":"v"}
-# Falco expects append_output entries as objects. :contentReference[oaicite:1]{index=1}
 if [ -n "$APPEND_FIELDS" ]; then
   APPEND_JSON="$(python3 - <<'PY'
-import os, json
+import json
+import os
+
 csv = os.environ.get("HOHO_FALCO_APPEND_FIELDS", "")
 extra_fields = []
 for raw in csv.split(","):
-    raw = raw.strip()
-    if not raw:
+    item = raw.strip()
+    if not item:
         continue
-    if "=" in raw:
-        k, v = raw.split("=", 1)
-        k = k.strip()
-        v = v.strip()
-        if k:
-            extra_fields.append({k: v})
+    if "=" in item:
+        key, value = item.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if key:
+            extra_fields.append({key: value})
     else:
-        extra_fields.append(raw)  # e.g. "evt.hostname"
+        extra_fields.append(item)
 
 if extra_fields:
-    obj = {"match": {"source": "syscall"}, "extra_fields": extra_fields}
-    print(json.dumps(obj))
+    print(json.dumps({"match": {"source": "syscall"}, "extra_fields": extra_fields}))
 PY
 )"
   if [ -n "$APPEND_JSON" ]; then
@@ -50,16 +46,14 @@ PY
   fi
 fi
 
-# Add rule files
 OLDIFS="$IFS"
 IFS=','
-
 for rule_file in $RULES_CSV; do
-  [ -n "$rule_file" ] || continue
-  set -- "$@" -r "$rule_file"
+  trimmed="$(printf '%s' "$rule_file" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  [ -n "$trimmed" ] || continue
+  set -- "$@" -r "$trimmed"
 done
-
 IFS="$OLDIFS"
 
-echo "$@"
+printf 'Starting Falco command: %s\n' "$*"
 exec "$@"

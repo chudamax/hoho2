@@ -1,0 +1,50 @@
+- macro: hoho_container
+  condition: container.id != "host" and container.id != "" and container.id != "<NA>"
+
+- list: hoho_shell_bins
+  items: [sh, bash, ash, dash, zsh, ksh]
+
+- list: hoho_download_bins
+  items: [curl, wget, aria2c, fetch]
+
+- list: hoho_network_bins
+  items: [nc, ncat, socat, nmap]
+
+- list: hoho_interpreter_bins
+  items: [python, python3, perl, php, ruby]
+
+- rule: Hoho Shell Spawned in Container
+  desc: Detect shell execution in container
+  condition: hoho_container and evt.type=execve and proc.name in (hoho_shell_bins)
+  output: >
+    Hoho Shell Spawned | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: ERROR
+  tags: [hoho, process, shell]
+
+- rule: Hoho Downloader Executed in Container
+  desc: Detect downloader process execution in container
+  condition: hoho_container and evt.type=execve and proc.name in (hoho_download_bins)
+  output: >
+    Hoho Downloader Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: WARNING
+  tags: [hoho, process, downloader]
+
+- rule: Hoho Network Tool Executed in Container
+  desc: Detect network utility execution in container
+  condition: hoho_container and evt.type=execve and proc.name in (hoho_network_bins)
+  output: >
+    Hoho Network Tool Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: WARNING
+  tags: [hoho, process, network_tool]
+
+- rule: Hoho Interpreter Executed in Container
+  desc: Detect scripting interpreter execution in container
+  condition: hoho_container and evt.type=execve and proc.name in (hoho_interpreter_bins)
+  output: >
+    Hoho Interpreter Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: WARNING
+  tags: [hoho, process, interpreter]

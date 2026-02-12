@@ -84,8 +84,11 @@ Disk usage can grow quickly from uploads and pcap segments. Use external rotatio
 ## Falco Sensor
 - High-interaction runtime behavior telemetry via Falco (process execution, shells, downloaders, network tools, interpreters).
 - Renderer starts `falco-sensor` as privileged (MVP) with Modern eBPF engine by default.
+- Default Hoho Falco rules are shipped in the image under `/app/rules/hoho_rules.yaml`.
+- `any_exec: true` appends an additional noisy default rules file from `/app/rules/hoho_any_exec.yaml`.
 - Falco writes one-line JSON alerts to a long-running forwarder via `program_output`.
 - Forwarder emits `sensor.falco` canonical events to `<storage.root>/<honeypot_id>/index/events.jsonl`.
 - Alerts are scoped to this compose stack by checking Docker labels (`com.docker.compose.project == hoho-<honeypot_id>`), with optional `attach.services` filtering.
+- `sensors[].config.rules` adds extra rule files/overrides loaded after image defaults.
 - Optional enforcement can stop offending container/service/stack and emit a corresponding enforcement event.
 - Required mounts include `/sys/kernel/tracing`, `/proc`, `/etc`, and docker socket (`/var/run/docker.sock`) from host.

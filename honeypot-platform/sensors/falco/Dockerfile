@@ -23,6 +23,7 @@ WORKDIR /app
 # Forwarder that converts Falco JSON alerts -> hoho events.jsonl
 COPY forwarder.py /app/forwarder.py
 COPY entrypoint.sh /app/entrypoint.sh
+COPY rules/*.yaml /app/rules/
 
 # If your forwarder talks to docker.sock, you likely want the docker SDK
 RUN set -eux; \
