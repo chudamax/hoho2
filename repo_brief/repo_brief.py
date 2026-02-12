@@ -44,7 +44,9 @@ DEFAULT_IGNORES = {
     ".git",".hg",".svn",".DS_Store","__pycache__",".mypy_cache",".pytest_cache",".cache",
     ".idea",".vscode","node_modules","dist","build","out",".next",".nuxt",".parcel-cache",
     "target","bin","obj",".venv","venv","env",".tox",".coverage","coverage",".terraform",
-    ".gradle",".serverless",".docusaurus","migrations","repo_brief"
+    ".gradle",".serverless",".docusaurus","migrations","repo_brief","sensors/egress_proxy/packages",
+    "sensors/egress_proxy/packages","sensors/falco/packages","sensors/fsmon/packages",
+    "sensors/http_proxy/packages","sensors/pcap/packages"
 }
 
 BINARY_EXTS = {
