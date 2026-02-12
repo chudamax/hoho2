@@ -1,0 +1,11 @@
+- macro: hoho_container
+  condition: container.id != "host" and container.id != "" and container.id != "<NA>"
+
+- rule: Hoho Any Exec in Container
+  desc: Catch all process executions in containers (noisy; optional)
+  condition: hoho_container and evt.type=execve and proc.name exists
+  output: >
+    Hoho Any Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: NOTICE
+  tags: [hoho, process, exec]

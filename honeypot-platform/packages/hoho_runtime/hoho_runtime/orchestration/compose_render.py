@@ -131,74 +131,6 @@ def _sanitize_name(value: str) -> str:
     return sanitized or "hoho"
 
 
-def _default_falco_rules(any_exec: bool) -> str:
-    any_exec_rule = ""
-    if any_exec:
-        any_exec_rule = """
-- rule: Hoho Any Exec in Container
-  desc: Catch all process executions in containers (noisy; optional)
-  condition: container and container.id != host and evt.type = execve and proc.name exists
-  output: >
-    Hoho Any Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Notice
-  tags: [hoho, process, exec]
-"""
-
-    return f"""
-- macro: hoho_container
-  condition: container and container.id != host
-
-- list: hoho_shell_bins
-  items: [sh, bash, ash, dash, zsh, ksh]
-
-- list: hoho_download_bins
-  items: [curl, wget, aria2c, fetch]
-
-- list: hoho_network_bins
-  items: [nc, ncat, socat, nmap]
-
-- list: hoho_interpreter_bins
-  items: [python, python3, perl, php, ruby]
-
-- rule: Hoho Shell Spawned in Container
-  desc: Detect shell execution in container
-  condition: hoho_container and evt.type = execve and proc.name in (hoho_shell_bins)
-  output: >
-    Hoho Shell Spawned | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Error
-  tags: [hoho, process, shell]
-
-- rule: Hoho Downloader Executed in Container
-  desc: Detect downloader process execution in container
-  condition: hoho_container and evt.type = execve and proc.name in (hoho_download_bins)
-  output: >
-    Hoho Downloader Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Warning
-  tags: [hoho, process, downloader]
-
-- rule: Hoho Network Tool Executed in Container
-  desc: Detect network utility execution in container
-  condition: hoho_container and evt.type = execve and proc.name in (hoho_network_bins)
-  output: >
-    Hoho Network Tool Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Warning
-  tags: [hoho, process, network_tool]
-
-- rule: Hoho Interpreter Executed in Container
-  desc: Detect scripting interpreter execution in container
-  condition: hoho_container and evt.type = execve and proc.name in (hoho_interpreter_bins)
-  output: >
-    Hoho Interpreter Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
-    container_id=%container.id image=%container.image.repository
-  priority: Warning
-  tags: [hoho, process, interpreter]
-{any_exec_rule}
-""".strip() + "\n"
-
 def _inject_egress_proxy_env(service: dict, service_names: list[str], port: int, set_env_bundles: bool):
     env = service.setdefault("environment", {})
     proxy_url = f"http://egress:{port}"
@@ -433,14 +365,15 @@ exit 0
                 if attach_service_name not in valid_attach_services:
                     raise ValueError(f"falco sensor '{sname}' attaches to unknown service '{attach_service_name}'")
 
-            rules_runtime_file = falco_runtime_dir / "hoho_rules.yaml"
-            rules_runtime_file.write_text(_default_falco_rules(any_exec=any_exec), encoding="utf-8")
+            default_rules = ["/app/rules/hoho_rules.yaml"]
+            if any_exec:
+                default_rules.append("/app/rules/hoho_any_exec.yaml")
 
             sensor_service["environment"].update(
                 {
                     "FALCO_PRIORITY_MIN": priority_min,
                     "FALCO_ENGINE": engine,
-                    "FALCO_RULES": "/runtime/falco/hoho_rules.yaml",
+                    "FALCO_RULES": ",".join(default_rules),
                     "HOHO_FALCO_PROJECT": project_name,
                     "HOHO_FALCO_ONLY_PROJECT": "true",
                     "HOHO_FALCO_APPEND_FIELDS": ",".join(str(f) for f in append_fields if f),
@@ -469,7 +402,7 @@ exit 0
                 else:
                     custom_rules.append(rule_path)
 
-            rules_all = ["/runtime/falco/hoho_rules.yaml", *custom_rules]
+            rules_all = [*default_rules, *custom_rules]
             sensor_service["environment"]["FALCO_RULES"] = ",".join(rules_all)
 
             sensor_service["volumes"].extend(

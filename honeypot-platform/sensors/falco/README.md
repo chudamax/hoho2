@@ -12,3 +12,9 @@ Falco sensor runs Falco with JSON + program output and forwards alerts into Hoho
 - `HOHO_FALCO_PROJECT`
 - `HOHO_FALCO_ONLY_SERVICES`
 - `HOHO_FALCO_ENFORCE_*`
+
+## Default image rules
+- `/app/rules/hoho_rules.yaml`
+- `/app/rules/hoho_any_exec.yaml` (enabled by renderer when `any_exec: true`)
+
+Additional `sensors[].config.rules` files are appended after defaults.
