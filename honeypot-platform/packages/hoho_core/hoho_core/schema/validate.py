@@ -69,6 +69,16 @@ def validate_pack(pack: dict) -> list[str]:
                     f"semantic error: {sensor_type} sensor '{sensor_name}' attaches to unknown service '{target_service}'"
                 )
 
+        if sensor_type == "falco":
+            if interaction != "high":
+                out.append(f"semantic error: falco sensor '{sensor_name}' requires metadata.interaction=high")
+            attached_services = attach.get("services", [])
+            for service_name in attached_services:
+                if service_name not in service_names:
+                    out.append(
+                        f"semantic error: falco sensor '{sensor_name}' attaches to unknown service '{service_name}'"
+                    )
+
         if sensor_type == "egress_proxy":
             attached_services = attach.get("services", [])
             for service_name in attached_services:

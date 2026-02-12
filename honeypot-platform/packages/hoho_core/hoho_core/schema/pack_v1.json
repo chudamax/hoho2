@@ -129,7 +129,8 @@
               "fsmon",
               "proxy",
               "pcap",
-              "egress_proxy"
+              "egress_proxy",
+              "falco"
             ]
           },
           "attach": {
@@ -296,6 +297,87 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "enum": [
+                      "privileged",
+                      "least_privileged"
+                    ]
+                  },
+                  "engine": {
+                    "enum": [
+                      "modern_ebpf",
+                      "kmod",
+                      "ebpf"
+                    ]
+                  },
+                  "priority_min": {
+                    "enum": [
+                      "Debug",
+                      "Informational",
+                      "Notice",
+                      "Warning",
+                      "Error",
+                      "Critical",
+                      "Emergency"
+                    ]
+                  },
+                  "rules": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "append_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "any_exec": {
+                    "type": "boolean"
+                  },
+                  "enforce": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "match_priorities": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "match_rules": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "action": {
+                        "enum": [
+                          "stop_container",
+                          "stop_service",
+                          "stop_stack"
+                        ]
+                      },
+                      "cooldown_seconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
               }
             ]
           }
@@ -386,6 +468,23 @@
                   ]
                 }
               }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "falco"
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "then": {
+              "required": [
+                "config"
+              ]
             }
           }
         ],

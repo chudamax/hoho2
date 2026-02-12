@@ -79,3 +79,13 @@ Runtime env used by renderer:
 
 ## Operational Notes
 Disk usage can grow quickly from uploads and pcap segments. Use external rotation, retention cleanup, and dedicated storage volumes.
+
+
+## Falco Sensor
+- High-interaction runtime behavior telemetry via Falco (process execution, shells, downloaders, network tools, interpreters).
+- Renderer starts `falco-sensor` as privileged (MVP) with Modern eBPF engine by default.
+- Falco writes one-line JSON alerts to a long-running forwarder via `program_output`.
+- Forwarder emits `sensor.falco` canonical events to `<storage.root>/<honeypot_id>/index/events.jsonl`.
+- Alerts are scoped to this compose stack by checking Docker labels (`com.docker.compose.project == hoho-<honeypot_id>`), with optional `attach.services` filtering.
+- Optional enforcement can stop offending container/service/stack and emit a corresponding enforcement event.
+- Required mounts include `/sys/kernel/tracing`, `/proc`, `/etc`, and docker socket (`/var/run/docker.sock`) from host.
