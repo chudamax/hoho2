@@ -16,6 +16,10 @@
 - `telemetry`: event emission + redaction controls
 - `sensors`: optional for both low and high interaction honeypots
 
+### Telemetry note
+- `telemetry.forwarding` is deprecated and ignored.
+- Shipping to hub is external runtime behavior via `hoho ship` + global env (`HOHO_HUB_URL`, `HOHO_HUB_TOKEN`, optional `HOHO_FORWARD_FILTERS_JSON`).
+
 ## Layout constraints
 - `metadata.id` MUST match the folder name `<honeypot_id>`.
 - Local relative paths in YAML must resolve inside the same honeypot folder.
@@ -43,7 +47,6 @@ Schema validation runs first, then semantic checks:
 ## Env compatibility note
 Existing env naming is retained for compatibility:
 - `HOHO_PACK_ID == honeypot_id`
-
 
 ## Falco sensor config (high only)
 Supported keys under `sensors[].config` for `type: falco` include: `mode`, `engine`, `priority_min`, `rules`, `append_fields`, `any_exec`, and `enforce` (`enabled`, `match_priorities`, `match_rules`, `action`, `cooldown_seconds`).

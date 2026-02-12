@@ -16,7 +16,9 @@ from hoho_runtime.orchestration.compose_down_all import down_all
 from hoho_runtime.orchestration.compose_render import render_compose
 from hoho_runtime.orchestration.compose_run import run_compose
 from hoho_runtime.orchestration.ca_pregen import EgressCAError, ensure_egress_ca
+from hoho_runtime.orchestration.hub_manage import hub_down, hub_logs, hub_up
 from hoho_runtime.server.http import run_low_http
+from hoho_runtime.telemetry.shipper import run_shipper
 
 HONEYPOTS_DIRNAME = "honeypots"
 LEVEL_DIRS = ("high", "low")
@@ -166,32 +168,6 @@ def _load_global_env(args: argparse.Namespace, repo_root: Path) -> Path | None:
     return env_file
 
 
-def _require_forwarding_env(pack: dict) -> None:
-    telemetry = pack.get("telemetry", {})
-    forwarding = telemetry.get("forwarding", {}) if isinstance(telemetry, dict) else {}
-    if not _bool_enabled(forwarding.get("enabled"), default=False):
-        return
-
-    token_env = str(forwarding.get("token_env", "")).strip()
-    hub_url = str(forwarding.get("hub_url", "")).strip()
-
-    missing: list[str] = []
-    if hub_url.startswith("${") and hub_url.endswith("}"):
-        hub_url_env = hub_url[2:-1]
-        if hub_url_env and not os.environ.get(hub_url_env):
-            missing.append(hub_url_env)
-    elif not hub_url:
-        missing.append("telemetry.forwarding.hub_url")
-
-    if token_env and not os.environ.get(token_env):
-        missing.append(token_env)
-
-    if missing:
-        raise SystemExit(
-            "ERROR: telemetry forwarding is enabled but required environment values are missing: "
-            + ", ".join(missing)
-        )
-
 def _session_metadata(honeypot_id: str) -> dict:
     return {
         "honeypot_id": honeypot_id,
@@ -230,13 +206,23 @@ def _bool_enabled(value: object, default: bool = False) -> bool:
         return bool(value)
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
+
+
+def _report_validation(messages: list[str]) -> bool:
+    has_errors = False
+    for message in messages:
+        if message.lower().startswith("warning:"):
+            print(message.replace("warning:", "WARNING:", 1))
+            continue
+        print(f"ERROR: {message}")
+        has_errors = True
+    return has_errors
+
 def cmd_validate(args):
     pack_path = _resolve_pack_arg(args.pack, Path.cwd())
     pack = load_pack(str(pack_path))
-    errors = validate_pack(pack)
-    if errors:
-        for e in errors:
-            print(f"ERROR: {e}")
+    messages = validate_pack(pack)
+    if _report_validation(messages):
         raise SystemExit(1)
     print("valid")
 
@@ -246,16 +232,13 @@ def cmd_render_compose(args):
     project_root = _guess_project_root(pack_path)
 
     pack = load_pack(str(pack_path))
-    errors = validate_pack(pack)
-    if errors:
-        for e in errors:
-            print(f"ERROR: {e}")
+    messages = validate_pack(pack)
+    if _report_validation(messages):
         raise SystemExit(1)
 
     honeypot_id = pack["metadata"]["id"]
     _warn_if_run_id_used(args.run_id)
     out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
-    _require_forwarding_env(pack)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
     session = _session_metadata(honeypot_id)
     out = render_compose(
@@ -273,13 +256,10 @@ def cmd_run(args):
     pack_path = _resolve_pack_arg(args.pack, Path.cwd())
     project_root = _guess_project_root(pack_path)
     pack = load_pack(str(pack_path))
-    errors = validate_pack(pack)
-    if errors:
-        for e in errors:
-            print(f"ERROR: {e}")
+    messages = validate_pack(pack)
+    if _report_validation(messages):
         raise SystemExit(1)
 
-    _require_forwarding_env(pack)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
     interaction = pack["metadata"]["interaction"]
 
@@ -378,6 +358,52 @@ def cmd_down_all(args):
         raise SystemExit(2)
 
 
+
+def cmd_ship(args):
+    repo_root = _resolve_repo_root(Path.cwd())
+    artifacts_root = Path(args.artifacts_root).expanduser()
+    if not artifacts_root.is_absolute():
+        artifacts_root = (repo_root / artifacts_root).resolve()
+
+    hub_url = (args.hub_url or os.getenv("HOHO_HUB_URL", "")).strip()
+    if not hub_url:
+        print("ERROR: hub url missing; set HOHO_HUB_URL or pass --hub-url")
+        raise SystemExit(2)
+
+    once = bool(args.once)
+    follow = bool(args.follow)
+    if not once and not follow:
+        follow = True
+    if follow:
+        once = False
+
+    rc = run_shipper(
+        artifacts_root=artifacts_root,
+        hub_url=hub_url,
+        honeypot_ids=args.honeypot or None,
+        once=once,
+        interval_seconds=float(args.interval_seconds),
+        token_env=args.token_env,
+        cursor_name=args.cursor_name,
+        max_events=args.max_events,
+    )
+    raise SystemExit(rc)
+
+
+def cmd_hub_up(args):
+    repo_root = _resolve_repo_root(Path.cwd())
+    raise SystemExit(hub_up(repo_root, getattr(args, "_resolved_env_file", None)))
+
+
+def cmd_hub_down(args):
+    repo_root = _resolve_repo_root(Path.cwd())
+    raise SystemExit(hub_down(repo_root, getattr(args, "_resolved_env_file", None)))
+
+
+def cmd_hub_logs(args):
+    repo_root = _resolve_repo_root(Path.cwd())
+    raise SystemExit(hub_logs(repo_root, getattr(args, "_resolved_env_file", None)))
+
 def main():
     parser = argparse.ArgumentParser(prog="hoho")
     parser.add_argument("--env-file", default=None)
@@ -408,6 +434,30 @@ def main():
     p_ex = sub.add_parser("explain")
     p_ex.add_argument("pack")
     p_ex.set_defaults(func=cmd_explain)
+
+    p_ship = sub.add_parser("ship")
+    p_ship.add_argument("--artifacts-root", default="./run/artifacts")
+    p_ship.add_argument("--honeypot", action="append", default=[])
+    p_ship.add_argument("--once", action="store_true")
+    p_ship.add_argument("--follow", action="store_true")
+    p_ship.add_argument("--interval-seconds", type=float, default=1.0)
+    p_ship.add_argument("--hub-url", default=None)
+    p_ship.add_argument("--token-env", default="HOHO_HUB_TOKEN")
+    p_ship.add_argument("--cursor-name", default="shipper.cursor")
+    p_ship.add_argument("--max-events", type=int, default=None)
+    p_ship.set_defaults(func=cmd_ship)
+
+    p_hub = sub.add_parser("hub")
+    hub_sub = p_hub.add_subparsers(dest="hub_cmd", required=True)
+
+    p_hub_up = hub_sub.add_parser("up")
+    p_hub_up.set_defaults(func=cmd_hub_up)
+
+    p_hub_down = hub_sub.add_parser("down")
+    p_hub_down.set_defaults(func=cmd_hub_down)
+
+    p_hub_logs = hub_sub.add_parser("logs")
+    p_hub_logs.set_defaults(func=cmd_hub_logs)
 
     p_down_all = sub.add_parser("down-all")
     p_down_all.add_argument("--volumes", action="store_true")

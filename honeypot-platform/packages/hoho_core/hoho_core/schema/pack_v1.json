@@ -87,6 +87,8 @@
         },
         "forwarding": {
           "type": "object",
+          "deprecated": true,
+          "description": "Deprecated and ignored. Use `hoho ship` with global environment config instead.",
           "properties": {
             "enabled": {
               "type": "boolean"
