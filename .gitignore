@@ -1,6 +1,7 @@
 artifacts/
 run/
 deploy/
+honeypot-platform/sensors/*/packages/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
