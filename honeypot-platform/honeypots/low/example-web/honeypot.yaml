@@ -55,3 +55,20 @@ behaviors:
       headers:
         Content-Type: text/plain
       body: forbidden
+
+sensors:
+  - name: proxy-sensor
+    type: proxy
+    config:
+      upstream: http://honeypot:8088
+      listen_port: 8080
+    attach:
+      service: honeypot
+  - name: pcap-sensor
+    type: pcap
+    config:
+      interface: any
+      rotate_seconds: 60
+      rotate_count: 10
+    attach:
+      service: honeypot

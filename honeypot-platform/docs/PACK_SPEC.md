@@ -14,6 +14,7 @@
 - `storage`: currently `backend: filesystem` + `root`
 - `limits`: request/body/artifact limits
 - `telemetry`: event emission + redaction controls
+- `sensors`: optional for both low and high interaction honeypots
 
 ## Layout constraints
 - `metadata.id` MUST match the folder name `<honeypot_id>`.
@@ -23,18 +24,20 @@
 - `listen`
 - `responses` (optional)
 - `behaviors`
+- optional `sensors` that attach to the implicit runtime service named `honeypot`
 
 ## High-interaction fields
 - `stack.runtime`
 - `stack.services`
-- `sensors`
+- optional `sensors`
 
 ## Validation rules
 Schema validation runs first, then semantic checks:
 - low interaction honeypots require `behaviors`
 - high interaction honeypots require `stack`
-- `egress_proxy` is high-interaction only
-- `egress_proxy.attach.services[]` must reference `stack.services`
+- sensor attachment targets must exist:
+  - high: targets must exist in `stack.services`
+  - low: implicit service name `honeypot` is valid for sensor attachments
 
 ## Env compatibility note
 Existing env naming is retained for compatibility:

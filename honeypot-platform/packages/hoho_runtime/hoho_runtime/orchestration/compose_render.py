@@ -97,6 +97,31 @@ def _storage_env(pack_id: str) -> dict:
     }
 
 
+def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Path) -> dict:
+    listen = _as_list(pack.get("listen", []))
+    ports = []
+    for entry in listen:
+        if not isinstance(entry, dict):
+            continue
+        port = entry.get("port")
+        if port is None:
+            continue
+        ports.append(f"{int(port)}:{int(port)}")
+
+    return {
+        "image": "hoho/low-runtime:latest",
+        "environment": {
+            **_storage_env(pack["metadata"]["id"]),
+            "HOHO_PACK_PATH": "/honeypot/honeypot.yaml",
+        },
+        "volumes": [
+            artifacts_bind_mount,
+            f"{honeypot_dir.resolve()}:/honeypot:ro",
+        ],
+        "ports": ports,
+    }
+
+
 def _inject_egress_proxy_env(service: dict, service_names: list[str], port: int, set_env_bundles: bool):
     env = service.setdefault("environment", {})
     proxy_url = f"http://egress:{port}"
@@ -120,8 +145,10 @@ def render_compose(
     pack: dict,
     out_dir: str | None = None,
     artifacts_root: str | None = None,
+    honeypot_dir: str | Path | None = None,
 ) -> Path:
     pack_id = pack["metadata"]["id"]
+    interaction = pack.get("metadata", {}).get("interaction")
     root = Path(out_dir or f"./deploy/compose/{pack_id}")
     shutil.rmtree(root, ignore_errors=True)
     root.mkdir(parents=True, exist_ok=True)
@@ -180,7 +207,14 @@ exit 0
     storage_root.mkdir(parents=True, exist_ok=True)
     artifacts_bind_mount = f"{storage_root.resolve()}:/artifacts"
 
-    services = deepcopy(pack.get("stack", {}).get("services", {}))
+    if interaction == "low":
+        if honeypot_dir is None:
+            raise ValueError("low interaction compose rendering requires honeypot_dir")
+        services = {"honeypot": _low_runtime_service(pack, artifacts_bind_mount, Path(honeypot_dir))}
+    else:
+        services = deepcopy(pack.get("stack", {}).get("services", {}))
+
+    valid_attach_services = set(services.keys())
     networks_used: set[str] = set()
     network_defs: dict[str, dict] = {}
 
@@ -282,6 +316,8 @@ exit 0
             target_service_name = attach.get("service")
             target_network = attach.get("network")
             if target_service_name:
+                if target_service_name not in valid_attach_services:
+                    raise ValueError(f"pcap sensor '{sname}' attaches to unknown service '{target_service_name}'")
                 sensor_service["network_mode"] = f"service:{target_service_name}"
             elif target_network:
                 sensor_service["networks"] = [target_network]
@@ -296,12 +332,9 @@ exit 0
                 sensor_service["environment"]["PCAP_INTERFACE"] = str(config["interface"])
 
         elif stype == "egress_proxy":
-            if pack.get("metadata", {}).get("interaction") != "high":
-                raise ValueError(f"egress_proxy sensor '{sname}' requires metadata.interaction=high")
-
             attach_services = _as_list(attach.get("services", []))
             for attach_service_name in attach_services:
-                if attach_service_name not in services:
+                if attach_service_name not in valid_attach_services:
                     raise ValueError(
                         f"egress_proxy sensor '{sname}' attaches to unknown service '{attach_service_name}'"
                     )
