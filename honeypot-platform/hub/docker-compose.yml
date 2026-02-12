@@ -5,6 +5,6 @@ services:
       - "8000:8000"
     environment:
       - HOHO_HUB_DATA=/data
-      - HOHO_HUB_TOKEN=${HOHO_HUB_TOKEN:-changeme}
+      - HOHO_HUB_TOKEN=${HOHO_HUB_TOKEN:-changeme-please-override}
     volumes:
       - ./data:/data

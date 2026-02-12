@@ -1,5 +1,479 @@
 # Repository Brief: hoho2
 
+_Generated 2026-02-12 15:19 UTC_
+
+## Quick Facts
+- **Branch:** main
+- **Commit:** 800e43c (2026-02-12 16:13:31 +0100)
+- **Total commits:** 68
+- **Files scanned:** 125
+- **Text files embedded (after filters):** 123
+
+## Language & LOC Overview (approx.)
+- **python** — files: 49 (39.8%), LOC: 3134
+- **md** — files: 32 (26.0%), LOC: 8266
+- **yaml** — files: 11 (8.9%), LOC: 759
+- **bash** — files: 11 (8.9%), LOC: 317
+- **other** — files: 9 (7.3%), LOC: 310
+- **html** — files: 5 (4.1%), LOC: 19
+- **json** — files: 3 (2.4%), LOC: 681
+- **toml** — files: 3 (2.4%), LOC: 48
+
+## Directory Tree (depth ≤ 10)
+
+```text
+- .gitignore
+- AGENTS.md
+- REPO_BRIEF.md
+- honeypot-platform
+  - docs
+    - ARCHITECTURE.md
+    - DEPLOYMENT.md
+    - DIRECTORY_LAYOUT.md
+    - DSL_REFERENCE.md
+    - EVENT_SCHEMA.md
+    - HUB.md
+    - PACK_SPEC.md
+    - README.md
+    - SECURITY.md
+    - SENSORS.md
+    - STORAGE_LAYOUT.md
+    - TELEMETRY_FILTERS.md
+    - TELEMETRY_FORWARDING.md
+  - hub
+    - Dockerfile
+    - docker-compose.yml
+  - scripts
+    - build_sensors.sh
+    - check_docs.sh
+    - check_layout.sh
+    - migrate_honeypots_layout.py
+    - validate_honeypots_layout.py
+  - deploy
+    - compose
+      - README.md
+    - runbooks
+      - high-interaction-honeypot-from-cve.md
+      - low-interaction-honeypot-from-cve.md
+    - app
+      - db.py
+      - main.py
+  - packages
+    - hoho_core
+      - pyproject.toml
+    - hoho_forwarder
+    - hoho_runtime
+  - runtimes
+    - low_runtime
+      - Dockerfile
+  - sensors
+    - egress_proxy
+      - entrypoint.sh
+    - falco
+      - forwarder.py
+    - fsmon
+    - http_proxy
+    - pcap
+  - honeypots
+    - high
+      - cve-2017-12629_solr_rce
+        - README.md
+        - honeypot.yaml
+        - reset.sh
+      - cve-2020-25213_wp_file_upload
+      - cve-2021-41773_42013_apache_rce
+      - example-wp-stack
+    - low
+      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
+      - example-upload-sink
+      - example-web
+      - templates
+        - event.html
+        - events.html
+        - index.html
+        - sessions.html
+      - hoho_core
+        - MANIFEST.in
+        - __init__.py
+        - version.py
+      - hoho_forwarder
+        - main.py
+      - hoho_runtime
+        - cli.py
+        - config.py
+        - env.py
+      - proxy
+        - egress_capture_addon.py
+        - gen_ca.py
+      - rules
+        - hoho_any_exec.yaml
+        - hoho_rules.yaml
+      - fsmon
+        - fsmon.py
+        - rules.schema.json
+        - capture_addon.py
+        - falco
+          - custom_rules.yaml
+        - dsl
+          - __init__.py
+          - actions.py
+          - engine.py
+          - matchers.py
+          - templates.py
+        - model
+          - artifact.py
+          - event.py
+        - schema
+          - event_v2.json
+          - pack_v1.json
+          - validate.py
+          - validate_event.py
+        - storage
+          - base.py
+          - fs.py
+        - telemetry
+          - filters.py
+        - utils
+          - filenames.py
+          - hashing.py
+          - jsonl.py
+          - redact.py
+          - time.py
+        - container
+          - low_runtime.py
+        - orchestration
+          - ca_pregen.py
+          - compose_down_all.py
+          - compose_render.py
+          - compose_run.py
+        - server
+          - http.py
+          - tcp.py
+        - cve-2021-41773_42013
+          - cgi-bin
+            - health.sh
+          - htdocs
+            - index.html
+```
+
+## Recent Commits
+- 800e43c | 2026-02-12 | Merge pull request #21 from chudamax/codex/add-global-.env-for-telemetry-forwarding
+- e05a298 | 2026-02-12 | Add global .env loading for telemetry forwarding
+- 7a77db2 | 2026-02-12 | up
+- ebf9abd | 2026-02-12 | up
+- 425f07b | 2026-02-12 | up
+- 735b926 | 2026-02-12 | Merge pull request #20 from chudamax/codex/implement-telemetry-v2-with-event-contracts
+- 7658593 | 2026-02-12 | Implement telemetry v2 contracts, filtering, forwarder, and hub scaffolding
+- 4a43fb9 | 2026-02-12 | falcon is working
+- dd60f89 | 2026-02-12 | Merge pull request #19 from chudamax/codex/move-falco-rules-to-yaml-and-fix-startup-errors
+- 1925c7a | 2026-02-12 | Move Falco defaults into image rules and fix startup args
+
+## Files (embedded, trimmed)
+> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+
+### `.gitignore`  _(~4.9 KB; showing ≤800 lines)_
+```
+artifacts/
+run/
+deploy/
+honeypot-platform/sensors/*/packages/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# Generated compose/runtime outputs
+honeypot-platform/deploy/compose/*
+!honeypot-platform/deploy/compose/README.md
+honeypot-platform/run/artifacts/**
+
+honeypot-platform/deploy/compose/**/runtime/ca/**
+
+honeypot-platform/.env
+honeypot-platform/.env.*
+!honeypot-platform/.env.example
+```
+
+### `AGENTS.md`  _(~3.4 KB; showing ≤800 lines)_
+```md
+# AGENTS.md (repo root)
+
+## Honeypot layout (Unified Layout v2)
+Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
+
+MUST:
+- Always use `honeypot_id == metadata.id`.
+- Create honeypots only at:
+  - `honeypot-platform/honeypots/low/<honeypot_id>/honeypot.yaml`
+  - `honeypot-platform/honeypots/high/<honeypot_id>/honeypot.yaml`
+- Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
+- Keep YAML-referenced local paths relative and inside the same honeypot folder.
+- Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
+- Compose output always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
+
+MUST NOT:
+- Do not create `honeypot-platform/run/artifacts/<runs-subtree>/**` (no run-id subtrees).
+- Do not create non-canonical honeypot folders (example forbidden: `honeypots/high/2021-41773_42013/`).
+- Do not add new honeypot YAML definitions under `honeypot-platform/packs/`.
+
+## Deprecated compatibility
+- `honeypot-platform/packs/{low,high}/*.yaml` may still be invoked by CLI for one compatibility window.
+- CLI should emit deprecation warnings for `packs/` paths.
+
+## Docs that must be consulted (before implementing or changing honeypots)
+- Spec + schema rules: `honeypot-platform/docs/PACK_SPEC.md`
+- Sensor behavior + env contracts: `honeypot-platform/docs/SENSORS.md`
+- Storage layout + overwrite semantics: `honeypot-platform/docs/STORAGE_LAYOUT.md`
+- Deployment notes: `honeypot-platform/docs/DEPLOYMENT.md`
+- Compose output notes (incl. egress CA paths): `honeypot-platform/deploy/compose/README.md`
+
+## Runbooks (follow exactly)
+Low-interaction:
+- Always read: `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`
+
+High-interaction:
+- Always read: `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`
+
+## High-interaction capture baseline (recommended)
+For “high” stacks, default to maximum visibility:
+- `http_proxy` (reverse proxy) for inbound request/response metadata and request body capture.
+- `egress_proxy` (forward proxy) to capture **outbound** downloads (post-exploitation stage).
+- `fsmon` to capture file writes in shared mounted paths.
+- `pcap` for ground-truth network capture.
+
+## Egress proxy sensor guidance (important)
+Use `egress_proxy` when you want to capture attacker tooling fetched by the compromised container(s):
+- It emits `sensor.egress_proxy.http` events.
+- It can store response bodies as artifacts (`egress.response_body`) and also materialize symlinks under:
+  `run/artifacts/<honeypot_id>/objects/<event_id>/egress.response/<filename>`
+- With TLS MITM enabled, `hoho run` pre-generates a runtime CA under:
+  `deploy/compose/<honeypot_id>/runtime/ca/`
+  and the egress proxy exports the CA cert to:
+  `run/artifacts/<honeypot_id>/ca/egress-ca.crt`
+- If `tls_mitm.install_trust.enabled: true`, runtime executes `/hoho/ca/install-ca.sh` in attached services and emits:
+  `system.ca_install.succeeded` / `system.ca_install.failed` events.
+
+## Working reference honeypots (golden examples)
+High-interaction:
+- `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`
+
+Low-interaction:
+- `honeypot-platform/honeypots/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce/honeypot.yaml`
+
+## Operational commands (stop/cleanup)
+- Stop everything: `hoho down-all` (optionally `--volumes`)
+- Per-honeypot manual stop:
+  `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml down -v`
+```
+
+### `REPO_BRIEF.md`  _(~230.0 KB; showing ≤800 lines)_
+```md
+# Repository Brief: hoho2
+
 _Generated 2026-02-12 13:24 UTC_
 
 ## Quick Facts
@@ -168,7 +642,7 @@ _Generated 2026-02-12 13:24 UTC_
 - 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
 
 ## Files (embedded, trimmed)
-> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+[REDACTED]
 
 ### `.gitignore`  _(~4.8 KB; showing ≤800 lines)_
 ```
@@ -798,474 +1272,6 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
-
-# Generated compose/runtime outputs
-honeypot-platform/deploy/compose/*
-!honeypot-platform/deploy/compose/README.md
-honeypot-platform/run/artifacts/**
-
-honeypot-platform/deploy/compose/**/runtime/ca/**
-```
-
-### `AGENTS.md`  _(~3.4 KB; showing ≤800 lines)_
-```md
-# AGENTS.md (repo root)
-
-## Honeypot layout (Unified Layout v2)
-Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
-
-MUST:
-- Always use `honeypot_id == metadata.id`.
-- Create honeypots only at:
-  - `honeypot-platform/honeypots/low/<honeypot_id>/honeypot.yaml`
-  - `honeypot-platform/honeypots/high/<honeypot_id>/honeypot.yaml`
-- Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
-- Keep YAML-referenced local paths relative and inside the same honeypot folder.
-- Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
-- Compose output always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
-
-MUST NOT:
-- Do not create `honeypot-platform/run/artifacts/<runs-subtree>/**` (no run-id subtrees).
-- Do not create non-canonical honeypot folders (example forbidden: `honeypots/high/2021-41773_42013/`).
-- Do not add new honeypot YAML definitions under `honeypot-platform/packs/`.
-
-## Deprecated compatibility
-- `honeypot-platform/packs/{low,high}/*.yaml` may still be invoked by CLI for one compatibility window.
-- CLI should emit deprecation warnings for `packs/` paths.
-
-## Docs that must be consulted (before implementing or changing honeypots)
-- Spec + schema rules: `honeypot-platform/docs/PACK_SPEC.md`
-- Sensor behavior + env contracts: `honeypot-platform/docs/SENSORS.md`
-- Storage layout + overwrite semantics: `honeypot-platform/docs/STORAGE_LAYOUT.md`
-- Deployment notes: `honeypot-platform/docs/DEPLOYMENT.md`
-- Compose output notes (incl. egress CA paths): `honeypot-platform/deploy/compose/README.md`
-
-## Runbooks (follow exactly)
-Low-interaction:
-- Always read: `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`
-
-High-interaction:
-- Always read: `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`
-
-## High-interaction capture baseline (recommended)
-For “high” stacks, default to maximum visibility:
-- `http_proxy` (reverse proxy) for inbound request/response metadata and request body capture.
-- `egress_proxy` (forward proxy) to capture **outbound** downloads (post-exploitation stage).
-- `fsmon` to capture file writes in shared mounted paths.
-- `pcap` for ground-truth network capture.
-
-## Egress proxy sensor guidance (important)
-Use `egress_proxy` when you want to capture attacker tooling fetched by the compromised container(s):
-- It emits `sensor.egress_proxy.http` events.
-- It can store response bodies as artifacts (`egress.response_body`) and also materialize symlinks under:
-  `run/artifacts/<honeypot_id>/objects/<event_id>/egress.response/<filename>`
-- With TLS MITM enabled, `hoho run` pre-generates a runtime CA under:
-  `deploy/compose/<honeypot_id>/runtime/ca/`
-  and the egress proxy exports the CA cert to:
-  `run/artifacts/<honeypot_id>/ca/egress-ca.crt`
-- If `tls_mitm.install_trust.enabled: true`, runtime executes `/hoho/ca/install-ca.sh` in attached services and emits:
-  `system.ca_install.succeeded` / `system.ca_install.failed` events.
-
-## Working reference honeypots (golden examples)
-High-interaction:
-- `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`
-
-Low-interaction:
-- `honeypot-platform/honeypots/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce/honeypot.yaml`
-
-## Operational commands (stop/cleanup)
-- Stop everything: `hoho down-all` (optionally `--volumes`)
-- Per-honeypot manual stop:
-  `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml down -v`
-```
-
-### `REPO_BRIEF.md`  _(~200.8 KB; showing ≤800 lines)_
-```md
-# Repository Brief: hoho2
-
-_Generated 2026-02-12 10:11 UTC_
-
-## Quick Facts
-- **Branch:** main
-- **Commit:** 6f711d7 (2026-02-12 10:50:43 +0100)
-- **Total commits:** 57
-- **Files scanned:** 101
-- **Text files embedded (after filters):** 101
-
-## Language & LOC Overview (approx.)
-- **python** — files: 41 (40.6%), LOC: 2677
-- **md** — files: 29 (28.7%), LOC: 6585
-- **bash** — files: 11 (10.9%), LOC: 265
-- **other** — files: 8 (7.9%), LOC: 286
-- **yaml** — files: 7 (6.9%), LOC: 627
-- **json** — files: 2 (2.0%), LOC: 505
-- **toml** — files: 2 (2.0%), LOC: 36
-- **html** — files: 1 (1.0%), LOC: 12
-
-## Directory Tree (depth ≤ 10)
-
-```text
-- .gitignore
-- AGENTS.md
-- REPO_BRIEF.md
-- honeypot-platform
-  - docs
-    - ARCHITECTURE.md
-    - DEPLOYMENT.md
-    - DIRECTORY_LAYOUT.md
-    - DSL_REFERENCE.md
-    - EVENT_SCHEMA.md
-    - PACK_SPEC.md
-    - README.md
-    - SECURITY.md
-    - SENSORS.md
-    - STORAGE_LAYOUT.md
-  - scripts
-    - build_sensors.sh
-    - check_docs.sh
-    - check_layout.sh
-    - migrate_honeypots_layout.py
-    - validate_honeypots_layout.py
-  - deploy
-    - compose
-      - README.md
-    - runbooks
-      - high-interaction-honeypot-from-cve.md
-      - low-interaction-honeypot-from-cve.md
-  - packages
-    - hoho_core
-      - pyproject.toml
-    - hoho_runtime
-  - runtimes
-    - low_runtime
-      - Dockerfile
-  - sensors
-    - egress_proxy
-      - entrypoint.sh
-    - falco
-      - forwarder.py
-    - fsmon
-    - http_proxy
-    - pcap
-  - honeypots
-    - high
-      - cve-2017-12629_solr_rce
-        - README.md
-        - honeypot.yaml
-        - reset.sh
-      - cve-2020-25213_wp_file_upload
-      - cve-2021-41773_42013_apache_rce
-      - example-wp-stack
-    - low
-      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
-      - example-upload-sink
-      - example-web
-      - hoho_core
-        - MANIFEST.in
-        - __init__.py
-        - version.py
-      - hoho_runtime
-        - cli.py
-        - config.py
-      - proxy
-        - egress_capture_addon.py
-        - gen_ca.py
-      - fsmon
-        - fsmon.py
-        - rules.schema.json
-        - capture_addon.py
-        - dsl
-          - __init__.py
-          - actions.py
-          - engine.py
-          - matchers.py
-          - templates.py
-        - model
-          - artifact.py
-          - event.py
-        - schema
-          - pack_v1.json
-          - validate.py
-        - storage
-          - base.py
-          - fs.py
-        - utils
-          - filenames.py
-          - hashing.py
-          - jsonl.py
-          - redact.py
-          - time.py
-        - container
-          - low_runtime.py
-        - orchestration
-          - ca_pregen.py
-          - compose_down_all.py
-          - compose_render.py
-          - compose_run.py
-        - server
-          - http.py
-          - tcp.py
-        - cve-2021-41773_42013
-          - cgi-bin
-            - health.sh
-          - htdocs
-            - index.html
-```
-
-## Recent Commits
-- 6f711d7 | 2026-02-12 | Merge pull request #18 from chudamax/codex/add-falco-sensor-for-runtime-telemetry
-- 1a4e5dd | 2026-02-12 | Add falco sensor integration with compose rendering and docs
-- 4d26738 | 2026-02-12 | up
-- 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
-- d005368 | 2026-02-12 | Containerize low interaction runtime and enable sensors via compose
-- 748828b | 2026-02-12 | up
-- 65e9f6f | 2026-02-11 | Merge pull request #16 from chudamax/codex/restructure-honeypots-directory-layout
-- 86afe46 | 2026-02-11 | Unify honeypot layout under honeypots/{high,low}/{id}
-- 3577957 | 2026-02-11 | up
-- c250dd7 | 2026-02-11 | Merge pull request #15 from chudamax/codex/add-high-level-interaction-honeypot-for-solr-cve-2017-12629
-
-## Files (embedded, trimmed)
-[REDACTED]
-
-### `.gitignore`  _(~4.8 KB; showing ≤800 lines)_
-```
-artifacts/
-run/
-deploy/
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-#poetry.toml
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
-#pdm.lock
-#pdm.toml
-.pdm-python
-.pdm-build/
-
-# pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
-#pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
 ```
 <!-- trimmed: file exceeded per-file limits -->
 
@@ -1322,7 +1328,7 @@ High-interaction packs define stack services and sensor attachments. Compose ren
 5. Optional object materialization can be added under `objects/<event_id>/...` in future versions.
 ```
 
-### `honeypot-platform/docs/DEPLOYMENT.md`  _(~1.1 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/DEPLOYMENT.md`  _(~1.7 KB; showing ≤800 lines)_
 ```md
 # Deployment
 
@@ -1336,6 +1342,20 @@ High-interaction packs define stack services and sensor attachments. Compose ren
 4. Inspect artifacts:
    - `run/artifacts/<honeypot_id>/index/events.jsonl`
    - `run/artifacts/<honeypot_id>/blobs/`
+
+## Global .env for telemetry forwarding
+- Global environment file path: `honeypot-platform/.env`
+- Recommended bootstrap:
+  - `cp honeypot-platform/.env.example honeypot-platform/.env`
+- Variables:
+  - `HOHO_HUB_URL`
+  - `HOHO_HUB_TOKEN`
+
+`hoho` auto-loads `honeypot-platform/.env` by default and also passes it to Docker Compose with `--env-file` so `${HOHO_HUB_URL}` and `${HOHO_HUB_TOKEN}` interpolate consistently.
+
+Override examples:
+- `hoho --env-file /path/to/custom.env run honeypots/high/<honeypot_id>/honeypot.yaml`
+- `hoho --no-env run honeypots/high/<honeypot_id>/honeypot.yaml`
 
 ## Low interaction runtime mode
 - `hoho run` defaults to `--mode container` for both low and high interaction honeypots.
@@ -1478,7 +1498,7 @@ All telemetry producers emit schema version `2`.
 ```
 ```
 
-### `honeypot-platform/docs/HUB.md`  _(~0.3 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/HUB.md`  _(~0.7 KB; showing ≤800 lines)_
 ```md
 # HOHO Hub
 
@@ -1487,10 +1507,25 @@ Hub lives under `honeypot-platform/hub/` and provides:
 - lightweight HTML pages for browsing honeypots/sessions/events
 - blob downloads by sha256
 
-Run with:
+## Global .env
+Use the shared env file at `honeypot-platform/.env` for hub + honeypot forwarding.
+
+Required vars:
+- `HOHO_HUB_URL`
+- `HOHO_HUB_TOKEN`
+
+Create it from template:
 ```bash
-docker compose -f honeypot-platform/hub/docker-compose.yml up --build
+cp honeypot-platform/.env.example honeypot-platform/.env
 ```
+
+Run hub from repo root:
+```bash
+docker compose --env-file honeypot-platform/.env \
+  -f honeypot-platform/hub/docker-compose.yml up --build
+```
+
+[REDACTED]
 ```
 
 ### `honeypot-platform/docs/PACK_SPEC.md`  _(~2.1 KB; showing ≤800 lines)_
@@ -1756,7 +1791,7 @@ telemetry:
 ```
 ```
 
-### `honeypot-platform/docs/TELEMETRY_FORWARDING.md`  _(~0.4 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/TELEMETRY_FORWARDING.md`  _(~0.9 KB; showing ≤800 lines)_
 ```md
 # Telemetry Forwarding
 
@@ -1768,10 +1803,34 @@ The forwarder:
 - posts events to `POST /api/v1/events`
 - persists cursor at `index/forwarder.cursor`
 
-Environment:
+## Global .env
+Use one shared env file at `honeypot-platform/.env`.
+
+Variables:
 - `HOHO_HUB_URL`
 - `HOHO_HUB_TOKEN`
 - `HOHO_FORWARD_FILTERS_JSON`
+
+Template:
+```bash
+cp honeypot-platform/.env.example honeypot-platform/.env
+```
+
+`hoho` automatically loads `honeypot-platform/.env` and forwards it to docker compose with `--env-file` by default.
+
+Override with:
+```bash
+hoho --env-file /path/to/custom.env run honeypots/high/<honeypot_id>/honeypot.yaml
+```
+
+## Pack contract example
+```yaml
+telemetry:
+  forwarding:
+    enabled: true
+    hub_url: "${HOHO_HUB_URL}"
+    token_env: "HOHO_HUB_TOKEN"
+```
 ```
 
 ### `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`  _(~1.5 KB; showing ≤800 lines)_
@@ -2009,7 +2068,7 @@ echo "artifacts=run/artifacts/${HONEYPOT_ID}/"
 Migrated honeypot. Document setup, run steps, and reset procedures here.
 ```
 
-### `honeypot-platform/honeypots/high/cve-2020-25213_wp_file_upload/honeypot.yaml`  _(~3.6 KB; showing ≤800 lines)_
+### `honeypot-platform/honeypots/high/cve-2020-25213_wp_file_upload/honeypot.yaml`  _(~3.7 KB; showing ≤800 lines)_
 ```yaml
 apiVersion: hoho.dev/v1
 kind: HoneypotPack
@@ -2030,6 +2089,10 @@ telemetry:
   redact_headers:
 [REDACTED]
     - Cookie
+  forwarding:
+    enabled: true
+    hub_url: "${HOHO_HUB_URL}"
+    token_env: "HOHO_HUB_TOKEN"
 stack:
   runtime: compose
   services:
@@ -3035,7 +3098,7 @@ services:
       - "8000:8000"
     environment:
       - HOHO_HUB_DATA=/data
-      - HOHO_HUB_TOKEN=changeme
+      - HOHO_HUB_TOKEN=${HOHO_HUB_TOKEN:-changeme-please-override}
     volumes:
       - ./data:/data
 ```
@@ -4445,7 +4508,7 @@ hoho down-all --dry-run
 
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~11.8 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/cli.py`  _(~13.8 KB; showing ≤800 lines)_
 ```python
 import argparse
 import json
@@ -4460,6 +4523,7 @@ from datetime import datetime, timezone
 
 from hoho_core.schema.validate import load_pack, validate_pack
 from hoho_runtime.config import DEFAULT_STORAGE_ROOT
+from hoho_runtime.env import loadenv
 from hoho_runtime.orchestration.compose_down_all import down_all
 from hoho_runtime.orchestration.compose_render import render_compose
 from hoho_runtime.orchestration.compose_run import run_compose
@@ -4589,6 +4653,57 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+
+
+def _resolve_env_file_arg(env_file_arg: str | None, cwd: Path) -> Path | None:
+    if not env_file_arg:
+        return None
+    env_file = Path(env_file_arg).expanduser()
+    if not env_file.is_absolute():
+        env_file = (cwd / env_file).resolve()
+    return env_file
+
+
+def _load_global_env(args: argparse.Namespace, repo_root: Path) -> Path | None:
+    if getattr(args, "no_env", False):
+        return None
+
+    env_file = _resolve_env_file_arg(getattr(args, "env_file", None), Path.cwd())
+    if env_file is None:
+        env_file = repo_root / ".env"
+
+    if env_file.is_file():
+        loadenv(env_file, override=getattr(args, "env_override", False))
+
+    return env_file
+
+
+def _require_forwarding_env(pack: dict) -> None:
+    telemetry = pack.get("telemetry", {})
+    forwarding = telemetry.get("forwarding", {}) if isinstance(telemetry, dict) else {}
+    if not _bool_enabled(forwarding.get("enabled"), default=False):
+        return
+
+    token_env = str(forwarding.get("token_env", "")).strip()
+    hub_url = str(forwarding.get("hub_url", "")).strip()
+
+    missing: list[str] = []
+    if hub_url.startswith("${") and hub_url.endswith("}"):
+        hub_url_env = hub_url[2:-1]
+        if hub_url_env and not os.environ.get(hub_url_env):
+            missing.append(hub_url_env)
+    elif not hub_url:
+        missing.append("telemetry.forwarding.hub_url")
+
+    if token_env and not os.environ.get(token_env):
+        missing.append(token_env)
+
+    if missing:
+        raise SystemExit(
+            "ERROR: telemetry forwarding is enabled but required environment values are missing: "
+            + ", ".join(missing)
+        )
+
 def _session_metadata(honeypot_id: str) -> dict:
     return {
         "honeypot_id": honeypot_id,
@@ -4652,6 +4767,7 @@ def cmd_render_compose(args):
     honeypot_id = pack["metadata"]["id"]
     _warn_if_run_id_used(args.run_id)
     out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
+    _require_forwarding_env(pack)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
     session = _session_metadata(honeypot_id)
     out = render_compose(
@@ -4675,6 +4791,7 @@ def cmd_run(args):
             print(f"ERROR: {e}")
         raise SystemExit(1)
 
+    _require_forwarding_env(pack)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
     interaction = pack["metadata"]["interaction"]
 
@@ -4734,6 +4851,7 @@ def cmd_run(args):
             artifacts_root=storage_root,
             session_id=session["session_id"],
             agent_id=session["agent_id"],
+            env_file=getattr(args, "_resolved_env_file", None),
         ))
 
 
@@ -4774,6 +4892,9 @@ def cmd_down_all(args):
 
 def main():
     parser = argparse.ArgumentParser(prog="hoho")
+    parser.add_argument("--env-file", default=None)
+    parser.add_argument("--no-env", action="store_true")
+    parser.add_argument("--env-override", action="store_true")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_val = sub.add_parser("validate")
@@ -4807,6 +4928,8 @@ def main():
     p_down_all.set_defaults(func=cmd_down_all)
 
     args = parser.parse_args()
+    repo_root = _resolve_repo_root(Path.cwd())
+    args._resolved_env_file = _load_global_env(args, repo_root)
     args.func(args)
 
 
@@ -4868,6 +4991,34 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+```
+
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/env.py`  _(~0.6 KB; showing ≤800 lines)_
+```python
+import os
+from pathlib import Path
+
+
+def loadenv(path: Path, *, override: bool = False) -> dict[str, str]:
+    loaded: dict[str, str] = {}
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key:
+            continue
+
+        loaded[key] = value
+        if override or key not in os.environ:
+            os.environ[key] = value
+
+    return loaded
 ```
 
 ### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/__init__.py`  _(~0.0 KB; showing ≤800 lines)_
@@ -5784,7 +5935,7 @@ exit 0
     return out
 ```
 
-### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~6.5 KB; showing ≤800 lines)_
+### `honeypot-platform/packages/hoho_runtime/hoho_runtime/orchestration/compose_run.py`  _(~6.7 KB; showing ≤800 lines)_
 ```python
 import json
 import os
@@ -5890,16 +6041,15 @@ def _run_ca_install(
     *,
     compose_file: Path,
     project_name: str | None,
+    env_file: Path | None,
     service_name: str,
     storage_pack_root: Path,
     honeypot_id: str,
     session_id: str,
     agent_id: str,
 ) -> None:
-    cmd = ["docker", "compose"]
-    if project_name:
-        cmd.extend(["-p", project_name])
-    cmd.extend(["-f", str(compose_file), "exec", "-T", service_name, "sh", "/hoho/ca/install-ca.sh", "/hoho/ca/egress-ca.crt"])
+    cmd = _compose_base_cmd(compose_file, project_name, env_file=env_file)
+    cmd.extend(["exec", "-T", service_name, "sh", "/hoho/ca/install-ca.sh", "/hoho/ca/egress-ca.crt"])
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode == 0:
         _emit_ca_install_event(
@@ -5924,8 +6074,10 @@ def _run_ca_install(
         stderr_snippet=stderr[:500],
     )
 
-def _compose_base_cmd(compose_file: Path, project_name: str | None) -> list[str]:
+def _compose_base_cmd(compose_file: Path, project_name: str | None, env_file: Path | None = None) -> list[str]:
     cmd = ["docker", "compose"]
+    if env_file is not None:
+        cmd.extend(["--env-file", str(env_file)])
     if project_name:
         cmd.extend(["-p", project_name])
     cmd.extend(["-f", str(compose_file)])
@@ -5941,6 +6093,7 @@ def run_compose(
     log_services: Iterable[str] | None = None,  # None => all services
     log_tail: int | str = "all",                  # e.g. 0, 200, "all"
     log_no_color: bool = True,
+    env_file: Path | None = None,
     session_id: str = "unknown-session",
     agent_id: str = "unknown-agent",
 ) -> int:
@@ -5951,7 +6104,7 @@ def run_compose(
         (storage_pack_root / "ca").mkdir(parents=True, exist_ok=True)
         ensure_pack_eventlog(storage_pack_root)
 
-    base = _compose_base_cmd(compose_file, project_name)
+    base = _compose_base_cmd(compose_file, project_name, env_file=env_file)
 
     # 1) Start detached so post-start steps can run.
     rc = subprocess.call([*base, "up", "-d"])
@@ -5973,6 +6126,7 @@ def run_compose(
                 _run_ca_install(
                     compose_file=compose_file,
                     project_name=project_name,
+                    env_file=env_file,
                     service_name=service,
                     storage_pack_root=storage_pack_root,
                     honeypot_id=honeypot_id,
@@ -6137,20 +6291,42 @@ docker build -t hoho/low-runtime:latest -f runtimes/low_runtime/Dockerfile .
 ```
 ```
 
-### `honeypot-platform/scripts/build_sensors.sh`  _(~0.5 KB; showing ≤800 lines)_
+### `honeypot-platform/scripts/build_sensors.sh`  _(~1.4 KB; showing ≤800 lines)_
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+mkdir -p sensors/fsmon/packages/
+cp -r packages/hoho_core sensors/fsmon/packages/hoho_core
 docker build -t hoho/sensor-fsmon:latest sensors/fsmon
+
+mkdir -p sensors/http_proxy/packages/
+cp -r packages/hoho_core sensors/http_proxy/packages/hoho_core
 docker build -t hoho/sensor-http-proxy:latest sensors/http_proxy
+
+mkdir -p sensors/pcap/packages/
+cp -r packages/hoho_core sensors/pcap/packages/hoho_core
 docker build -t hoho/sensor-pcap:latest sensors/pcap
+
+mkdir -p sensors/egress_proxy/packages/
+cp -r packages/hoho_core sensors/egress_proxy/packages/hoho_core
 docker build -t hoho/sensor-egress-proxy:latest sensors/egress_proxy
+
+mkdir -p sensors/falco/packages/
+cp -r packages/hoho_core sensors/falco/packages/hoho_core
 docker build -t hoho/sensor-falco:latest sensors/falco
 
 # low interaction runtime
 docker build -t hoho/low-runtime:latest -f runtimes/low_runtime/Dockerfile .
+
+# docker build -t hoho/sensor-fsmon:latest        -f sensors/fsmon/        .
+# docker build -t hoho/sensor-http-proxy:latest   -f sensors/http_proxy/Dockerfile   .
+# docker build -t hoho/sensor-egress-proxy:latest -f sensors/egress_proxy/Dockerfile .
+# docker build -t hoho/sensor-pcap:latest         -f sensors/pcap/Dockerfile         .
+# docker build -t hoho/sensor-falco:latest        -f sensors/falco/Dockerfile        .
+
+# docker build -t hoho/low-runtime:latest -f runtimes/low_runtime/Dockerfile .
 ```
 
 ### `honeypot-platform/scripts/check_docs.sh`  _(~0.6 KB; showing ≤800 lines)_
@@ -6437,7 +6613,9 @@ WORKDIR /app
 COPY proxy/egress_capture_addon.py /app/egress_capture_addon.py
 COPY proxy/gen_ca.py /app/gen_ca.py
 COPY entrypoint.sh /entrypoint.sh
-RUN pip install --no-cache-dir mitmproxy && chmod +x /entrypoint.sh
+
+COPY packages/hoho_core /src/hoho_core
+RUN pip install --no-cache-dir /src/hoho_core mitmproxy && chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
@@ -6700,9 +6878,11 @@ COPY forwarder.py /app/forwarder.py
 COPY entrypoint.sh /app/entrypoint.sh
 COPY rules/*.yaml /app/rules/
 
+COPY packages/hoho_core /src/hoho_core
+
 # If your forwarder talks to docker.sock, you likely want the docker SDK
 RUN set -eux; \
-    python3 -m pip install --no-cache-dir --break-system-packages docker requests; \
+    python3 -m pip install --no-cache-dir --break-system-packages /src/hoho_core docker requests; \
     chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]
@@ -7097,14 +7277,18 @@ if __name__ == "__main__":
   tags: [hoho, process, interpreter]
 ```
 
-### `honeypot-platform/sensors/fsmon/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/fsmon/Dockerfile`  _(~0.3 KB; showing ≤800 lines)_
 ```
 FROM python:3.11-slim
 WORKDIR /app
 COPY fsmon/fsmon.py /app/fsmon.py
 COPY fsmon/rules.schema.json /app/rules.schema.json
 COPY entrypoint.sh /entrypoint.sh
-RUN pip install --no-cache-dir watchdog && chmod +x /entrypoint.sh
+
+COPY packages/hoho_core /src/hoho_core
+
+
+RUN pip install --no-cache-dir /src/hoho_core watchdog && chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
@@ -7211,13 +7395,15 @@ if __name__ == "__main__":
 }
 ```
 
-### `honeypot-platform/sensors/http_proxy/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/http_proxy/Dockerfile`  _(~0.3 KB; showing ≤800 lines)_
 ```
 FROM python:3.11-slim
 WORKDIR /app
 COPY proxy/capture_addon.py /app/capture_addon.py
 COPY entrypoint.sh /entrypoint.sh
-RUN pip install --no-cache-dir mitmproxy PyYAML jsonschema && chmod +x /entrypoint.sh
+COPY packages/hoho_core /src/hoho_core
+
+RUN pip install --no-cache-dir /src/hoho_core mitmproxy PyYAML jsonschema && chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
@@ -7366,12 +7552,15 @@ def response(flow):
         _log_error(str(exc))
 ```
 
-### `honeypot-platform/sensors/pcap/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_
+### `honeypot-platform/sensors/pcap/Dockerfile`  _(~0.3 KB; showing ≤800 lines)_
 ```
-FROM alpine:3.20
-RUN apk add --no-cache tcpdump bash coreutils
+FROM python:3.11-slim
+RUN apt update && apt install -y --no-install-recommends tcpdump
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+COPY packages/hoho_core /src/hoho_core
+RUN pip install --no-cache-dir /src/hoho_core
+
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
