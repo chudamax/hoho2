@@ -29,3 +29,9 @@ Every event includes:
 ```json
 {"schema_version":1,"component":"sensor.pcap","artifacts":[{"kind":"pcap_segment","storage_ref":"blobs/ab/abcdef..."}]}
 ```
+
+
+## Example: Falco Alert
+```json
+{"schema_version":1,"component":"sensor.falco","proto":"runtime","classification":{"verdict":"alert","tags":["falco","priority:Error","rule:Hoho Shell Spawned in Container"]},"falco":{"rule":"Hoho Shell Spawned in Container","priority":"Error","output_fields":{"proc.cmdline":"/bin/sh","container.id":"abcd1234"}}}
+```

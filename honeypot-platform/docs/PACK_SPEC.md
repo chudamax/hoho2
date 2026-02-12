@@ -30,6 +30,7 @@
 - `stack.runtime`
 - `stack.services`
 - optional `sensors`
+  - includes high-interaction sensor type `falco` for runtime process telemetry and optional enforcement
 
 ## Validation rules
 Schema validation runs first, then semantic checks:
@@ -42,3 +43,7 @@ Schema validation runs first, then semantic checks:
 ## Env compatibility note
 Existing env naming is retained for compatibility:
 - `HOHO_PACK_ID == honeypot_id`
+
+
+## Falco sensor config (high only)
+Supported keys under `sensors[].config` for `type: falco` include: `mode`, `engine`, `priority_min`, `rules`, `append_fields`, `any_exec`, and `enforce` (`enabled`, `match_priorities`, `match_rules`, `action`, `cooldown_seconds`).

@@ -25,3 +25,9 @@ Captured payloads are treated as opaque bytes. The platform never executes, impo
 - Captured response bodies (including binaries) are untrusted and must be handled as malware-grade content.
 - The generated MITM CA is honeypot-only; never reuse it in production or on analyst workstations.
 - CA private key material remains inside the egress proxy container/artifacts confdir and is never mounted into target services.
+
+
+## Falco sensor privilege model
+- `falco` sensor currently uses privileged container mode and host mounts (including Docker socket) for runtime visibility and optional enforcement.
+- Deploy this mode only on isolated honeypot hosts/VPCs dedicated to deception workloads.
+- Treat Falco + Docker API access as high trust: do not co-locate with production workloads or analyst desktops.

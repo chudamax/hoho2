@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pathlib import Path, PurePosixPath
+import re
 import shutil
 
 import yaml
@@ -12,6 +13,7 @@ SENSOR_IMAGES = {
     "fsmon": "hoho/sensor-fsmon:latest",
     "pcap": "hoho/sensor-pcap:latest",
     "egress_proxy": "hoho/sensor-egress-proxy:latest",
+    "falco": "hoho/sensor-falco:latest",
 }
 
 
@@ -122,6 +124,81 @@ def _low_runtime_service(pack: dict, artifacts_bind_mount: str, honeypot_dir: Pa
     }
 
 
+
+
+def _sanitize_name(value: str) -> str:
+    sanitized = re.sub(r"[^a-z0-9_-]", "-", value.lower()).strip("-_")
+    return sanitized or "hoho"
+
+
+def _default_falco_rules(any_exec: bool) -> str:
+    any_exec_rule = ""
+    if any_exec:
+        any_exec_rule = """
+- rule: Hoho Any Exec in Container
+  desc: Catch all process executions in containers (noisy; optional)
+  condition: container and container.id != host and evt.type = execve and proc.name exists
+  output: >
+    Hoho Any Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Notice
+  tags: [hoho, process, exec]
+"""
+
+    return f"""
+- macro: hoho_container
+  condition: container and container.id != host
+
+- list: hoho_shell_bins
+  items: [sh, bash, ash, dash, zsh, ksh]
+
+- list: hoho_download_bins
+  items: [curl, wget, aria2c, fetch]
+
+- list: hoho_network_bins
+  items: [nc, ncat, socat, nmap]
+
+- list: hoho_interpreter_bins
+  items: [python, python3, perl, php, ruby]
+
+- rule: Hoho Shell Spawned in Container
+  desc: Detect shell execution in container
+  condition: hoho_container and evt.type = execve and proc.name in (hoho_shell_bins)
+  output: >
+    Hoho Shell Spawned | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Error
+  tags: [hoho, process, shell]
+
+- rule: Hoho Downloader Executed in Container
+  desc: Detect downloader process execution in container
+  condition: hoho_container and evt.type = execve and proc.name in (hoho_download_bins)
+  output: >
+    Hoho Downloader Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Warning
+  tags: [hoho, process, downloader]
+
+- rule: Hoho Network Tool Executed in Container
+  desc: Detect network utility execution in container
+  condition: hoho_container and evt.type = execve and proc.name in (hoho_network_bins)
+  output: >
+    Hoho Network Tool Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Warning
+  tags: [hoho, process, network_tool]
+
+- rule: Hoho Interpreter Executed in Container
+  desc: Detect scripting interpreter execution in container
+  condition: hoho_container and evt.type = execve and proc.name in (hoho_interpreter_bins)
+  output: >
+    Hoho Interpreter Exec | user=%user.name proc=%proc.name cmd=%proc.cmdline
+    container_id=%container.id image=%container.image.repository
+  priority: Warning
+  tags: [hoho, process, interpreter]
+{any_exec_rule}
+""".strip() + "\n"
+
 def _inject_egress_proxy_env(service: dict, service_names: list[str], port: int, set_env_bundles: bool):
     env = service.setdefault("environment", {})
     proxy_url = f"http://egress:{port}"
@@ -153,8 +230,11 @@ def render_compose(
     shutil.rmtree(root, ignore_errors=True)
     root.mkdir(parents=True, exist_ok=True)
 
-    runtime_dir = root / "runtime" / "ca"
+    runtime_root = root / "runtime"
+    runtime_dir = runtime_root / "ca"
     runtime_dir.mkdir(parents=True, exist_ok=True)
+    falco_runtime_dir = runtime_root / "falco"
+    falco_runtime_dir.mkdir(parents=True, exist_ok=True)
     install_script = runtime_dir / "install-ca.sh"
     install_script.write_text(
         """#!/usr/bin/env sh
@@ -331,6 +411,80 @@ exit 0
             if config.get("interface") is not None:
                 sensor_service["environment"]["PCAP_INTERFACE"] = str(config["interface"])
 
+        elif stype == "falco":
+            if interaction != "high":
+                raise ValueError("falco sensor is only supported for high interaction honeypots")
+
+            mode = str(config.get("mode", "privileged"))
+            engine = str(config.get("engine", "modern_ebpf"))
+            priority_min = str(config.get("priority_min", "Warning"))
+            append_fields = _as_list(config.get("append_fields", []))
+            any_exec = _as_bool(config.get("any_exec"), default=False)
+            enforce = config.get("enforce", {})
+            enforce_enabled = _as_bool(enforce.get("enabled"), default=False)
+            enforce_priorities = _as_list(enforce.get("match_priorities", ["Critical", "Error"]))
+            enforce_rules = _as_list(enforce.get("match_rules", []))
+            enforce_action = str(enforce.get("action", "stop_container"))
+            cooldown_seconds = int(enforce.get("cooldown_seconds", 60))
+
+            project_name = _sanitize_name(f"hoho-{pack_id}")
+            attach_services = _as_list(attach.get("services", []))
+            for attach_service_name in attach_services:
+                if attach_service_name not in valid_attach_services:
+                    raise ValueError(f"falco sensor '{sname}' attaches to unknown service '{attach_service_name}'")
+
+            rules_runtime_file = falco_runtime_dir / "hoho_rules.yaml"
+            rules_runtime_file.write_text(_default_falco_rules(any_exec=any_exec), encoding="utf-8")
+
+            sensor_service["environment"].update(
+                {
+                    "FALCO_PRIORITY_MIN": priority_min,
+                    "FALCO_ENGINE": engine,
+                    "FALCO_RULES": "/runtime/falco/hoho_rules.yaml",
+                    "HOHO_FALCO_PROJECT": project_name,
+                    "HOHO_FALCO_ONLY_PROJECT": "true",
+                    "HOHO_FALCO_APPEND_FIELDS": ",".join(str(f) for f in append_fields if f),
+                    "HOHO_FALCO_ENFORCE_ENABLED": "true" if enforce_enabled else "false",
+                    "HOHO_FALCO_ENFORCE_MATCH_PRIORITIES": ",".join(str(x) for x in enforce_priorities),
+                    "HOHO_FALCO_ENFORCE_MATCH_RULES": ",".join(str(x) for x in enforce_rules),
+                    "HOHO_FALCO_ENFORCE_ACTION": enforce_action,
+                    "HOHO_FALCO_ENFORCE_COOLDOWN_SECONDS": str(cooldown_seconds),
+                }
+            )
+            if attach_services:
+                sensor_service["environment"]["HOHO_FALCO_ONLY_SERVICES"] = ",".join(attach_services)
+
+            custom_rules = []
+            for rule_path in _as_list(config.get("rules", [])):
+                if not isinstance(rule_path, str) or not rule_path:
+                    continue
+                if rule_path.startswith("runtime/falco/"):
+                    continue
+                if rule_path.startswith("./"):
+                    rule_src = (Path(honeypot_dir) / rule_path).resolve() if honeypot_dir else None
+                    if rule_src and rule_src.is_file():
+                        dst = falco_runtime_dir / rule_src.name
+                        shutil.copy2(rule_src, dst)
+                        custom_rules.append(f"/runtime/falco/{dst.name}")
+                else:
+                    custom_rules.append(rule_path)
+
+            rules_all = ["/runtime/falco/hoho_rules.yaml", *custom_rules]
+            sensor_service["environment"]["FALCO_RULES"] = ",".join(rules_all)
+
+            sensor_service["volumes"].extend(
+                [
+                    f"{falco_runtime_dir.resolve()}:/runtime/falco:ro",
+                    "/sys/kernel/tracing:/sys/kernel/tracing:ro",
+                    "/proc:/host/proc:ro",
+                    "/etc:/host/etc:ro",
+                    "/var/run/docker.sock:/host/var/run/docker.sock",
+                ]
+            )
+
+            if mode == "privileged":
+                sensor_service["privileged"] = True
+            sensor_service["network_mode"] = "host"
         elif stype == "egress_proxy":
             attach_services = _as_list(attach.get("services", []))
             for attach_service_name in attach_services:
