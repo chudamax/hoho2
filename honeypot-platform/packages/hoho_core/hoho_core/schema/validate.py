@@ -54,19 +54,27 @@ def validate_pack(pack: dict) -> list[str]:
 
     services = pack.get("stack", {}).get("services", {})
     service_names = set(services.keys()) if isinstance(services, dict) else set()
+    if interaction == "low":
+        service_names.add("honeypot")
+
     for sensor in pack.get("sensors", []):
-        if sensor.get("type") != "egress_proxy":
-            continue
-
-        if interaction != "high":
-            out.append("semantic error: sensor type 'egress_proxy' requires metadata.interaction=high")
-
+        sensor_name = sensor.get("name", "<unnamed>")
+        sensor_type = sensor.get("type")
         attach = sensor.get("attach", {})
-        attached_services = attach.get("services", [])
-        for service_name in attached_services:
-            if service_name not in service_names:
+
+        if sensor_type in {"fsmon", "proxy", "pcap"}:
+            target_service = attach.get("service")
+            if target_service and target_service not in service_names:
                 out.append(
-                    f"semantic error: egress_proxy sensor '{sensor.get('name', '<unnamed>')}' attaches to unknown service '{service_name}'"
+                    f"semantic error: {sensor_type} sensor '{sensor_name}' attaches to unknown service '{target_service}'"
                 )
+
+        if sensor_type == "egress_proxy":
+            attached_services = attach.get("services", [])
+            for service_name in attached_services:
+                if service_name not in service_names:
+                    out.append(
+                        f"semantic error: egress_proxy sensor '{sensor_name}' attaches to unknown service '{service_name}'"
+                    )
 
     return out

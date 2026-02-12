@@ -180,7 +180,6 @@ def run_compose(
                 )
 
     # 3) Attach back to logs AFTER everything is installed.
-    print (11111111111)
     if attach_logs:
         cmd = [*base, "logs", "-f", "--tail", str(log_tail)]
         if log_no_color:

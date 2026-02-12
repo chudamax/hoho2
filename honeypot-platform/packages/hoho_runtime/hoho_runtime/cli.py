@@ -179,7 +179,7 @@ def cmd_render_compose(args):
     _warn_if_run_id_used(args.run_id)
     out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
     storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
-    out = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root))
+    out = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root), honeypot_dir=pack_path.parent)
     print(out)
 
 
@@ -187,43 +187,54 @@ def cmd_run(args):
     pack_path = _resolve_pack_arg(args.pack, Path.cwd())
     project_root = _guess_project_root(pack_path)
     pack = load_pack(str(pack_path))
-    storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
+    errors = validate_pack(pack)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}")
+        raise SystemExit(1)
 
-    if pack["metadata"]["interaction"] == "low":
+    storage_root = _resolve_storage_root(pack, args.artifacts_root, project_root)
+    interaction = pack["metadata"]["interaction"]
+
+    if args.mode == "host":
+        if interaction != "low":
+            raise SystemExit("ERROR: --mode host is only supported for low interaction honeypots")
         pack.setdefault("storage", {})["root"] = str(storage_root)
         run_low_http(pack)
-    else:
-        honeypot_id = pack["metadata"]["id"]
-        _warn_if_run_id_used(args.run_id)
-        out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
+        return
 
-        artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id)
-        compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root))
-        compose_root = compose_file.parent
-        runtime_ca_dir = compose_root / "runtime" / "ca"
-        egress_sensor = _find_egress_proxy_sensor(pack)
-        if _runtime_ca_required(egress_sensor):
-            try:
-                ensure_egress_ca(runtime_ca_dir, common_name=f"hoho-egress-ca-{honeypot_id}")
-            except EgressCAError as exc:
-                raise SystemExit(f"[hoho] ERROR: failed to prepare runtime egress CA: {exc}") from exc
-        project_name = _sanitize_name(f"hoho-{honeypot_id}")
+    honeypot_id = pack["metadata"]["id"]
+    _warn_if_run_id_used(args.run_id)
+    out_dir = _compose_output_dir(honeypot_id, args.output, project_root=project_root)
 
-        print(
-            json.dumps(
-                {
-                    "honeypot_id": honeypot_id,
-                    "artifacts_host_path": str(artifacts_host_path),
-                    "compose_file": str(compose_file.resolve()),
-                    "project_name": project_name,
-                }
-            )
+    artifacts_host_path = _prepare_artifacts_root(storage_root, honeypot_id)
+    compose_file = render_compose(pack, out_dir=out_dir, artifacts_root=str(storage_root), honeypot_dir=pack_path.parent)
+    compose_root = compose_file.parent
+    runtime_ca_dir = compose_root / "runtime" / "ca"
+    egress_sensor = _find_egress_proxy_sensor(pack)
+    if _runtime_ca_required(egress_sensor):
+        try:
+            ensure_egress_ca(runtime_ca_dir, common_name=f"hoho-egress-ca-{honeypot_id}")
+        except EgressCAError as exc:
+            raise SystemExit(f"[hoho] ERROR: failed to prepare runtime egress CA: {exc}") from exc
+    project_name = _sanitize_name(f"hoho-{honeypot_id}")
+
+    print(
+        json.dumps(
+            {
+                "honeypot_id": honeypot_id,
+                "artifacts_host_path": str(artifacts_host_path),
+                "compose_file": str(compose_file.resolve()),
+                "project_name": project_name,
+                "mode": args.mode,
+            }
         )
+    )
 
-        if args.no_up:
-            print(compose_file)
-        else:
-            raise SystemExit(run_compose(compose_file, project_name=project_name, pack=pack, artifacts_root=storage_root))
+    if args.no_up:
+        print(compose_file)
+    else:
+        raise SystemExit(run_compose(compose_file, project_name=project_name, pack=pack, artifacts_root=storage_root))
 
 
 def cmd_explain(args):
@@ -274,6 +285,7 @@ def main():
     p_run.add_argument("--no-up", action="store_true")
     p_run.add_argument("--run-id", default=None)
     p_run.add_argument("--artifacts-root", default=None)
+    p_run.add_argument("--mode", choices=["container", "host"], default="container")
     p_run.add_argument("-o", "--output", default=None)
     p_run.set_defaults(func=cmd_run)
 

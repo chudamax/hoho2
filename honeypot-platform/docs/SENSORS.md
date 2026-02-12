@@ -6,11 +6,28 @@ All sensors read common environment variables:
 - `HOHO_STORAGE_BACKEND=filesystem`
 - `HOHO_STORAGE_ROOT=/artifacts`
 
-`/artifacts` is a sensor/container mountpoint. The runtime maps it to a host path:
-- Simple mode: `<storage.root>`
-- Isolated run mode: `<storage.root>/runs/<run_id>`
+`/artifacts` is a sensor/container mountpoint mapped to host `<storage.root>`.
 
 Sensors append canonical events to `<root>/<honeypot_id>/index/events.jsonl` and write artifacts as content-addressed blobs.
+
+## Attach model for low and high
+- High interaction: attach to named services in `stack.services`.
+- Low interaction: attach to the implicit runtime service named `honeypot`.
+
+Example (low + sensors):
+```yaml
+sensors:
+  - name: proxy-sensor
+    type: proxy
+    attach:
+      service: honeypot
+    config:
+      upstream: http://honeypot:8088
+  - name: pcap-sensor
+    type: pcap
+    attach:
+      service: honeypot
+```
 
 ## HTTP Proxy Sensor
 - Built on mitmproxy reverse mode (`--mode reverse:<upstream>`).
@@ -24,11 +41,6 @@ Runtime env used by renderer:
 - `PROXY_LISTEN_PORT` (defaults to `8080`)
 - `PROXY_LISTEN_HOST` (defaults to `0.0.0.0`)
 - `PROXY_KEEP_HOST_HEADER` (`true`/`false`, defaults to `true`)
-
-Troubleshooting redirects:
-- Symptom: browser gets redirected to an internal compose DNS name (for example `http://web:8088/...`).
-- Cause: reverse proxy rewrites `Host` by default unless `keep_host_header` is enabled.
-- Fix: keep `PROXY_KEEP_HOST_HEADER=true` (default). Set it to `false` only when upstream behavior requires rewritten host headers.
 
 ## Filesystem Monitor Sensor
 - Watches configured directories for create/modify events.
@@ -50,21 +62,20 @@ Important: fsmon cannot inspect a target container root filesystem directly. Wat
 - Renderer adds required capabilities:
   - `NET_ADMIN`
   - `NET_RAW`
+- Output is written under the honeypot artifacts tree (for example `run/artifacts/<honeypot_id>/...`).
 
 Runtime env used by renderer:
 - `PCAP_ROTATE_SECONDS`
 - `PCAP_ROTATE_COUNT`
-- `PCAP_INTERFACE` (currently emitted, may be ignored by entrypoint depending on image implementation)
-
-## Operational Notes
-Disk usage can grow quickly from uploads and pcap segments. Use external rotation, retention cleanup, and dedicated storage volumes.
-
+- `PCAP_INTERFACE`
 
 ## Egress Proxy Sensor
 - Runs mitmproxy in explicit forward-proxy mode.
 - Emits `sensor.egress_proxy.http` per flow with request/response metadata and redacted headers.
 - Supports response-body capture with `capture.bodies: "*"` (default) or metadata-only with `"none"`.
 - Persists mitmproxy confdir under artifacts (`run/artifacts/<id>/mitmproxy-conf/`).
-- With `tls_mitm.enabled: true`, hoho generates a runtime CA via openssl before startup and exports it for trust install at `run/artifacts/<id>/ca/egress-ca.crt`.
-- Runtime can execute `/hoho/ca/install-ca.sh` in attached services after startup and emits `system.ca_install.succeeded` / `system.ca_install.failed` events.
-- If trust install fails, HTTP capture still works; HTTPS may degrade to CONNECT-only visibility.
+- With `tls_mitm.enabled: true`, `hoho run` generates a runtime CA in compose runtime dir before startup.
+- Runtime can execute `/hoho/ca/install-ca.sh` in attached services and emits `system.ca_install.succeeded` / `system.ca_install.failed` events.
+
+## Operational Notes
+Disk usage can grow quickly from uploads and pcap segments. Use external rotation, retention cleanup, and dedicated storage volumes.
