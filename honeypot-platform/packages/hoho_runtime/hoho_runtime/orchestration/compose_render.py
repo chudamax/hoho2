@@ -536,21 +536,6 @@ exit 0
         services[sname] = sensor_service
 
 
-    forwarding = telemetry.get("forwarding", {}) if isinstance(telemetry, dict) else {}
-    if _as_bool(forwarding.get("enabled"), default=False):
-        token_env = forwarding.get("token_env", "HOHO_HUB_TOKEN")
-        hub_url = forwarding.get("hub_url", "")
-        fwd_env = _storage_env(pack_id, session_id=session_id, agent_id=agent_id, telemetry=telemetry)
-        fwd_env.update({
-            "HOHO_HUB_URL": hub_url,
-            "HOHO_HUB_TOKEN": f"${{{token_env}}}",
-        })
-        services["telemetry-forwarder"] = {
-            "image": "hoho/telemetry-forwarder:latest",
-            "environment": fwd_env,
-            "volumes": [artifacts_bind_mount],
-        }
-
     compose = {"services": services}
 
     named_volumes = sorted(_collect_named_volumes(services))

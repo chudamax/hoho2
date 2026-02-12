@@ -96,4 +96,4 @@ Disk usage can grow quickly from uploads and pcap segments. Use external rotatio
 ## Telemetry v2 additions
 - All sensors emit `schema_version: 2` with `honeypot_id`, `session_id`, `agent_id`, and `event_name`.
 - Runtime injects `HOHO_SESSION_ID`, `HOHO_AGENT_ID`, `HOHO_EMIT_FILTERS_JSON`, and `HOHO_FORWARD_FILTERS_JSON` into services/sensors.
-- Optional forwarding uses telemetry-forwarder + hub token auth.
+- Forwarding to hub is performed by `hoho ship` (host-side or containerized runner), not by in-pack compose services.
