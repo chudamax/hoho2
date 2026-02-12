@@ -1,40 +1,22 @@
-import hashlib
-import json
 import os
-from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+from hoho_core.model.event import build_base_event
+from hoho_core.storage.fs import FilesystemArtifactStore
+from hoho_core.utils.redact import redact_headers
+
+HONEYPOT_ID = os.getenv("HOHO_HONEYPOT_ID", os.getenv("HOHO_PACK_ID", "unknown-pack"))
+SESSION_ID = os.getenv("HOHO_SESSION_ID", "unknown-session")
+AGENT_ID = os.getenv("HOHO_AGENT_ID", "unknown-agent")
 ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
+STORE = FilesystemArtifactStore(str(ROOT), HONEYPOT_ID)
 CAPTURE_ENABLED = os.getenv("PROXY_CAPTURE_ENABLED", "true").lower() in {"1", "true", "yes", "on"}
 CAPTURE_BODIES = os.getenv("PROXY_CAPTURE_BODIES", "*")
 CAPTURE_MAX_BYTES = int(os.getenv("PROXY_CAPTURE_MAX_BYTES", "52428800"))
 CAPTURE_STORE_OK_ONLY = os.getenv("PROXY_CAPTURE_STORE_OK_ONLY", "true").lower() in {"1", "true", "yes", "on"}
 CAPTURE_MIN_BYTES = int(os.getenv("PROXY_CAPTURE_MIN_BYTES", "1"))
-REDACT_HEADERS = {h.strip().lower() for h in os.getenv("PROXY_REDACT_HEADERS", "Authorization,Cookie").split(",") if h.strip()}
-
-
-def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def _events_path() -> Path:
-    return ROOT / PACK_ID / "index" / "events.jsonl"
-
-
-def _append_event(ev: dict) -> None:
-    path = _events_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(ev) + "\n")
-
-
-def _redact(headers) -> dict:
-    out = {}
-    for k, v in headers.items(multi=True):
-        out[k] = "<redacted>" if k.lower() in REDACT_HEADERS else v
-    return out
+REDACT_HEADERS = [h.strip() for h in os.getenv("PROXY_REDACT_HEADERS", "Authorization,Cookie").split(",") if h.strip()]
 
 
 def _guess_filename(flow_id: str, url: str, headers, digest: str) -> str:
@@ -64,54 +46,49 @@ def response(flow):
         should_store = should_store and (200 <= resp.status_code <= 399)
     should_store = should_store and total_bytes >= CAPTURE_MIN_BYTES
 
-    artifacts = []
+    ev = build_base_event(
+        honeypot_id=HONEYPOT_ID,
+        component="sensor.egress_proxy",
+        proto="http",
+        session_id=SESSION_ID,
+        agent_id=AGENT_ID,
+        event_name="egress.response",
+    )
+    ev["event_id"] = event_id
+    ev["request"] = {
+        "method": req.method,
+        "url": req.pretty_url,
+        "headers_redacted": redact_headers(dict(req.headers.items(multi=True)), REDACT_HEADERS),
+    }
+    ev["response"] = {
+        "status_code": resp.status_code if resp else None,
+        "headers_redacted": redact_headers(dict(resp.headers.items(multi=True)), REDACT_HEADERS) if resp else {},
+        "bytes": total_bytes,
+    }
+    ev["egress"] = {"capture_enabled": CAPTURE_ENABLED}
+
     if should_store:
         stored = body[:CAPTURE_MAX_BYTES]
-        digest = hashlib.sha256(stored).hexdigest()
+        blob = STORE.put_blob(stored)
         truncated = len(stored) < total_bytes
-
-        blob_path = ROOT / PACK_ID / "blobs" / digest[:2] / digest
-        blob_path.parent.mkdir(parents=True, exist_ok=True)
-        if not blob_path.exists():
-            blob_path.write_bytes(stored)
-
-        filename = _guess_filename(event_id, req.pretty_url, resp.headers if resp else {}, digest)
-        obj_path = ROOT / PACK_ID / "objects" / event_id / "egress.response" / filename
+        filename = _guess_filename(event_id, req.pretty_url, resp.headers if resp else {}, blob["sha256"])
+        obj_path = ROOT / HONEYPOT_ID / "objects" / event_id / "egress.response" / filename
+        blob_path = ROOT / HONEYPOT_ID / blob["storage_ref"]
         obj_path.parent.mkdir(parents=True, exist_ok=True)
         if not obj_path.exists():
             obj_path.symlink_to(blob_path)
-
-        artifacts.append(
+        ev["artifacts"] = [
             {
                 "kind": "egress.response_body",
-                "sha256": digest,
-                "bytes_captured": len(stored),
-                "bytes_total": total_bytes,
-                "truncated": truncated,
-                "filename_guess": filename,
-                "url": req.pretty_url,
-                "storage_ref": f"blobs/{digest[:2]}/{digest}",
+                **blob,
+                "meta": {
+                    "bytes_total": total_bytes,
+                    "truncated": truncated,
+                    "filename_guess": filename,
+                    "url": req.pretty_url,
+                },
             }
-        )
+        ]
+        ev["decision"]["truncated"] = truncated
 
-    ev = {
-        "schema_version": 1,
-        "event_id": event_id,
-        "ts": _now(),
-        "pack_id": PACK_ID,
-        "interaction": "high",
-        "kind": "sensor.egress_proxy.http",
-        "component": "sensor.egress_proxy",
-        "request": {
-            "method": req.method,
-            "url": req.pretty_url,
-            "headers_redacted": _redact(req.headers),
-        },
-        "response": {
-            "status_code": resp.status_code if resp else None,
-            "headers_redacted": _redact(resp.headers) if resp else {},
-            "bytes": total_bytes,
-        },
-        "artifacts": artifacts,
-    }
-    _append_event(ev)
+    STORE.append_event(HONEYPOT_ID, ev)

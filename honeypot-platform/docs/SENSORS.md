@@ -92,3 +92,8 @@ Disk usage can grow quickly from uploads and pcap segments. Use external rotatio
 - `sensors[].config.rules` adds extra rule files/overrides loaded after image defaults.
 - Optional enforcement can stop offending container/service/stack and emit a corresponding enforcement event.
 - Required mounts include `/sys/kernel/tracing`, `/proc`, `/etc`, and docker socket (`/var/run/docker.sock`) from host.
+
+## Telemetry v2 additions
+- All sensors emit `schema_version: 2` with `honeypot_id`, `session_id`, `agent_id`, and `event_name`.
+- Runtime injects `HOHO_SESSION_ID`, `HOHO_AGENT_ID`, `HOHO_EMIT_FILTERS_JSON`, and `HOHO_FORWARD_FILTERS_JSON` into services/sensors.
+- Optional forwarding uses telemetry-forwarder + hub token auth.

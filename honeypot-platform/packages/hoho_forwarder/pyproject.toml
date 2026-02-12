@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hoho-forwarder"
+version = "0.1.0"
+dependencies = ["requests"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hoho_forwarder*"]

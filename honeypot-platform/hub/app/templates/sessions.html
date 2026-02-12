@@ -1,0 +1,2 @@
+<h1>{{honeypot_id}} sessions</h1>
+<ul>{% for r in rows %}<li><a href="/honeypots/{{honeypot_id}}/sessions/{{r[0]}}">{{r[0]}}</a> ({{r[1]}})</li>{% endfor %}</ul>

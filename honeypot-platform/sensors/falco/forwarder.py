@@ -7,9 +7,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib import request
 
-PACK_ID = os.getenv("HOHO_PACK_ID", "unknown-pack")
+HONEYPOT_ID = os.getenv("HOHO_HONEYPOT_ID", os.getenv("HOHO_PACK_ID", "unknown-pack"))
+SESSION_ID = os.getenv("HOHO_SESSION_ID", "unknown-session")
+AGENT_ID = os.getenv("HOHO_AGENT_ID", "unknown-agent")
 ROOT = Path(os.getenv("HOHO_STORAGE_ROOT", "/artifacts"))
-EVENTS_PATH = ROOT / PACK_ID / "index" / "events.jsonl"
+EVENTS_PATH = ROOT / HONEYPOT_ID / "index" / "events.jsonl"
 ONLY_PROJECT = os.getenv("HOHO_FALCO_ONLY_PROJECT", "true").strip().lower() in {"1", "true", "yes", "on"}
 PROJECT = os.getenv("HOHO_FALCO_PROJECT", "")
 ONLY_SERVICES = {s for s in os.getenv("HOHO_FALCO_ONLY_SERVICES", "").split(",") if s}
@@ -147,16 +149,15 @@ def make_base_event(alert: dict) -> dict:
     priority = str(alert.get("priority", "Notice"))
     tags = ["falco", f"priority:{priority}", f"rule:{rule}"] + [str(t) for t in (alert.get("tags") or [])]
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "event_id": f"falco-{uuid.uuid4().hex}",
         "ts": now_iso(),
-        "pack_id": PACK_ID,
-        "interaction": "high",
+        "honeypot_id": HONEYPOT_ID,
+        "session_id": SESSION_ID,
+        "agent_id": AGENT_ID,
+        "event_name": "falco.alert",
         "component": "sensor.falco",
-        "src": {"ip": None, "port": None, "forwarded_for": [], "user_agent": None},
         "proto": "runtime",
-        "request": {},
-        "response": {"status_code": None, "bytes_sent": 0, "profile": None},
         "classification": {"verdict": "alert", "tags": tags, "indicators": [rule]},
         "decision": {"truncated": False, "oversized": False, "rate_limited": False, "dropped": False},
         "artifacts": [],
@@ -192,7 +193,7 @@ def main() -> int:
         ev["falco"]["output_fields"] = ev["falco"].get("output_fields", {}) or {}
         ev["falco"]["output_fields"].update(
             {
-                "honeypot_id": PACK_ID,
+                "honeypot_id": HONEYPOT_ID,
                 "sensor": "falco",
             }
         )
@@ -205,6 +206,7 @@ def main() -> int:
                 {
                     **ev,
                     "event_id": f"falco-enforce-{uuid.uuid4().hex}",
+                    "event_name": "falco.enforcement",
                     "classification": {
                         "verdict": "enforcement",
                         "tags": ["falco", "enforcement", f"action:{ENFORCE_ACTION}"],

@@ -56,7 +56,54 @@
       "type": "object"
     },
     "telemetry": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "emit_events": {
+          "type": "boolean"
+        },
+        "redact_headers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "emit": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/filter_rule"
+              }
+            },
+            "forward": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/filter_rule"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "forwarding": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "hub_url": {
+              "type": "string",
+              "minLength": 1
+            },
+            "token_env": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
     },
     "listen": {
       "type": "array"
@@ -492,5 +539,65 @@
       }
     }
   },
-  "additionalProperties": true
+  "additionalProperties": true,
+  "$defs": {
+    "filter_condition": {
+      "type": "object",
+      "properties": {
+        "all": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filter_condition"
+          }
+        },
+        "any": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filter_condition"
+          }
+        },
+        "field": {
+          "type": "string"
+        },
+        "eq": {},
+        "neq": {},
+        "in": {
+          "type": "array"
+        },
+        "contains": {
+          "type": "string"
+        },
+        "regex": {
+          "type": "string"
+        },
+        "gte": {},
+        "lte": {},
+        "exists": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "filter_rule": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "when": {
+          "$ref": "#/$defs/filter_condition"
+        },
+        "action": {
+          "enum": [
+            "keep",
+            "drop"
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    }
+  }
 }

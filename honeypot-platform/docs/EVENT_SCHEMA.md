@@ -1,37 +1,45 @@
-# Event Schema v1
+# Event Schema v2
 
-## Required Core Fields
-Every event includes:
-- identity: `schema_version`, `event_id`, `ts`, `pack_id`
-- mode: `interaction`, `component`, `proto`
-- source: `src` (`ip`, `port`, `forwarded_for`, `user_agent`)
-- request/response objects when applicable
-- classification (`verdict`, `tags`, `indicators`)
-- decision flags (`truncated`, `oversized`, `rate_limited`, `dropped`)
-- artifact list with `kind`, hash, size, mime, and `storage_ref`
+All telemetry producers emit schema version `2`.
 
-## Example: Low HTTP Upload
+## Required envelope
+- `schema_version: 2`
+- `event_id`, `ts`
+- `honeypot_id`, `session_id`, `agent_id`
+- `event_name` (lowercase dotted)
+- `component`
+- `classification`, `decision`, `artifacts`
+
+`pack_id` may still appear from transitional emitters but should be normalized to `honeypot_id` by downstream consumers.
+
+## Event examples
+
+### `http.request`
 ```json
-{"schema_version":1,"pack_id":"example-upload-sink","component":"runtime.http","classification":{"verdict":"upload","tags":["multipart"],"indicators":["file-upload"]}}
+{"schema_version":2,"event_name":"http.request","component":"sensor.http_proxy","honeypot_id":"example","session_id":"...","agent_id":"host","request":{"path":"/"}}
 ```
 
-## Example: Proxy Flow
+### `egress.response`
 ```json
-{"schema_version":1,"pack_id":"example-wp-stack","component":"sensor.http_proxy","proto":"http","response":{"status_code":200}}
+{"schema_version":2,"event_name":"egress.response","component":"sensor.egress_proxy","response":{"status_code":200},"artifacts":[{"kind":"egress.response_body","sha256":"...","size":123,"mime":"application/octet-stream","storage_ref":"blobs/ab/...","meta":{"url":"https://example.com/payload"}}]}
 ```
 
-## Example: Filesystem Change
+### `fs.write`
 ```json
-{"schema_version":1,"component":"sensor.fsmon","classification":{"verdict":"postex","tags":["fs_change"],"indicators":["/var/www/html/index.php"]}}
+{"schema_version":2,"event_name":"fs.write","component":"sensor.fsmon","classification":{"verdict":"postex","tags":["fs_change"],"indicators":["/var/www/html/shell.php"]}}
 ```
 
-## Example: PCAP Rotation
+### `pcap.segment`
 ```json
-{"schema_version":1,"component":"sensor.pcap","artifacts":[{"kind":"pcap_segment","storage_ref":"blobs/ab/abcdef..."}]}
+{"schema_version":2,"event_name":"pcap.segment","component":"sensor.pcap","artifacts":[{"kind":"pcap_segment","storage_ref":"blobs/ab/..."}]}
 ```
 
-
-## Example: Falco Alert
+### `falco.alert`
 ```json
-{"schema_version":1,"component":"sensor.falco","proto":"runtime","classification":{"verdict":"alert","tags":["falco","priority:Error","rule:Hoho Shell Spawned in Container"]},"falco":{"rule":"Hoho Shell Spawned in Container","priority":"Error","output_fields":{"proc.cmdline":"/bin/sh","container.id":"abcd1234"}}}
+{"schema_version":2,"event_name":"falco.alert","component":"sensor.falco","classification":{"verdict":"alert","tags":["falco"]},"falco":{"rule":"..."}}
+```
+
+### `runtime.ca_install`
+```json
+{"schema_version":2,"event_name":"runtime.ca_install","component":"runtime.compose","runtime":{"service":"web","exit_code":0}}
 ```
