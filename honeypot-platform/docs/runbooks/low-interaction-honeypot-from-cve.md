@@ -21,6 +21,3 @@ PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_
 PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
   python -m hoho_runtime.cli run honeypot-platform/honeypots/low/<honeypot_id>
 ```
-
-## Compatibility note
-`packs/low/*.yaml` invocation is temporarily supported with a deprecation warning.

@@ -11,9 +11,10 @@
 ## Workflow
 1. Research target CVE and vulnerable stack.
 2. Build `honeypot.yaml` under `honeypots/high/<honeypot_id>/`.
-3. Add sensors for proxy/fsmon/pcap (plus egress_proxy when needed).
-4. Write `README.md` (+ `reset.sh` if useful).
-5. Validate, render compose, and run.
+3. Add sensors for proxy/fsmon/pcap (plus egress_proxy when needed). 
+4. When configuring fsmon watch_paths, always include common world-writable temp locations (/tmp, /var/tmp) plus the app's most likely writable/content directories
+5. Write `README.md` (+ `reset.sh` if useful).
+6. Validate, render compose, and run.
 
 ## Validation and run
 ```bash
@@ -26,6 +27,3 @@ PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_
 PYTHONPATH=honeypot-platform/packages/hoho_core:honeypot-platform/packages/hoho_runtime \
   python -m hoho_runtime.cli run honeypot-platform/honeypots/high/<honeypot_id>
 ```
-
-## Compatibility note
-`packs/high/*.yaml` invocation is temporarily supported with a deprecation warning.
