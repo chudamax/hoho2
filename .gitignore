@@ -3,6 +3,7 @@ run/
 deploy/
 honeypot-platform/sensors/*/packages/
 hub/data/
+honeypot-platform/hub/data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
