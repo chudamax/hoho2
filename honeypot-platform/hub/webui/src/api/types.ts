@@ -8,6 +8,24 @@ export type EventSummary = {
   verdict: string
   tags: string[]
   artifacts_count?: number
+  artifact_badges?: string[]
+}
+
+export type EventArtifact = {
+  kind?: string
+  sha256?: string
+  mime?: string
+  storage_ref?: string
+  meta?: Record<string, unknown>
+  detected_mime?: string
+  detected_desc?: string
+  guessed_ext?: string
+}
+
+export type EventDetail = {
+  event_id?: string
+  artifacts?: EventArtifact[]
+  [key: string]: unknown
 }
 
 export type HoneypotSummary = {
