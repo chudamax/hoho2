@@ -5,6 +5,7 @@ Hub lives under `honeypot-platform/hub/` and provides:
 - SPA web GUI for browsing honeypots/sessions/events/files
 - live events via SSE
 - blob downloads by sha256
+- blob file type detection metadata (libmagic-based)
 
 ## Global .env
 Use the shared env file at `honeypot-platform/.env` for hub + shipper.
@@ -30,6 +31,28 @@ hoho hub down
 - UI: `http://localhost:8000/ui/`
 - `/` redirects to `/ui/`
 - Live stream endpoint: `/api/v1/stream/events`
+
+### File type detection metadata
+Blob metadata is stored in `blob_meta` (SQLite), keyed by blob SHA256 and reused across artifacts.
+
+Metadata fields:
+- `detected_desc` (human-readable file-style description)
+- `detected_mime`
+- `guessed_ext`
+
+Artifacts API (`/api/v1/artifacts`) includes these fields, and supports `detected_mime_prefix=` filtering.
+
+Optional blob metadata endpoint:
+- `GET /api/v1/blobs/{sha}/meta`
+
+Env flags:
+- `HOHO_HUB_FILETYPE_DETECT` (default `1`)
+- `HOHO_HUB_FILETYPE_DETECT_MAX_BYTES` (default `262144`)
+- `HOHO_HUB_FILETYPE_LAZY` (default `0`; if `1`, detect on first read instead of upload)
+- `HOHO_HUB_FILETYPE_BACKFILL` (default `0`; startup backfill)
+- `HOHO_HUB_FILETYPE_BACKFILL_LIMIT` (default `100`; max blobs per startup)
+
+Detection failures never fail blob upload; hub logs warning and continues.
 
 ## Local dev workflow
 Run the API:

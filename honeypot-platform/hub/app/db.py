@@ -1,6 +1,18 @@
 import json
 import sqlite3
+from dataclasses import dataclass
 from pathlib import Path
+
+
+@dataclass
+class BlobMeta:
+    sha256: str
+    size: int | None
+    detected_mime: str | None
+    detected_desc: str | None
+    guessed_ext: str | None
+    detected_at: str
+    meta_json: str | None = None
 
 
 class HubDB:
@@ -53,9 +65,24 @@ class HubDB:
             )
             """
         )
+        self.conn.execute(
+            """
+            create table if not exists blob_meta(
+              sha256 text primary key,
+              size integer,
+              detected_mime text,
+              detected_desc text,
+              guessed_ext text,
+              detected_at text,
+              meta_json text
+            )
+            """
+        )
         self.conn.execute("create index if not exists idx_artifacts_hs_ts on artifacts(honeypot_id, session_id, ts)")
         self.conn.execute("create index if not exists idx_artifacts_sha on artifacts(sha256)")
         self.conn.execute("create index if not exists idx_artifacts_ts on artifacts(ts)")
+        self.conn.execute("create index if not exists idx_blob_meta_mime on blob_meta(detected_mime)")
+        self.conn.execute("create index if not exists idx_blob_meta_detected_at on blob_meta(detected_at)")
         self.conn.commit()
 
     def insert_event(self, event: dict):
@@ -137,3 +164,59 @@ class HubDB:
                 continue
             self._insert_artifacts_for_event(event)
         self.conn.commit()
+
+    def upsert_blob_meta(self, meta: BlobMeta) -> None:
+        self.conn.execute(
+            """
+            insert into blob_meta(sha256,size,detected_mime,detected_desc,guessed_ext,detected_at,meta_json)
+            values(?,?,?,?,?,?,?)
+            on conflict(sha256) do update set
+              size=excluded.size,
+              detected_mime=excluded.detected_mime,
+              detected_desc=excluded.detected_desc,
+              guessed_ext=excluded.guessed_ext,
+              detected_at=excluded.detected_at,
+              meta_json=excluded.meta_json
+            """,
+            (
+                meta.sha256,
+                meta.size,
+                meta.detected_mime,
+                meta.detected_desc,
+                meta.guessed_ext,
+                meta.detected_at,
+                meta.meta_json,
+            ),
+        )
+        self.conn.commit()
+
+    def get_blob_meta(self, sha256: str) -> BlobMeta | None:
+        row = self.conn.execute(
+            "select sha256,size,detected_mime,detected_desc,guessed_ext,detected_at,meta_json from blob_meta where sha256=?",
+            (sha256,),
+        ).fetchone()
+        if not row:
+            return None
+        return BlobMeta(
+            sha256=row["sha256"],
+            size=row["size"],
+            detected_mime=row["detected_mime"],
+            detected_desc=row["detected_desc"],
+            guessed_ext=row["guessed_ext"],
+            detected_at=row["detected_at"],
+            meta_json=row["meta_json"],
+        )
+
+    def list_blob_shas_missing_meta(self, limit: int) -> list[str]:
+        rows = self.conn.execute(
+            """
+            select a.sha256
+            from artifacts a
+            left join blob_meta bm on bm.sha256 = a.sha256
+            where a.sha256 is not null and bm.sha256 is null
+            group by a.sha256
+            limit ?
+            """,
+            (limit,),
+        ).fetchall()
+        return [row["sha256"] for row in rows]
