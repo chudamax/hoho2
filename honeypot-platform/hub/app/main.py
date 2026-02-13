@@ -1,21 +1,31 @@
 import asyncio
 import hashlib
 import json
+import logging
 import os
 from contextlib import suppress
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 
-from .db import HubDB
+from .db import BlobMeta, HubDB
+from .filetype import detect_blob
 
 DATA = Path(os.getenv("HOHO_HUB_DATA", "./data"))
 BLOBS = DATA / "blobs"
 TOKEN = os.getenv("HOHO_HUB_TOKEN", "")
 BACKFILL_ENABLED = os.getenv("HOHO_HUB_BACKFILL", "0") == "1"
+FILETYPE_DETECT_ENABLED = os.getenv("HOHO_HUB_FILETYPE_DETECT", "1") == "1"
+FILETYPE_DETECT_MAX_BYTES = max(1, int(os.getenv("HOHO_HUB_FILETYPE_DETECT_MAX_BYTES", "262144")))
+FILETYPE_LAZY = os.getenv("HOHO_HUB_FILETYPE_LAZY", "0") == "1"
+FILETYPE_BACKFILL_ENABLED = os.getenv("HOHO_HUB_FILETYPE_BACKFILL", "0") == "1"
+FILETYPE_BACKFILL_LIMIT = max(1, int(os.getenv("HOHO_HUB_FILETYPE_BACKFILL_LIMIT", "100")))
 WEBUI_DIST = Path(__file__).parent / "webui_dist"
+
+logger = logging.getLogger(__name__)
 
 DB = HubDB(DATA / "hub.db")
 if BACKFILL_ENABLED or DB.artifacts_count() == 0:
@@ -58,22 +68,92 @@ def _publish_event(summary: dict):
         _SUBSCRIBERS.discard(queue)
 
 
+def _blob_path(sha: str) -> Path:
+    return BLOBS / sha[:2] / sha
+
+
+def _blob_meta_to_dict(meta: BlobMeta) -> dict[str, str | int | None]:
+    return {
+        "sha256": meta.sha256,
+        "size": meta.size,
+        "detected_mime": meta.detected_mime,
+        "detected_desc": meta.detected_desc,
+        "guessed_ext": meta.guessed_ext,
+        "detected_at": meta.detected_at,
+    }
+
+
+def _detect_and_store_blob_meta(sha: str, path: Path, size: int | None = None) -> BlobMeta | None:
+    if not FILETYPE_DETECT_ENABLED:
+        return None
+
+    try:
+        detected = detect_blob(path, max_bytes=FILETYPE_DETECT_MAX_BYTES)
+        meta = BlobMeta(
+            sha256=sha,
+            size=size,
+            detected_mime=detected.get("detected_mime"),
+            detected_desc=detected.get("detected_desc"),
+            guessed_ext=detected.get("guessed_ext"),
+            detected_at=datetime.now(UTC).isoformat(),
+            meta_json=None,
+        )
+        DB.upsert_blob_meta(meta)
+        return meta
+    except Exception as exc:  # pragma: no cover - upload path must not break
+        logger.warning("blob metadata detection failed for %s: %s", sha, exc)
+        return None
+
+
+def _ensure_blob_meta(sha: str, size: int | None = None) -> BlobMeta | None:
+    if not sha:
+        return None
+
+    meta = DB.get_blob_meta(sha)
+    if meta:
+        return meta
+    if not FILETYPE_DETECT_ENABLED or not FILETYPE_LAZY:
+        return None
+
+    path = _blob_path(sha)
+    if not path.exists():
+        return None
+    return _detect_and_store_blob_meta(sha, path, size=size)
+
+
+def _backfill_blob_meta():
+    if not FILETYPE_DETECT_ENABLED or not FILETYPE_BACKFILL_ENABLED:
+        return
+    for sha in DB.list_blob_shas_missing_meta(FILETYPE_BACKFILL_LIMIT):
+        path = _blob_path(sha)
+        if not path.exists():
+            continue
+        _detect_and_store_blob_meta(sha, path, size=path.stat().st_size)
+
+
+_backfill_blob_meta()
+
+
 @app.put("/api/v1/blobs/{sha}")
 async def put_blob(sha: str, request: Request, authorization: str | None = Header(default=None), x_hoho_token: str | None = Header(default=None)):
     _auth(authorization, x_hoho_token)
     data = await request.body()
     if hashlib.sha256(data).hexdigest() != sha:
         raise HTTPException(status_code=400, detail="sha mismatch")
-    p = BLOBS / sha[:2] / sha
+    p = _blob_path(sha)
     p.parent.mkdir(parents=True, exist_ok=True)
     if not p.exists():
         p.write_bytes(data)
+
+    if FILETYPE_DETECT_ENABLED and not FILETYPE_LAZY:
+        _detect_and_store_blob_meta(sha, p, size=len(data))
+
     return {"ok": True}
 
 
 @app.head("/api/v1/blobs/{sha}")
 def head_blob(sha: str):
-    p = BLOBS / sha[:2] / sha
+    p = _blob_path(sha)
     if not p.exists():
         raise HTTPException(status_code=404)
     return {}
@@ -161,6 +241,7 @@ def list_artifacts(
     session_id: str | None = None,
     kind: str | None = None,
     mime_prefix: str | None = None,
+    detected_mime_prefix: str | None = None,
     q: str | None = None,
     limit: int = 200,
     offset: int = 0,
@@ -171,48 +252,95 @@ def list_artifacts(
     params: list[str | int] = []
 
     if honeypot_id:
-        clauses.append("honeypot_id=?")
+        clauses.append("a.honeypot_id=?")
         params.append(honeypot_id)
     if session_id:
-        clauses.append("session_id=?")
+        clauses.append("a.session_id=?")
         params.append(session_id)
     if kind:
-        clauses.append("kind=?")
+        clauses.append("a.kind=?")
         params.append(kind)
     if mime_prefix:
-        clauses.append("mime like ?")
+        clauses.append("a.mime like ?")
         params.append(f"{mime_prefix}%")
+    if detected_mime_prefix:
+        clauses.append("bm.detected_mime like ?")
+        params.append(f"{detected_mime_prefix}%")
     if q:
-        clauses.append("(event_id like ? or sha256 like ? or storage_ref like ? or meta_json like ?)")
+        clauses.append("(a.event_id like ? or a.sha256 like ? or a.storage_ref like ? or a.meta_json like ?)")
         like = f"%{q}%"
         params.extend([like, like, like, like])
 
     sql = """
-        select artifact_id, ts, honeypot_id, session_id, event_id, kind, sha256, size, mime, storage_ref, meta_json
-        from artifacts
+        select
+            a.artifact_id,
+            a.ts,
+            a.honeypot_id,
+            a.session_id,
+            a.event_id,
+            a.kind,
+            a.sha256,
+            a.size,
+            a.mime,
+            a.storage_ref,
+            a.meta_json,
+            bm.detected_mime,
+            bm.detected_desc,
+            bm.guessed_ext
+        from artifacts a
+        left join blob_meta bm on bm.sha256 = a.sha256
     """
     if clauses:
         sql += " where " + " and ".join(clauses)
-    sql += " order by ts desc limit ? offset ?"
+    sql += " order by a.ts desc limit ? offset ?"
     params.extend([limit, offset])
 
     rows = DB.conn.execute(sql, params).fetchall()
-    return [
-        {
-            "artifact_id": row["artifact_id"],
-            "ts": row["ts"],
-            "honeypot_id": row["honeypot_id"],
-            "session_id": row["session_id"],
-            "event_id": row["event_id"],
-            "kind": row["kind"],
-            "sha256": row["sha256"],
-            "size": row["size"],
-            "mime": row["mime"],
-            "storage_ref": row["storage_ref"],
-            "meta": json.loads(row["meta_json"] or "{}"),
-        }
-        for row in rows
-    ]
+    out = []
+    for row in rows:
+        detected_mime = row["detected_mime"]
+        detected_desc = row["detected_desc"]
+        guessed_ext = row["guessed_ext"]
+
+        sha = row["sha256"]
+        if sha and FILETYPE_LAZY and not detected_mime and not detected_desc:
+            detected = _ensure_blob_meta(sha, size=row["size"])
+            if detected:
+                detected_mime = detected.detected_mime
+                detected_desc = detected.detected_desc
+                guessed_ext = detected.guessed_ext
+
+        out.append(
+            {
+                "artifact_id": row["artifact_id"],
+                "ts": row["ts"],
+                "honeypot_id": row["honeypot_id"],
+                "session_id": row["session_id"],
+                "event_id": row["event_id"],
+                "kind": row["kind"],
+                "sha256": sha,
+                "size": row["size"],
+                "mime": row["mime"],
+                "storage_ref": row["storage_ref"],
+                "meta": json.loads(row["meta_json"] or "{}"),
+                "detected_mime": detected_mime,
+                "detected_desc": detected_desc,
+                "guessed_ext": guessed_ext,
+            }
+        )
+    return out
+
+
+@app.get("/api/v1/blobs/{sha}/meta")
+def get_blob_meta(sha: str):
+    meta = DB.get_blob_meta(sha)
+    if not meta and FILETYPE_LAZY:
+        path = _blob_path(sha)
+        if path.exists():
+            meta = _detect_and_store_blob_meta(sha, path, size=path.stat().st_size)
+    if not meta:
+        raise HTTPException(status_code=404, detail="blob metadata not found")
+    return _blob_meta_to_dict(meta)
 
 
 @app.get("/api/v1/artifacts/{artifact_id}/download")
@@ -224,7 +352,7 @@ def download_artifact(artifact_id: str):
     if not sha:
         raise HTTPException(status_code=404, detail="artifact has no blob hash")
 
-    p = BLOBS / sha[:2] / sha
+    p = _blob_path(sha)
     if not p.exists():
         raise HTTPException(status_code=404, detail="blob not found")
 
@@ -304,7 +432,7 @@ def serve_ui(path: str):
 
 @app.get("/blobs/{sha}")
 def download_blob(sha: str):
-    p = BLOBS / sha[:2] / sha
+    p = _blob_path(sha)
     if not p.exists():
         raise HTTPException(status_code=404)
     return FileResponse(str(p), filename=sha)
