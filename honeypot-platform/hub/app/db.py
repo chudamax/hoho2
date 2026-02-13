@@ -4,6 +4,96 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+def _normalize_action(value: str | None, limit: int = 200) -> str:
+    collapsed = " ".join((value or "").split())
+    if not collapsed:
+        return "-"
+    if len(collapsed) <= limit:
+        return collapsed
+    return collapsed[: max(0, limit - 1)] + "…"
+
+
+def _build_http_action(event: dict) -> str:
+    req = event.get("request") if isinstance(event.get("request"), dict) else {}
+    http = event.get("http") if isinstance(event.get("http"), dict) else {}
+    headers = req.get("headers_redacted") if isinstance(req.get("headers_redacted"), dict) else {}
+    method = str(req.get("method") or "-")
+    path = str(req.get("path") or "/")
+
+    query = req.get("query")
+    if isinstance(query, dict) and query:
+        query_parts = [f"{key}={query[key]}" for key in sorted(query)]
+        path = f"{path}?{'&'.join(query_parts)}"
+
+    host = http.get("host") or headers.get("Host")
+    url = f"http://{host}{path}" if host else path
+    return _normalize_action(f"{method} {url}")
+
+
+def _build_fs_action(event: dict) -> str:
+    artifacts = event.get("artifacts") if isinstance(event.get("artifacts"), list) else []
+    chosen_artifact: dict | None = None
+    fs_path = "-"
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            continue
+        meta = artifact.get("meta") if isinstance(artifact.get("meta"), dict) else {}
+        for key in ("path", "filepath", "file_path", "target_path"):
+            value = meta.get(key)
+            if isinstance(value, str) and value:
+                fs_path = value
+                chosen_artifact = artifact
+                break
+        if chosen_artifact:
+            break
+
+    if fs_path == "-":
+        classification = event.get("classification") if isinstance(event.get("classification"), dict) else {}
+        indicators = classification.get("indicators") if isinstance(classification.get("indicators"), list) else []
+        for indicator in indicators:
+            if isinstance(indicator, str) and indicator.startswith("/"):
+                fs_path = indicator
+                break
+
+    artifact_for_type = chosen_artifact or (artifacts[0] if artifacts and isinstance(artifacts[0], dict) else {})
+    filetype = (
+        artifact_for_type.get("detected_desc")
+        or artifact_for_type.get("detected_mime")
+        or artifact_for_type.get("mime")
+        or "unknown"
+    )
+    return _normalize_action(f"{fs_path} ({filetype})")
+
+
+def _build_falco_action(event: dict) -> str:
+    falco = event.get("falco") if isinstance(event.get("falco"), dict) else {}
+    fields = falco.get("output_fields") if isinstance(falco.get("output_fields"), dict) else {}
+    proc_name = fields.get("proc.name")
+    proc_cmdline = fields.get("proc.cmdline")
+    if proc_name and proc_cmdline:
+        return _normalize_action(f"{proc_name} — {proc_cmdline}")
+    if proc_name:
+        return _normalize_action(str(proc_name))
+    if proc_cmdline:
+        return _normalize_action(str(proc_cmdline))
+    if falco.get("rule"):
+        return _normalize_action(str(falco.get("rule")))
+    return _normalize_action(str(event.get("event_name") or "-"))
+
+
+def compute_event_action(event: dict) -> str:
+    proto = str(event.get("proto") or "").lower()
+    event_name = str(event.get("event_name") or "")
+
+    if proto == "http" or event_name.startswith("http."):
+        return _build_http_action(event)
+    if proto == "fs" or event_name.startswith("fs."):
+        return _build_fs_action(event)
+    if event_name == "falco.alert" or isinstance(event.get("falco"), dict):
+        return _build_falco_action(event)
+    return _normalize_action(event_name or "-")
+
+
 @dataclass
 class BlobMeta:
     sha256: str
@@ -40,6 +130,7 @@ class HubDB:
               src_ip text,
               src_port integer,
               src_forwarded_for text,
+              action text,
               raw_json text
             )
             """
@@ -114,6 +205,7 @@ class HubDB:
             ("src_ip", "text"),
             ("src_port", "integer"),
             ("src_forwarded_for", "text"),
+            ("action", "text"),
         ]
         for name, col_type in desired:
             if name in existing:
@@ -121,6 +213,8 @@ class HubDB:
             self.conn.execute(f"alter table events add column {name} {col_type}")
 
     def insert_event(self, event: dict):
+        action = compute_event_action(event)
+        event["action"] = action
         honeypot_id = event.get("honeypot_id") or event.get("pack_id")
         tags = event.get("classification", {}).get("tags", [])
         req = event.get("request") or {}
@@ -140,7 +234,7 @@ class HubDB:
         src_forwarded_for = json.dumps(xff, separators=(",", ":"))
 
         self.conn.execute(
-            "insert or replace into events(event_id,honeypot_id,session_id,ts,event_name,component,verdict,tags,http_method,http_path,http_status_code,http_user_agent,http_host,src_ip,src_port,src_forwarded_for,raw_json) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "insert or replace into events(event_id,honeypot_id,session_id,ts,event_name,component,verdict,tags,http_method,http_path,http_status_code,http_user_agent,http_host,src_ip,src_port,src_forwarded_for,action,raw_json) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 event.get("event_id"),
                 honeypot_id,
@@ -158,6 +252,7 @@ class HubDB:
                 src_ip,
                 src_port,
                 src_forwarded_for,
+                action,
                 json.dumps(event),
             ),
         )
@@ -222,6 +317,30 @@ class HubDB:
             except json.JSONDecodeError:
                 continue
             self._insert_artifacts_for_event(event)
+        self.conn.commit()
+
+    def backfill_event_actions(self, limit: int = 1000):
+        rows = self.conn.execute(
+            """
+            select event_id, raw_json
+            from events
+            where action is null or action=''
+            order by ts desc
+            limit ?
+            """,
+            (max(1, limit),),
+        ).fetchall()
+        for row in rows:
+            try:
+                event = json.loads(row["raw_json"])
+            except json.JSONDecodeError:
+                continue
+            action = compute_event_action(event)
+            event["action"] = action
+            self.conn.execute(
+                "update events set action=?, raw_json=? where event_id=?",
+                (action, json.dumps(event), row["event_id"]),
+            )
         self.conn.commit()
 
     def upsert_blob_meta(self, meta: BlobMeta) -> None:

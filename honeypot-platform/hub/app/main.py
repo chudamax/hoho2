@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 
-from .db import BlobMeta, HubDB
+from .db import BlobMeta, HubDB, compute_event_action
 from .filetype import detect_blob
 
 DATA = Path(os.getenv("HOHO_HUB_DATA", "./data"))
@@ -23,6 +23,8 @@ FILETYPE_DETECT_MAX_BYTES = max(1, int(os.getenv("HOHO_HUB_FILETYPE_DETECT_MAX_B
 FILETYPE_LAZY = os.getenv("HOHO_HUB_FILETYPE_LAZY", "0") == "1"
 FILETYPE_BACKFILL_ENABLED = os.getenv("HOHO_HUB_FILETYPE_BACKFILL", "0") == "1"
 FILETYPE_BACKFILL_LIMIT = max(1, int(os.getenv("HOHO_HUB_FILETYPE_BACKFILL_LIMIT", "100")))
+ACTION_BACKFILL_ENABLED = os.getenv("HOHO_HUB_ACTION_BACKFILL", "0") == "1"
+ACTION_BACKFILL_LIMIT = max(1, int(os.getenv("HOHO_HUB_ACTION_BACKFILL_LIMIT", "1000")))
 WEBUI_DIST = Path(__file__).parent / "webui_dist"
 
 logger = logging.getLogger(__name__)
@@ -30,6 +32,8 @@ logger = logging.getLogger(__name__)
 DB = HubDB(DATA / "hub.db")
 if BACKFILL_ENABLED or DB.artifacts_count() == 0:
     DB.backfill_artifacts()
+if ACTION_BACKFILL_ENABLED:
+    DB.backfill_event_actions(ACTION_BACKFILL_LIMIT)
 
 app = FastAPI()
 _SUBSCRIBERS: set[asyncio.Queue] = set()
@@ -58,6 +62,7 @@ def _event_summary(event: dict) -> dict:
         "honeypot_id": event.get("honeypot_id") or event.get("pack_id"),
         "session_id": event.get("session_id"),
         "event_name": event.get("event_name"),
+        "action": event.get("action") or compute_event_action(event),
         "component": event.get("component"),
         "verdict": (event.get("classification") or {}).get("verdict"),
         "tags": (event.get("classification") or {}).get("tags") or [],
@@ -86,7 +91,7 @@ def _event_summary_by_id(event_id: str) -> dict | None:
         """
         select event_id, ts, honeypot_id, session_id, event_name, component, verdict, tags,
                http_method, http_path, http_status_code, http_user_agent, http_host,
-               src_ip, src_port, src_forwarded_for
+               src_ip, src_port, src_forwarded_for, action
         from events
         where event_id=?
         """,
@@ -101,6 +106,7 @@ def _event_summary_by_id(event_id: str) -> dict | None:
     item["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(event_id, []))
     item["http_summary"] = _event_http_summary_from_row(item, user_agent_limit=160)
     item["src_summary"] = _event_src_summary_for_list(item)
+    _apply_action_from_row(item)
     return item
 def _bucket_mime(mime: str | None) -> str:
     m = (mime or "application/octet-stream").lower()
@@ -204,6 +210,24 @@ def _event_src_summary_for_detail(row: dict) -> dict:
         "port": row.get("src_port"),
         "forwarded_for": _parse_forwarded_for(row.get("src_forwarded_for")),
     }
+
+
+def _apply_action_from_row(item: dict, raw_json: str | None = None):
+    action = item.get("action")
+    if isinstance(action, str) and action.strip():
+        return
+    event_data: dict = {}
+    if raw_json:
+        try:
+            parsed = json.loads(raw_json)
+            if isinstance(parsed, dict):
+                event_data = parsed
+        except json.JSONDecodeError:
+            event_data = {}
+    else:
+        event_data = dict(item)
+    item["action"] = compute_event_action(event_data)
+
 
 def _publish_event(summary: dict):
     stale = []
@@ -361,7 +385,7 @@ def list_session_events(honeypot_id: str, session_id: str, before_ts: str | None
     q = """
         select event_id, ts, event_name, component, verdict, tags,
                http_method, http_path, http_status_code, http_user_agent, http_host,
-               src_ip, src_port, src_forwarded_for
+               src_ip, src_port, src_forwarded_for, action
         from events
         where honeypot_id=? and session_id=?
     """
@@ -380,6 +404,7 @@ def list_session_events(honeypot_id: str, session_id: str, before_ts: str | None
         item["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(item["event_id"], []))
         item["http_summary"] = _event_http_summary_from_row(item, user_agent_limit=160)
         item["src_summary"] = _event_src_summary_for_list(item)
+        _apply_action_from_row(item)
         out.append(item)
     return out
 
@@ -391,7 +416,7 @@ def list_events(limit: int = 200):
         """
         select event_id, ts, honeypot_id, session_id, event_name, component, verdict, tags,
                http_method, http_path, http_status_code, http_user_agent, http_host,
-               src_ip, src_port, src_forwarded_for
+               src_ip, src_port, src_forwarded_for, action
         from events
         order by ts desc
         limit ?
@@ -408,6 +433,7 @@ def list_events(limit: int = 200):
         item["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(item["event_id"], []))
         item["http_summary"] = _event_http_summary_from_row(item, user_agent_limit=160)
         item["src_summary"] = _event_src_summary_for_list(item)
+        _apply_action_from_row(item)
         out.append(item)
     return out
 
@@ -417,7 +443,7 @@ def get_event(event_id: str):
     row = DB.conn.execute(
         """
         select raw_json, http_method, http_path, http_status_code, http_user_agent, http_host,
-               src_ip, src_port, src_forwarded_for
+               src_ip, src_port, src_forwarded_for, action
         from events
         where event_id=?
         """,
@@ -426,6 +452,8 @@ def get_event(event_id: str):
     if not row:
         raise HTTPException(status_code=404, detail="event not found")
     event = json.loads(row["raw_json"])
+    if not isinstance(event.get("action"), str) or not event.get("action"):
+        event["action"] = row["action"] or compute_event_action(event)
     artifacts = (event.get("artifacts") or []) if isinstance(event.get("artifacts"), list) else []
     event["artifacts"] = _enrich_artifacts(artifacts)
     return {
@@ -611,7 +639,7 @@ async def stream_events(honeypot_id: str | None = None, session_id: str | None =
                 """
                 select event_id, ts, honeypot_id, session_id, event_name, component, verdict, tags,
                        http_method, http_path, http_status_code, http_user_agent, http_host,
-                       src_ip, src_port, src_forwarded_for
+                       src_ip, src_port, src_forwarded_for, action
                 from events
                 where ts >= ?
                 order by ts desc
@@ -628,6 +656,7 @@ async def stream_events(honeypot_id: str | None = None, session_id: str | None =
                 payload["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(payload["event_id"], []))
                 payload["http_summary"] = _event_http_summary_from_row(payload, user_agent_limit=160)
                 payload["src_summary"] = _event_src_summary_for_list(payload)
+                _apply_action_from_row(payload)
                 if matches(payload):
                     yield f"data: {json.dumps(payload, separators=(',', ':'))}\n\n"
 

@@ -20,6 +20,7 @@ export type EventSummary = {
   honeypot_id: string
   session_id: string
   event_name: string
+  action?: string
   component: string
   verdict: string
   tags: string[]

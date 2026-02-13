@@ -7,6 +7,7 @@ All telemetry producers emit schema version `2`.
 - `event_id`, `ts`
 - `honeypot_id`, `session_id`, `agent_id`
 - `event_name` (lowercase dotted)
+- `action` (optional, hub-derived UI headline; `event_name` remains canonical)
 - `component`
 - `classification`, `decision`, `artifacts`
 

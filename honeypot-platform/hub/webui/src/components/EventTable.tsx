@@ -18,7 +18,7 @@ export function EventTable({ events }: { events: EventSummary[] }) {
         <TableRow>
           <TableCell>Timestamp</TableCell>
           <TableCell>Event</TableCell>
-          <TableCell>HTTP</TableCell>
+          <TableCell>Action</TableCell>
           <TableCell>Source</TableCell>
           <TableCell>Component</TableCell>
           <TableCell>Verdict</TableCell>
@@ -34,15 +34,13 @@ export function EventTable({ events }: { events: EventSummary[] }) {
               <Link component={RouterLink} to={`/ui/events/${event.event_id}`}>{event.event_name}</Link>
             </TableCell>
             <TableCell>
-              {event.http_summary?.method || event.http_summary?.path ? (
-                <>
-                  <Link component={RouterLink} to={`/ui/events/${event.event_id}`} sx={{ fontFamily: 'monospace' }}>
-                    {`${event.http_summary?.method || '-'} ${event.http_summary?.path || '-'}`}
-                  </Link>
-                  {!!event.http_summary?.status_code && <Chip size="small" color={statusColor(event.http_summary.status_code)} label={event.http_summary.status_code} sx={{ ml: 0.5 }} />}
-                  {event.http_summary?.host && <Tooltip title={event.http_summary.host}><span> · {event.http_summary.host}</span></Tooltip>}
-                </>
-              ) : '-'}
+              <Link component={RouterLink} to={`/ui/events/${event.event_id}`} sx={{ fontFamily: 'monospace' }}>
+                {event.action || event.event_name || '-'}
+              </Link>
+              <Tooltip title={event.event_name}>
+                <span style={{ marginLeft: 8, opacity: 0.65 }}>{event.event_name}</span>
+              </Tooltip>
+              {!!event.http_summary?.status_code && <Chip size="small" color={statusColor(event.http_summary.status_code)} label={event.http_summary.status_code} sx={{ ml: 0.5 }} />}
             </TableCell>
             <TableCell>
               {event.src_summary?.ip ? `${event.src_summary.ip}:${event.src_summary.port || '-'}` : '-'}

@@ -29,7 +29,9 @@ export default function EventDetailPage() {
 
   return (
     <>
-      <Typography variant="h5" sx={{ mb: 2 }}>Event {eventId}</Typography>
+      <Typography variant="h5" sx={{ mb: 1 }}>Event {eventId}</Typography>
+      <Typography variant="body1" sx={{ mb: 2 }}>Action: {String(event?.action || event?.event_name || '-')}</Typography>
+      <Typography variant="body2" sx={{ mb: 2, opacity: 0.75 }}>Event Name: {String(event?.event_name || '-')}</Typography>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
         <Paper variant="outlined" sx={{ p: 2, flex: 1 }}>
           <Typography variant="h6">HTTP Request</Typography>
