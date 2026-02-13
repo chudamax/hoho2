@@ -51,6 +51,33 @@ def _parse_mount(volume_entry):
     return None
 
 
+def _rewrite_service_bind_mounts(service: dict, honeypot_dir: Path | None) -> None:
+    if honeypot_dir is None:
+        return
+
+    rewritten = []
+    for volume in _as_list(service.get("volumes", [])):
+        parsed = _parse_mount(volume)
+        if not parsed:
+            rewritten.append(volume)
+            continue
+
+        source = parsed["source"]
+        if isinstance(source, str) and source.startswith("./"):
+            abs_source = str((honeypot_dir / source).resolve())
+            if isinstance(volume, str):
+                rewritten.append(volume.replace(source, abs_source, 1))
+            else:
+                next_volume = dict(volume)
+                next_volume["source"] = abs_source
+                rewritten.append(next_volume)
+            continue
+
+        rewritten.append(volume)
+
+    service["volumes"] = rewritten
+
+
 def _find_covering_mount(service: dict, watch_path: str):
     watch = str(PurePosixPath(watch_path))
     best_mount = None
@@ -238,6 +265,7 @@ exit 0
 
     telemetry = pack.get("telemetry", {}) if isinstance(pack.get("telemetry", {}), dict) else {}
     for service in services.values():
+        _rewrite_service_bind_mounts(service, Path(honeypot_dir) if honeypot_dir else None)
         env = service.setdefault("environment", {})
         env.setdefault("HOHO_HONEYPOT_ID", pack_id)
         env.setdefault("HOHO_SESSION_ID", session_id or "unknown-session")
