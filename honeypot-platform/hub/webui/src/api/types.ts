@@ -36,4 +36,7 @@ export type Artifact = {
   mime: string
   storage_ref: string
   meta: Record<string, unknown>
+  detected_mime?: string
+  detected_desc?: string
+  guessed_ext?: string
 }
