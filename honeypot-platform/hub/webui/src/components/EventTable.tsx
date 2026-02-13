@@ -13,6 +13,7 @@ export function EventTable({ events }: { events: EventSummary[] }) {
           <TableCell>Component</TableCell>
           <TableCell>Verdict</TableCell>
           <TableCell>Tags</TableCell>
+          <TableCell>Artifacts</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -27,6 +28,11 @@ export function EventTable({ events }: { events: EventSummary[] }) {
             <TableCell>
               {event.tags?.slice(0, 3).map((tag) => (
                 <Chip key={tag} size="small" label={tag} sx={{ mr: 0.5 }} />
+              ))}
+            </TableCell>
+            <TableCell>
+              {event.artifact_badges?.map((badge) => (
+                <Chip key={badge} size="small" label={badge.toUpperCase().slice(0, 4)} sx={{ mr: 0.5 }} />
               ))}
             </TableCell>
           </TableRow>

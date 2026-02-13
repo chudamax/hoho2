@@ -220,3 +220,55 @@ class HubDB:
             (limit,),
         ).fetchall()
         return [row["sha256"] for row in rows]
+
+    def get_blob_meta_many(self, shas: list[str]) -> dict[str, BlobMeta]:
+        unique_shas = sorted({sha for sha in shas if sha})
+        if not unique_shas:
+            return {}
+
+        placeholders = ",".join("?" for _ in unique_shas)
+        rows = self.conn.execute(
+            f"""
+            select sha256,size,detected_mime,detected_desc,guessed_ext,detected_at,meta_json
+            from blob_meta
+            where sha256 in ({placeholders})
+            """,
+            unique_shas,
+        ).fetchall()
+        return {
+            row["sha256"]: BlobMeta(
+                sha256=row["sha256"],
+                size=row["size"],
+                detected_mime=row["detected_mime"],
+                detected_desc=row["detected_desc"],
+                guessed_ext=row["guessed_ext"],
+                detected_at=row["detected_at"],
+                meta_json=row["meta_json"],
+            )
+            for row in rows
+        }
+
+    def get_event_artifact_mimes(self, event_ids: list[str]) -> dict[str, list[str]]:
+        unique_ids = sorted({event_id for event_id in event_ids if event_id})
+        if not unique_ids:
+            return {}
+
+        placeholders = ",".join("?" for _ in unique_ids)
+        rows = self.conn.execute(
+            f"""
+            select
+              a.event_id,
+              coalesce(m.detected_mime, a.mime, 'application/octet-stream') as mime,
+              count(*) as c
+            from artifacts a
+            left join blob_meta m on m.sha256 = a.sha256
+            where a.event_id in ({placeholders})
+            group by a.event_id, mime
+            """,
+            unique_ids,
+        ).fetchall()
+
+        by_event: dict[str, list[str]] = {event_id: [] for event_id in unique_ids}
+        for row in rows:
+            by_event[row["event_id"]].extend([row["mime"]] * int(row["c"] or 0))
+        return by_event
