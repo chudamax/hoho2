@@ -12,6 +12,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     api.honeypots().then(setHoneypots)
+    api.events(100).then(setEvents)
   }, [])
 
   const onEvent = useCallback((evt: EventSummary) => {

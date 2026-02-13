@@ -44,6 +44,7 @@ def _auth(authorization: str | None, x_hoho_token: str | None):
 
 
 def _event_summary(event: dict) -> dict:
+    artifacts = (event.get("artifacts") or []) if isinstance(event.get("artifacts"), list) else []
     return {
         "event_id": event.get("event_id"),
         "ts": event.get("ts"),
@@ -53,8 +54,60 @@ def _event_summary(event: dict) -> dict:
         "component": event.get("component"),
         "verdict": (event.get("classification") or {}).get("verdict"),
         "tags": (event.get("classification") or {}).get("tags") or [],
-        "artifacts_count": len(event.get("artifacts") or []),
+        "artifacts_count": len(artifacts),
+        "artifact_badges": _artifact_badges_for_artifacts(artifacts),
     }
+
+
+def _bucket_mime(mime: str | None) -> str:
+    m = (mime or "application/octet-stream").lower()
+    if m.startswith("text/"):
+        return "text"
+    if m.startswith("image/"):
+        return "image"
+    if m in {"application/x-executable", "application/x-sharedlib", "application/x-mach-binary"}:
+        return "exe"
+    if m in {"application/zip", "application/x-tar", "application/gzip", "application/x-7z-compressed", "application/x-rar"}:
+        return "archive"
+    return "binary"
+
+
+def _artifact_badges_for_artifacts(artifacts: list[dict]) -> list[str]:
+    badges: list[str] = []
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            continue
+        badge = _bucket_mime(str(artifact.get("detected_mime") or artifact.get("mime") or ""))
+        if badge not in badges:
+            badges.append(badge)
+    return badges
+
+
+def _artifact_badges_from_mimes(mimes: list[str]) -> list[str]:
+    badges: list[str] = []
+    for mime in mimes:
+        badge = _bucket_mime(mime)
+        if badge not in badges:
+            badges.append(badge)
+    return badges
+
+
+def _enrich_artifacts(artifacts: list[dict]) -> list[dict]:
+    shas = [str(a.get("sha256")) for a in artifacts if isinstance(a, dict) and a.get("sha256")]
+    meta_by_sha = DB.get_blob_meta_many(shas)
+    enriched: list[dict] = []
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            continue
+        item = dict(artifact)
+        sha = str(item.get("sha256") or "")
+        meta = meta_by_sha.get(sha)
+        if meta:
+            item["detected_mime"] = meta.detected_mime
+            item["detected_desc"] = meta.detected_desc
+            item["guessed_ext"] = meta.guessed_ext
+        enriched.append(item)
+    return enriched
 
 
 def _publish_event(summary: dict):
@@ -219,10 +272,37 @@ def list_session_events(honeypot_id: str, session_id: str, before_ts: str | None
     q += " order by ts desc limit ?"
     params.append(limit)
     rows = DB.conn.execute(q, params).fetchall()
+    event_ids = [str(row["event_id"]) for row in rows if row["event_id"]]
+    mimes_by_event = DB.get_event_artifact_mimes(event_ids)
     out = []
     for row in rows:
         item = dict(row)
         item["tags"] = json.loads(item.get("tags") or "[]")
+        item["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(item["event_id"], []))
+        out.append(item)
+    return out
+
+
+@app.get("/api/v1/events")
+def list_events(limit: int = 200):
+    limit = max(1, min(limit, 1000))
+    rows = DB.conn.execute(
+        """
+        select event_id, ts, honeypot_id, session_id, event_name, component, verdict, tags
+        from events
+        order by ts desc
+        limit ?
+        """,
+        (limit,),
+    ).fetchall()
+    event_ids = [str(row["event_id"]) for row in rows if row["event_id"]]
+    mimes_by_event = DB.get_event_artifact_mimes(event_ids)
+    out = []
+    for row in rows:
+        item = dict(row)
+        item["tags"] = json.loads(item.get("tags") or "[]")
+        item["artifacts_count"] = len(mimes_by_event.get(item["event_id"], []))
+        item["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(item["event_id"], []))
         out.append(item)
     return out
 
@@ -232,7 +312,20 @@ def get_event(event_id: str):
     row = DB.conn.execute("select raw_json from events where event_id=?", (event_id,)).fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="event not found")
-    return json.loads(row["raw_json"])
+    event = json.loads(row["raw_json"])
+    artifacts = (event.get("artifacts") or []) if isinstance(event.get("artifacts"), list) else []
+    event["artifacts"] = _enrich_artifacts(artifacts)
+    return event
+
+
+@app.get("/api/v1/events/{event_id}/artifacts")
+def get_event_artifacts(event_id: str):
+    row = DB.conn.execute("select raw_json from events where event_id=?", (event_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="event not found")
+    event = json.loads(row["raw_json"])
+    artifacts = (event.get("artifacts") or []) if isinstance(event.get("artifacts"), list) else []
+    return _enrich_artifacts(artifacts)
 
 
 @app.get("/api/v1/artifacts")
@@ -389,10 +482,13 @@ async def stream_events(honeypot_id: str | None = None, session_id: str | None =
                 """,
                 (since_ts,),
             ).fetchall()
+            event_ids = [str(row["event_id"]) for row in rows if row["event_id"]]
+            mimes_by_event = DB.get_event_artifact_mimes(event_ids)
             for row in reversed(rows):
                 payload = dict(row)
                 payload["tags"] = json.loads(payload.get("tags") or "[]")
-                payload["artifacts_count"] = 0
+                payload["artifacts_count"] = len(mimes_by_event.get(payload["event_id"], []))
+                payload["artifact_badges"] = _artifact_badges_from_mimes(mimes_by_event.get(payload["event_id"], []))
                 if matches(payload):
                     yield f"data: {json.dumps(payload, separators=(',', ':'))}\n\n"
 
