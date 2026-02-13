@@ -1,6 +1,6 @@
 # Runbook: high-interaction honeypot from CVE
 
-High-interaction honeypots run a real service (or realistic vulnerable stack) in containers and attach sensors to capture the full exploitation and post-exploitation workflow.
+High-interaction honeypots run a real service in containers and attach sensors to capture the full exploitation and post-exploitation workflow.
 
 This runbook is written for coding agents and humans adding a new high-interaction honeypot under `honeypot-platform/honeypots/high/`.
 
@@ -113,7 +113,7 @@ When configuring fsmon watch paths, include:
 README must include:
 - Stack description (services, ports, credentials if any)
 - Sensors enabled and what they capture
-- “Harmless test requests” (benign curls)
+- “Simple vulnerability confirmation scripts” (curls)
 - Where to find artifacts (`run/artifacts/<honeypot_id>/...`)
 - How to stop and cleanup
 - Safety/limitations statement
