@@ -9,13 +9,11 @@ export function EventFeed({ events }: { events: EventSummary[] }) {
         {events.map((event) => (
           <ListItem key={event.event_id}>
             <ListItemText
-              primary={`${event.event_name} · ${event.verdict || 'unknown'} · ${event.component}`}
+              primary={`${event.action || event.event_name || '-'} · ${event.verdict || 'unknown'} · ${event.component}`}
               secondary={
                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
                   <span>{`${dayjs(event.ts).format('HH:mm:ss')} · ${event.honeypot_id}/${event.session_id}`}</span>
-                  {(event.http_summary?.method || event.http_summary?.path) && (
-                    <Chip size="small" label={`${event.http_summary?.method || '-'} ${event.http_summary?.path || '-'}`} />
-                  )}
+                  <Tooltip title={event.event_name}><Chip size="small" variant="outlined" label={`event: ${event.event_name}`} /></Tooltip>
                   {event.http_summary?.status_code && <Chip size="small" label={event.http_summary.status_code} />}
                   {event.http_summary?.host && <Chip size="small" variant="outlined" label={event.http_summary.host} />}
                   {event.src_summary?.ip && <Chip size="small" label={`${event.src_summary.ip}:${event.src_summary.port || '-'}`} />}

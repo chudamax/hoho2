@@ -22,6 +22,7 @@
     "session_id": {"type": "string", "minLength": 1},
     "agent_id": {"type": "string", "minLength": 1},
     "event_name": {"type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)+$"},
+    "action": {"type": "string"},
     "component": {"type": "string", "minLength": 1},
     "proto": {"type": "string"},
     "src": {"type": "object"},
