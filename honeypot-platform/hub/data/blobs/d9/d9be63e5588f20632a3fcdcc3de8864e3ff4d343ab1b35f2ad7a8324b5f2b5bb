@@ -1,1 +1,0 @@
-{"update-queryresponsewriter":{"startup":"lazy","name":"velocity","class":"solr.VelocityResponseWriter","params.resource.loader.enabled":"true"}}

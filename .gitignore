@@ -225,4 +225,4 @@ honeypot-platform/.env.*
 !honeypot-platform/.env.example
 honeypot-platform/hub/webui/node_modules/
 honeypot-platform/hub/webui/dist/
-honeypot-platform/hub/data
+honeypot-platform/hub/data/
