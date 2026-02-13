@@ -32,10 +32,19 @@ class HubDB:
               component text,
               verdict text,
               tags text,
+              http_method text,
+              http_path text,
+              http_status_code integer,
+              http_user_agent text,
+              http_host text,
+              src_ip text,
+              src_port integer,
+              src_forwarded_for text,
               raw_json text
             )
             """
         )
+        self._ensure_events_columns()
         self.conn.execute(
             """
             create table if not exists sessions(
@@ -79,17 +88,59 @@ class HubDB:
             """
         )
         self.conn.execute("create index if not exists idx_artifacts_hs_ts on artifacts(honeypot_id, session_id, ts)")
+        self.conn.execute("create index if not exists idx_events_hs_ts on events(honeypot_id, session_id, ts)")
+        self.conn.execute("create index if not exists idx_events_http_path on events(http_path)")
+        self.conn.execute("create index if not exists idx_events_http_status_code on events(http_status_code)")
+        self.conn.execute("create index if not exists idx_events_http_host on events(http_host)")
+        self.conn.execute("create index if not exists idx_events_src_ip on events(src_ip)")
         self.conn.execute("create index if not exists idx_artifacts_sha on artifacts(sha256)")
         self.conn.execute("create index if not exists idx_artifacts_ts on artifacts(ts)")
         self.conn.execute("create index if not exists idx_blob_meta_mime on blob_meta(detected_mime)")
         self.conn.execute("create index if not exists idx_blob_meta_detected_at on blob_meta(detected_at)")
         self.conn.commit()
 
+    def _ensure_events_columns(self):
+        existing = {
+            str(row["name"])
+            for row in self.conn.execute("pragma table_info(events)").fetchall()
+            if row["name"]
+        }
+        desired: list[tuple[str, str]] = [
+            ("http_method", "text"),
+            ("http_path", "text"),
+            ("http_status_code", "integer"),
+            ("http_user_agent", "text"),
+            ("http_host", "text"),
+            ("src_ip", "text"),
+            ("src_port", "integer"),
+            ("src_forwarded_for", "text"),
+        ]
+        for name, col_type in desired:
+            if name in existing:
+                continue
+            self.conn.execute(f"alter table events add column {name} {col_type}")
+
     def insert_event(self, event: dict):
         honeypot_id = event.get("honeypot_id") or event.get("pack_id")
         tags = event.get("classification", {}).get("tags", [])
+        req = event.get("request") or {}
+        src = event.get("src") or {}
+        resp = event.get("response") or {}
+        http = event.get("http") or {}
+        hdrs = req.get("headers_redacted") or {}
+
+        http_method = req.get("method")
+        http_path = req.get("path")
+        http_status_code = resp.get("status_code")
+        http_user_agent = src.get("user_agent") or hdrs.get("User-Agent")
+        http_host = http.get("host") or hdrs.get("Host")
+        src_ip = src.get("ip")
+        src_port = src.get("port")
+        xff = src.get("forwarded_for") or []
+        src_forwarded_for = json.dumps(xff, separators=(",", ":"))
+
         self.conn.execute(
-            "insert or replace into events(event_id,honeypot_id,session_id,ts,event_name,component,verdict,tags,raw_json) values(?,?,?,?,?,?,?,?,?)",
+            "insert or replace into events(event_id,honeypot_id,session_id,ts,event_name,component,verdict,tags,http_method,http_path,http_status_code,http_user_agent,http_host,src_ip,src_port,src_forwarded_for,raw_json) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 event.get("event_id"),
                 honeypot_id,
@@ -99,6 +150,14 @@ class HubDB:
                 event.get("component"),
                 event.get("classification", {}).get("verdict"),
                 json.dumps(tags),
+                http_method,
+                http_path,
+                http_status_code,
+                http_user_agent,
+                http_host,
+                src_ip,
+                src_port,
+                src_forwarded_for,
                 json.dumps(event),
             ),
         )

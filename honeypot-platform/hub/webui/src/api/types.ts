@@ -1,3 +1,19 @@
+export type HttpSummary = {
+  method?: string | null
+  path?: string | null
+  status_code?: number | null
+  host?: string | null
+  user_agent?: string | null
+}
+
+export type SrcSummary = {
+  ip?: string | null
+  port?: number | null
+  forwarded_for_first?: string | null
+  forwarded_for_count?: number
+  forwarded_for?: string[]
+}
+
 export type EventSummary = {
   event_id: string
   ts: string
@@ -9,6 +25,8 @@ export type EventSummary = {
   tags: string[]
   artifacts_count?: number
   artifact_badges?: string[]
+  http_summary?: HttpSummary
+  src_summary?: SrcSummary
 }
 
 export type EventArtifact = {
@@ -23,9 +41,13 @@ export type EventArtifact = {
 }
 
 export type EventDetail = {
-  event_id?: string
-  artifacts?: EventArtifact[]
-  [key: string]: unknown
+  event: {
+    event_id?: string
+    artifacts?: EventArtifact[]
+    [key: string]: unknown
+  }
+  http_summary?: HttpSummary
+  src_summary?: SrcSummary
 }
 
 export type HoneypotSummary = {
@@ -57,4 +79,6 @@ export type Artifact = {
   detected_mime?: string
   detected_desc?: string
   guessed_ext?: string
+  http_summary?: HttpSummary
+  src_summary?: SrcSummary
 }

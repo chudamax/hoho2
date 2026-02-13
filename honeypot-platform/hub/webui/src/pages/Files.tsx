@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogContent, DialogTitle, MenuItem, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Checkbox, Dialog, DialogContent, DialogTitle, FormControlLabel, MenuItem, Stack, TextField, Typography } from '@mui/material'
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
 import type { Artifact } from '../api/types'
@@ -12,6 +12,7 @@ export default function FilesPage() {
   const [sortBy, setSortBy] = useState<'ts' | 'size' | 'detected_mime'>('ts')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [preview, setPreview] = useState<{ artifact: Artifact; body: string } | null>(null)
+  const [httpOnly, setHttpOnly] = useState(false)
 
   const load = () => {
     const p = Object.fromEntries(Object.entries(filters).filter(([, v]) => Boolean(v))) as Record<string, string>
@@ -39,7 +40,7 @@ export default function FilesPage() {
   }
 
   const sortedArtifacts = useMemo(() => {
-    const copied = [...artifacts]
+    const copied = [...artifacts].filter((a) => !httpOnly || Boolean(a.http_summary?.method || a.http_summary?.path))
     copied.sort((a, b) => {
       let left = ''
       let right = ''
@@ -57,7 +58,7 @@ export default function FilesPage() {
       return sortDir === 'asc' ? base : -base
     })
     return copied
-  }, [artifacts, sortBy, sortDir])
+  }, [artifacts, sortBy, sortDir, httpOnly])
 
   return (
     <>
@@ -81,6 +82,7 @@ export default function FilesPage() {
           <MenuItem value="desc">desc</MenuItem>
           <MenuItem value="asc">asc</MenuItem>
         </TextField>
+        <FormControlLabel control={<Checkbox checked={httpOnly} onChange={(e) => setHttpOnly(e.target.checked)} />} label="HTTP only" />
         <Button variant="contained" onClick={load}>Apply</Button>
       </Stack>
       <ArtifactTable artifacts={sortedArtifacts} onPreview={onPreview} />

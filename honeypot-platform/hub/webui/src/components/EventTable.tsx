@@ -1,7 +1,15 @@
-import { Chip, Link, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
+import { Chip, Link, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from '@mui/material'
 import dayjs from 'dayjs'
 import { Link as RouterLink } from 'react-router-dom'
 import type { EventSummary } from '../api/types'
+
+function statusColor(code?: number | null): 'default' | 'success' | 'warning' | 'error' {
+  if (!code) return 'default'
+  if (code < 300) return 'success'
+  if (code < 400) return 'default'
+  if (code < 500) return 'warning'
+  return 'error'
+}
 
 export function EventTable({ events }: { events: EventSummary[] }) {
   return (
@@ -10,6 +18,8 @@ export function EventTable({ events }: { events: EventSummary[] }) {
         <TableRow>
           <TableCell>Timestamp</TableCell>
           <TableCell>Event</TableCell>
+          <TableCell>HTTP</TableCell>
+          <TableCell>Source</TableCell>
           <TableCell>Component</TableCell>
           <TableCell>Verdict</TableCell>
           <TableCell>Tags</TableCell>
@@ -22,6 +32,25 @@ export function EventTable({ events }: { events: EventSummary[] }) {
             <TableCell>{dayjs(event.ts).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
             <TableCell>
               <Link component={RouterLink} to={`/ui/events/${event.event_id}`}>{event.event_name}</Link>
+            </TableCell>
+            <TableCell>
+              {event.http_summary?.method || event.http_summary?.path ? (
+                <>
+                  <Link component={RouterLink} to={`/ui/events/${event.event_id}`} sx={{ fontFamily: 'monospace' }}>
+                    {`${event.http_summary?.method || '-'} ${event.http_summary?.path || '-'}`}
+                  </Link>
+                  {!!event.http_summary?.status_code && <Chip size="small" color={statusColor(event.http_summary.status_code)} label={event.http_summary.status_code} sx={{ ml: 0.5 }} />}
+                  {event.http_summary?.host && <Tooltip title={event.http_summary.host}><span> · {event.http_summary.host}</span></Tooltip>}
+                </>
+              ) : '-'}
+            </TableCell>
+            <TableCell>
+              {event.src_summary?.ip ? `${event.src_summary.ip}:${event.src_summary.port || '-'}` : '-'}
+              {!!event.src_summary?.forwarded_for_count && event.src_summary.forwarded_for_count > 0 && (
+                <Tooltip title={event.src_summary.forwarded_for_first || ''}>
+                  <Chip size="small" sx={{ ml: 0.5 }} label={`XFF: ${event.src_summary.forwarded_for_first} (+${Math.max((event.src_summary.forwarded_for_count || 1) - 1, 0)})`} />
+                </Tooltip>
+              )}
             </TableCell>
             <TableCell>{event.component}</TableCell>
             <TableCell>{event.verdict || '-'}</TableCell>
